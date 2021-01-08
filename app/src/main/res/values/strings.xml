@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Package Tracker</string>
+    <string name="button1">First Button</string>
+    <string name="textview1">TextView</string>
+    <string name="textview2">TextView</string>
+    <string name="button_clickMe">Click me</string>
+    <string name="button_back">Back</string>
+    <string name="textbox_hint">Tracking Number</string>
+    <string name="button_search_text">Search</string>
+</resources>
