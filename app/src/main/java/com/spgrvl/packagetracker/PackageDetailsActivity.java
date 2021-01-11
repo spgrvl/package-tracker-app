@@ -13,7 +13,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 public class PackageDetailsActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
     private String tracking;
-    private TextView detailsTitleTv;
     private ListView trackingDetailsLv;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -23,9 +22,6 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tracking_details);
-
-        // Find TextView by ID
-        this.detailsTitleTv = (TextView)this.findViewById(R.id.detailsTitleTv);
 
         // Find ListView by ID
         this.trackingDetailsLv = findViewById(R.id.trackingDetailsLv);
@@ -39,18 +35,13 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
 
         // Parameter in Intent, sent from MainActivity
         this.tracking = intent.getStringExtra("tracking");
-        this.detailsTitleTv.setText("Tracking package " + tracking);
+        this.setTitle("Tracking package " + tracking);
 
         showDetailsOnListView();
     }
 
     private void showDetailsOnListView() {
-        try {
-            trackingDetailsLv.setAdapter(new CustomDetailsListAdapter(this, databaseHelper.getTrackingDetails(tracking)));
-        }
-        catch (Exception e) {
-            this.detailsTitleTv.setText("CRITICAL ERROR!\n\n" + e.toString());
-        }
+        trackingDetailsLv.setAdapter(new CustomDetailsListAdapter(this, databaseHelper.getTrackingDetails(tracking)));
     }
 
     private void updateDetails() {
