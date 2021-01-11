@@ -1,8 +1,10 @@
 package com.spgrvl.packagetracker;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -59,10 +61,23 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         trackingNumbersLv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
                 TrackingIndexModel clickedTracking = (TrackingIndexModel) parent.getItemAtPosition(position);
-                databaseHelper.deleteTracking(clickedTracking.getTracking());
-                showTrackingOnListView();
-                Toast.makeText(getApplicationContext(), "Deleted " + clickedTracking.getTracking(), Toast.LENGTH_SHORT).show();
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setIcon(android.R.drawable.ic_delete)
+                        .setTitle("Are you sure?")
+                        .setMessage("Do you want to delete this tracking number?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                databaseHelper.deleteTracking(clickedTracking.getTracking());
+                                showTrackingOnListView();
+                                Toast.makeText(getApplicationContext(), "Deleted " + clickedTracking.getTracking(), Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
                 return true;
             }
         });
