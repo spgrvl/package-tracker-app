@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -23,6 +22,9 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tracking_details);
 
+        // Show back button on action bar
+        this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Find ListView by ID
         this.trackingDetailsLv = findViewById(R.id.trackingDetailsLv);
 
@@ -35,7 +37,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
 
         // Parameter in Intent, sent from MainActivity
         this.tracking = intent.getStringExtra("tracking");
-        this.setTitle("Tracking package " + tracking);
+        this.setTitle(tracking);
 
         showDetailsOnListView();
     }
@@ -66,14 +68,19 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.refresh_button) {
-            swipeRefreshLayout.setRefreshing(true);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    updateDetails();
-                }
-            }).start();
+        switch (item.getItemId()) {
+            case R.id.refresh_button:
+                swipeRefreshLayout.setRefreshing(true);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateDetails();
+                    }
+                }).start();
+                return true;
+            case android.R.id.home:
+                finish();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
