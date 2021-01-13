@@ -45,7 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Create table for details of new Tracking number
         try {
-            String createTrackingTable = "CREATE TABLE IF NOT EXISTS " + Tracking + "(" + STATUS_COL + " TEXT, " + PLACE_COL + " TEXT, " + DATETIME_COL + " TEXT)";
+            String createTrackingTable = "CREATE TABLE IF NOT EXISTS \"" + Tracking + "\"(" + STATUS_COL + " TEXT, " + PLACE_COL + " TEXT, " + DATETIME_COL + " TEXT )";
             db.execSQL(createTrackingTable);
 
             // Adds one row to Tracking Index table
@@ -173,7 +173,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // get data from DB
 
         SQLiteDatabase db = this.getReadableDatabase();
-        String queryString = "SELECT * FROM " + tracking;
+        String queryString = "SELECT * FROM \"" + tracking + "\"";
 
         Cursor cursor = db.rawQuery(queryString, null);
 
@@ -200,7 +200,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // get data from DB
 
         SQLiteDatabase db = this.getReadableDatabase();
-        String queryString = "SELECT COUNT(*) FROM " + tracking;
+        String queryString = "SELECT COUNT(*) FROM \"" + tracking + "\"";
 
         Cursor cursor = db.rawQuery(queryString, null);
 
@@ -221,7 +221,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Delete tracking table
-        db.execSQL("DROP TABLE IF EXISTS " + tracking);
+        db.execSQL("DROP TABLE IF EXISTS \"" + tracking + "\"");
 
         // Delete index table entry
         String queryString = "DELETE FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = ?;";
