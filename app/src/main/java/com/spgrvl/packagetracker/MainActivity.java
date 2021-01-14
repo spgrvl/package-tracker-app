@@ -2,6 +2,7 @@ package com.spgrvl.packagetracker;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.DialogInterface;
@@ -17,9 +18,9 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener,
+        AddNewDialog.AddDialogListener, BarcodeSelectionDialog.SingleChoiceListener {
 
-    private FloatingActionButton fab;
     ListView trackingNumbersLv;
     DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setContentView(R.layout.activity_main);
 
         // Find Button by ID
-        this.fab = (FloatingActionButton) this.findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) this.findViewById(R.id.fab);
 
         // Find ListView by ID
         this.trackingNumbersLv = findViewById(R.id.trackingNumbersLv);
@@ -40,10 +41,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeRefreshLayout.setOnRefreshListener(this);
 
         // Called when user clicks fab (floating add button)
-        this.fab.setOnClickListener(new View.OnClickListener() {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fabClicked();
+                openDialog();
             }
         });
 
@@ -65,15 +66,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 TrackingIndexModel clickedTracking = (TrackingIndexModel) parent.getItemAtPosition(position);
 
                 new AlertDialog.Builder(MainActivity.this)
-                        .setIcon(android.R.drawable.ic_delete)
                         .setTitle("Are you sure?")
-                        .setMessage("Do you want to delete this tracking number?")
+                        .setMessage("Do you want to delete this package?")
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 databaseHelper.deleteTracking(clickedTracking.getTracking());
                                 showTrackingOnListView();
-                                Toast.makeText(getApplicationContext(), "Deleted " + clickedTracking.getTracking(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Deleted package " + clickedTracking.getTracking(), Toast.LENGTH_SHORT).show();
                             }
                         })
                         .setNegativeButton("No", null)
@@ -84,24 +84,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         // Populating the ListView from DB
         showTrackingOnListView();
-    }
-
-    private void fabClicked()  {
-        AddDialog.TrackingNumberListener listener = new AddDialog.TrackingNumberListener() {
-            @Override
-            public void TrackingNumberEntered (String trackingNumber) {
-
-                // Add to database (table + index)
-                addTrackingDb(trackingNumber);
-
-                // Update the ListView adapter
-                showTrackingOnListView();
-
-            }
-        };
-        final AddDialog dialog = new AddDialog(this, listener);
-
-        dialog.show();
     }
 
     private void openTrackingDetails(String trackingNumber) {
@@ -179,5 +161,55 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void onResume(){
         super.onResume();
         showTrackingOnListView();
+    }
+
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        // listen for incoming messages
+        Bundle incomingMessages = intent.getExtras();
+
+        if (incomingMessages != null) {
+
+            // capture incoming data
+            String[] barcodesArray = incomingMessages.getStringArray("barcodesArray");
+
+            // show data in choice dialog
+            openChoiceDialog(barcodesArray);
+        }
+    }
+
+    @Override
+    public void submitTracking(String trackingNumber) {
+
+        if (trackingNumber == null || trackingNumber.isEmpty())  {
+            Toast.makeText(this, R.string.toast_empty_tracking, Toast.LENGTH_LONG).show();
+        } else {
+
+            // Add to database (table + index)
+            addTrackingDb(trackingNumber);
+
+            // Update the ListView adapter
+            showTrackingOnListView();
+        }
+    }
+
+    public void openDialog() {
+        AddNewDialog addDialog = new AddNewDialog(null);
+        addDialog.show(getSupportFragmentManager(), "New Tracking Dialog");
+    }
+
+    public void openChoiceDialog(String[] barcodes) {
+        DialogFragment singleChoiceDialog = BarcodeSelectionDialog.newInstance(barcodes);
+        singleChoiceDialog.show(getSupportFragmentManager(), "Barcode Choice Dialog");
+    }
+
+    @Override
+    public void onPositiveButtonClicked(String[] list, int position) {
+        submitTracking(list[position]);
+    }
+
+    @Override
+    public void onNegativeButtonClicked() {
     }
 }

@@ -7,4 +7,8 @@
     <string name="button_back">Back</string>
     <string name="textbox_hint">Tracking Number</string>
     <string name="button_search_text">Search</string>
+    <string name="camera_hint">Point the camera at a Barcode</string>
+    <string name="camera_permission_denied">In order to scan barcode, app needs camera permission.\nPlease visit app settings in your device to enable it again</string>
+    <string name="toast_empty_tracking">Please enter a tracking number</string>
+    <string name="add_new_hint">Tracking Number</string>
 </resources>
