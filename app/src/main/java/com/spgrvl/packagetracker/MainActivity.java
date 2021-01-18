@@ -102,8 +102,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         trackingNumbersLv.setAdapter(new CustomIndexListAdapter(this, databaseHelper.getAllTracking()));
     }
 
-    public void addTrackingDb(String trackingNumber) {
-        boolean insertData = databaseHelper.addNewTracking(trackingNumber); //TEMP VALUES
+    public void addTrackingDb(String trackingNumber, String customName) {
+        boolean insertData = databaseHelper.addNewTracking(trackingNumber, customName);
 
         if (insertData) {
             Toast.makeText(MainActivity.this, "Successfully added!", Toast.LENGTH_LONG).show();
@@ -180,14 +180,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     @Override
-    public void submitTracking(String trackingNumber) {
+    public void submitTracking(String trackingNumber, String customName) {
 
         if (trackingNumber == null || trackingNumber.isEmpty())  {
             Toast.makeText(this, R.string.toast_empty_tracking, Toast.LENGTH_LONG).show();
         } else {
 
             // Add to database (table + index)
-            addTrackingDb(trackingNumber);
+            addTrackingDb(trackingNumber, customName);
 
             // Update the ListView adapter
             showTrackingOnListView();
@@ -206,7 +206,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onPositiveButtonClicked(String[] list, int position) {
-        submitTracking(list[position]);
+        // Open dialog with the tracking number pre-filled with barcode
+        AddNewDialog addDialog = new AddNewDialog(list[position]);
+        addDialog.show(getSupportFragmentManager(), "New Tracking Dialog");
     }
 
     @Override

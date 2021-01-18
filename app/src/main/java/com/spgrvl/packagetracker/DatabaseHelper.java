@@ -21,6 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TRACKING_COL = "Tracking";
     public static final String UPDATED_COL = "Updated";
     public static final String LAST_UPDATE_COL = "LastUpdate";
+    public static final String CUSTOM_NAME_COL = "CustomName";
     public static final String STATUS_COL = "Status";
     public static final String PLACE_COL = "Place";
     public static final String DATETIME_COL = "Datetime";
@@ -31,7 +32,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT)";
+        String createTable = "CREATE TABLE " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT)";
         db.execSQL(createTable);
     }
 
@@ -40,7 +41,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + INDEX_TABLE);
     }
 
-    public boolean addNewTracking(String Tracking) {
+    public boolean addNewTracking(String Tracking, String CustomName) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Create table for details of new Tracking number
@@ -53,6 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(TRACKING_COL, Tracking);
             contentValues.put(UPDATED_COL, "Never");
             contentValues.put(LAST_UPDATE_COL, "Status: None");
+            contentValues.put(CUSTOM_NAME_COL, CustomName);
             long result = db.insert(INDEX_TABLE, null, contentValues);
 
             db.close();
@@ -125,8 +127,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String tracking = cursor.getString(0);
                 String updated = cursor.getString(1);
                 String lastUpdate = cursor.getString(2);
+                String customName = cursor.getString(3);
 
-                TrackingIndexModel newTracking = new TrackingIndexModel(tracking, updated, lastUpdate);
+                TrackingIndexModel newTracking = new TrackingIndexModel(tracking, updated, lastUpdate, customName);
                 returnList.add(newTracking);
 
             } while (cursor.moveToNext());

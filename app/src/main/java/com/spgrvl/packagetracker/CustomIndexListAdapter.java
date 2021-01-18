@@ -49,14 +49,18 @@ public class CustomIndexListAdapter extends BaseAdapter {
         }
 
         TrackingIndexModel tracking = this.listData.get(position);
-        holder.tracking.setText(tracking.getTracking());
+        String customName = tracking.getCustomName();
+        if (customName != null){
+            holder.tracking.setText(customName + " - " + tracking.getTracking());
+        } else {
+            holder.tracking.setText(tracking.getTracking());
+        }
+
         if (tracking.getUpdated().equals("Never")){
             holder.updated.setText(tracking.getUpdated());
-        }
-        else if (DateUtils.getRelativeTimeSpanString(Long.parseLong(tracking.getUpdated())).equals("0 minutes ago")) {
+        } else if (DateUtils.getRelativeTimeSpanString(Long.parseLong(tracking.getUpdated())).equals("0 minutes ago")) {
             holder.updated.setText("Less than a minute ago");
-        }
-        else {
+        } else {
             holder.updated.setText(DateUtils.getRelativeTimeSpanString(Long.parseLong(tracking.getUpdated())));
         }
         holder.lastUpdate.setText(tracking.getLastUpdate());

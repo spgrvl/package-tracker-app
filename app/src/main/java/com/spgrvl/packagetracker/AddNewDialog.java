@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 public class AddNewDialog extends AppCompatDialogFragment {
     private final String barcode;
     private EditText editTextTracking;
+    private EditText editTextCustomName;
     private AddDialogListener listener;
 
     public AddNewDialog(String barcode) {
@@ -47,10 +48,15 @@ public class AddNewDialog extends AppCompatDialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String tracking = editTextTracking.getText().toString();
-                        listener.submitTracking(tracking);
+                        String customName = editTextCustomName.getText().toString();
+                        if (customName.isEmpty()) {
+                            customName = null;
+                        }
+                        listener.submitTracking(tracking, customName);
                     }
                 });
         editTextTracking = view.findViewById(R.id.editText_tracking);
+        editTextCustomName = view.findViewById(R.id.editText_customName);
         if (barcode != null){
             editTextTracking.setText(barcode);
         }
@@ -64,6 +70,6 @@ public class AddNewDialog extends AppCompatDialogFragment {
     }
 
     public interface AddDialogListener {
-        void submitTracking(String tracking);
+        void submitTracking(String tracking, String customName);
     }
 }
