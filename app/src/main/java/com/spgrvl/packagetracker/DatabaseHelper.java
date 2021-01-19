@@ -16,6 +16,8 @@ import static java.lang.Integer.parseInt;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
+    public static final int VERSION = 2;
+
     public static final String DATABASE_NAME = "tracking.db";
     public static final String INDEX_TABLE = "Tracking_Index";
     public static final String TRACKING_COL = "Tracking";
@@ -27,18 +29,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATETIME_COL = "Datetime";
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME,null, 1);
+        super(context, DATABASE_NAME,null, VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT)";
+        String createTable = "CREATE TABLE IF NOT EXISTS " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT)";
         db.execSQL(createTable);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + INDEX_TABLE);
+        if (newVersion > oldVersion) {
+            db.execSQL("ALTER TABLE " + INDEX_TABLE + " ADD COLUMN " + CUSTOM_NAME_COL + " TEXT");
+        }
+        onCreate(db);
     }
 
     public boolean addNewTracking(String Tracking, String CustomName) {
