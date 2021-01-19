@@ -12,4 +12,5 @@
     <string name="toast_empty_tracking">Please enter a tracking number</string>
     <string name="new_tracking_hint">Tracking Number</string>
     <string name="new_name_hint">Package Name (optional)</string>
+    <string name="toast_tracking_exists">This tracking number already exists!</string>
 </resources>

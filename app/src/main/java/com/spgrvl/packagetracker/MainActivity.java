@@ -17,6 +17,8 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener,
         AddNewDialog.AddDialogListener, BarcodeSelectionDialog.SingleChoiceListener {
@@ -181,11 +183,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void submitTracking(String trackingNumber, String customName) {
+        ArrayList<String> tracking_numbers = databaseHelper.getTrackingNumbers();
 
-        if (trackingNumber == null || trackingNumber.isEmpty())  {
+        if (trackingNumber.isEmpty())  {
             Toast.makeText(this, R.string.toast_empty_tracking, Toast.LENGTH_LONG).show();
+        } else if (tracking_numbers.contains(trackingNumber)) {
+            Toast.makeText(this, R.string.toast_tracking_exists, Toast.LENGTH_LONG).show();
         } else {
-
             // Add to database (table + index)
             addTrackingDb(trackingNumber, customName);
 
