@@ -5,6 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,14 +29,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     ListView trackingNumbersLv;
     DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
     private SwipeRefreshLayout swipeRefreshLayout;
+    private static final int UPD_JOB_ID = 38925;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        // Schedule background updating
+        scheduleJob();
 
         // Find Button by ID
-        FloatingActionButton fab = (FloatingActionButton) this.findViewById(R.id.fab);
+        FloatingActionButton fab = this.findViewById(R.id.fab);
 
         // Find ListView by ID
         this.trackingNumbersLv = findViewById(R.id.trackingNumbersLv);
@@ -88,15 +95,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         showTrackingOnListView();
     }
 
+    private void scheduleJob() {
+        ComponentName componentName = new ComponentName(this, UpdateJobService.class);
+        JobInfo info = new JobInfo.Builder(UPD_JOB_ID, componentName)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // only when there is internet connection
+                .setPersisted(true) // survive reboots
+                .setPeriodic(15 * 60 * 1000) // interval - 15 minutes
+                .build();
+
+        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+        scheduler.schedule(info);
+    }
+
     private void openTrackingDetails(String trackingNumber) {
-        // Create a Intent
-        // This object contains content that will be sent to PackageDetailsActivity
         Intent myIntent = new Intent(MainActivity.this, PackageDetailsActivity.class);
-
-        // Put parameters
         myIntent.putExtra("tracking", trackingNumber);
-
-        // Start CheckPackageActivity
         MainActivity.this.startActivity(myIntent);
     }
 
