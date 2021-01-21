@@ -1,6 +1,7 @@
 package com.spgrvl.packagetracker;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,10 +15,12 @@ public class CustomIndexListAdapter extends BaseAdapter {
 
     private List<TrackingIndexModel> listData;
     private LayoutInflater layoutInflater;
+    private Context context;
 
-    public CustomIndexListAdapter(Context aContext, List<TrackingIndexModel> listData) {
+    public CustomIndexListAdapter(Context context, List<TrackingIndexModel> listData) {
         this.listData = listData;
-        layoutInflater = LayoutInflater.from(aContext);
+        this.context = context;
+        layoutInflater = LayoutInflater.from(context);
     }
 
     @Override
@@ -64,6 +67,15 @@ public class CustomIndexListAdapter extends BaseAdapter {
             holder.updated.setText(DateUtils.getRelativeTimeSpanString(Long.parseLong(tracking.getUpdated())));
         }
         holder.lastUpdate.setText(tracking.getLastUpdate());
+
+        // Set unread effect
+        DatabaseHelper databaseHelper = new DatabaseHelper(context);
+        boolean isUnread = databaseHelper.getUnreadStatus(tracking.getTracking());
+        if (isUnread) {
+            holder.tracking.setTypeface(Typeface.DEFAULT_BOLD);
+            holder.updated.setTypeface(Typeface.DEFAULT_BOLD);
+            holder.lastUpdate.setTypeface(Typeface.DEFAULT_BOLD);
+        }
 
         return convertView;
     }

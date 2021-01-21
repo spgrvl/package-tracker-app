@@ -111,6 +111,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         Intent myIntent = new Intent(MainActivity.this, PackageDetailsActivity.class);
         myIntent.putExtra("tracking", trackingNumber);
         MainActivity.this.startActivity(myIntent);
+
+        // Mark item as read - doing it in new thread to avoid UI slow down
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                databaseHelper.setUnreadStatus(trackingNumber, false);
+            }
+        }).start();
     }
 
     private void showTrackingOnListView() {

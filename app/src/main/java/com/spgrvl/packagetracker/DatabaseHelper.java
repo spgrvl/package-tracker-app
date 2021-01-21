@@ -16,7 +16,7 @@ import static java.lang.Integer.parseInt;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int VERSION = 2;
+    public static final int VERSION = 3;
 
     public static final String DATABASE_NAME = "tracking.db";
     public static final String INDEX_TABLE = "Tracking_Index";
@@ -24,6 +24,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String UPDATED_COL = "Updated";
     public static final String LAST_UPDATE_COL = "LastUpdate";
     public static final String CUSTOM_NAME_COL = "CustomName";
+    public static final String UNREAD_COL = "Unread";
     public static final String STATUS_COL = "Status";
     public static final String PLACE_COL = "Place";
     public static final String DATETIME_COL = "Datetime";
@@ -34,16 +35,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE IF NOT EXISTS " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT)";
+        String createTable = "CREATE TABLE IF NOT EXISTS " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT, " + UNREAD_COL + " BOOLEAN NOT NULL CHECK ( " + UNREAD_COL + " IN (0,1)))";
         db.execSQL(createTable);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (newVersion > oldVersion) {
+        // grab cursor for all data
+        String queryString = "SELECT * FROM " + INDEX_TABLE;
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        // check if CUSTOM_NAME_COL exists and if not add it
+        int customNameColumnIndex = cursor.getColumnIndex(CUSTOM_NAME_COL);
+        if (customNameColumnIndex < 0) {
             db.execSQL("ALTER TABLE " + INDEX_TABLE + " ADD COLUMN " + CUSTOM_NAME_COL + " TEXT");
         }
-        onCreate(db);
+
+        // check if UNREAD_COL exists and if not add it
+        int unreadColumnIndex = cursor.getColumnIndex(UNREAD_COL);
+        if (unreadColumnIndex < 0) {
+            db.execSQL("ALTER TABLE " + INDEX_TABLE + " ADD COLUMN " + UNREAD_COL + " BOOLEAN NOT NULL DEFAULT 0 CHECK ( " + UNREAD_COL + " IN (0,1))");
+        }
+
+        // close cursor when done.
+        cursor.close();
     }
 
     public boolean addNewTracking(String Tracking, String CustomName) {
@@ -51,7 +66,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Create table for details of new Tracking number
         try {
-            String createTrackingTable = "CREATE TABLE IF NOT EXISTS \"" + Tracking + "\"(" + STATUS_COL + " TEXT, " + PLACE_COL + " TEXT, " + DATETIME_COL + " TEXT )";
+            String createTrackingTable = "CREATE TABLE IF NOT EXISTS '" + Tracking + "'(" + STATUS_COL + " TEXT, " + PLACE_COL + " TEXT, " + DATETIME_COL + " TEXT )";
             db.execSQL(createTrackingTable);
 
             // Adds one row to Tracking Index table
@@ -60,6 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(UPDATED_COL, "Never");
             contentValues.put(LAST_UPDATE_COL, "Status: None");
             contentValues.put(CUSTOM_NAME_COL, CustomName);
+            contentValues.put(UNREAD_COL, false);
             long result = db.insert(INDEX_TABLE, null, contentValues);
 
             db.close();
@@ -109,6 +125,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(UPDATED_COL, updated);
         if (lastUpdate != null) {
             contentValues.put(LAST_UPDATE_COL, lastUpdate);
+            contentValues.put(UNREAD_COL, true);
         }
 
         db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[] {tracking});
@@ -181,7 +198,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // get data from DB
 
         SQLiteDatabase db = this.getReadableDatabase();
-        String queryString = "SELECT * FROM \"" + tracking + "\"";
+        String queryString = "SELECT * FROM '" + tracking + "'";
 
         Cursor cursor = db.rawQuery(queryString, null);
 
@@ -208,7 +225,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // get data from DB
 
         SQLiteDatabase db = this.getReadableDatabase();
-        String queryString = "SELECT COUNT(*) FROM \"" + tracking + "\"";
+        String queryString = "SELECT COUNT(*) FROM '" + tracking + "'";
 
         Cursor cursor = db.rawQuery(queryString, null);
 
@@ -224,23 +241,51 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public boolean deleteTracking(String tracking) {
-        // Delete Tracking table and Index table entry. Return true if done, else false
-        SQLiteDatabase db = this.getWritableDatabase();
+    public boolean getUnreadStatus(String tracking) {
+        // get data from DB
 
-        // Delete tracking table
-        db.execSQL("DROP TABLE IF EXISTS \"" + tracking + "\"");
+        SQLiteDatabase db = this.getReadableDatabase();
+        String queryString = "SELECT " + UNREAD_COL + " FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = '" + tracking + "'";
 
-        // Delete index table entry
-        String queryString = "DELETE FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = ?;";
-        Cursor cursor = db.rawQuery(queryString, new String[] {tracking});
+        Cursor cursor = db.rawQuery(queryString, null);
 
-        Boolean isDone = cursor.moveToFirst();
+        int isUnread = -1;
+        if (cursor.moveToFirst()) {
+            isUnread = parseInt(cursor.getString(0));
+        }
 
         // close cursor and db when done.
         cursor.close();
         db.close();
 
-        return isDone;
+        if (isUnread == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void setUnreadStatus(String tracking, Boolean isUnread) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(UNREAD_COL, isUnread);
+
+        db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[] {tracking});
+
+        db.close();
+    }
+
+    public void deleteTracking(String tracking) {
+        // Delete Tracking table and Index table entry. Return true if done, else false
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Delete tracking table
+        db.execSQL("DROP TABLE IF EXISTS '" + tracking + "'");
+
+        db.execSQL("DELETE FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = '" + tracking + "'");
+
+        // close db when done.
+        db.close();
     }
 }
