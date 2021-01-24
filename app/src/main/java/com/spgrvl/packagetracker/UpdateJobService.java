@@ -16,7 +16,7 @@ public class UpdateJobService extends JobService {
         if (jobCancelled) {
             return;
         }
-        UpdateTrackingDetails upd = new UpdateTrackingDetails(null, this);
+        UpdateTrackingDetails upd = new UpdateTrackingDetails(null, this, false);
         upd.updateAll();
         jobFinished(params, false);
     }

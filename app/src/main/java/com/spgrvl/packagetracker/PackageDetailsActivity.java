@@ -9,6 +9,8 @@ import android.widget.ListView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import java.util.Objects;
+
 public class PackageDetailsActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
     private String tracking;
@@ -23,7 +25,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         setContentView(R.layout.activity_tracking_details);
 
         // Show back button on action bar
-        this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(this.getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         // Find ListView by ID
         this.trackingDetailsLv = findViewById(R.id.trackingDetailsLv);
@@ -40,6 +42,9 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         this.setTitle(tracking);
 
         showDetailsOnListView();
+
+        // Mark item as read in index table
+        databaseHelper.setUnreadStatus(tracking, false);
     }
 
     private void showDetailsOnListView() {
@@ -47,7 +52,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     }
 
     private void updateDetails() {
-        UpdateTrackingDetails upd = new UpdateTrackingDetails(tracking, PackageDetailsActivity.this);
+        UpdateTrackingDetails upd = new UpdateTrackingDetails(tracking, PackageDetailsActivity.this, true);
         boolean a = upd.getWebsite();
         if (a) {
             runOnUiThread(new Runnable() {

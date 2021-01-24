@@ -1,7 +1,13 @@
 package com.spgrvl.packagetracker;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -10,14 +16,22 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static com.spgrvl.packagetracker.App.CHANNEL_PKG_ID;
+
 public class UpdateTrackingDetails {
+    private final Boolean isOnForeground;
+    private boolean updatingAll;
+    private final NotificationManagerCompat notificationManager;
 
     private final Context context;
     private String tracking;
 
-    public UpdateTrackingDetails(String tracking, Context context) {
+    public UpdateTrackingDetails(String tracking, Context context, Boolean isOnForeground) {
         this.tracking = tracking;
         this.context = context;
+        this.updatingAll = false;
+        this.isOnForeground = isOnForeground;
+        notificationManager = NotificationManagerCompat.from(context);
     }
 
     protected boolean getWebsite() {
@@ -52,16 +66,34 @@ public class UpdateTrackingDetails {
                     if (carrier_count > db_count) {
                         // updating Details table in DB
                         databaseHelper.updateTrackingDetails(tracking, detailsList);
+
                         // updating latest status and current datetime in Index table in DB
-                        databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), status.get(0).text());
-                        // TODO make entry bold-unread
+                        // mark as unread only if updating all packages and not individually
+                        databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), status.get(0).text(), updatingAll);
+
+                        // show notification only if updating all packages in background
+                        if (updatingAll && !isOnForeground) {
+                            String notificationTitle;
+                            ArrayList<String> indexEntry = databaseHelper.getIndexEntry(tracking);
+                            String customName = indexEntry.get(4);
+                            if (customName != null){
+                                notificationTitle = customName + " - " + tracking;
+                            } else {
+                                notificationTitle = tracking;
+                            }
+
+                            // use unique RowID in order to send individual notifications for each package and be able to follow up later
+                            int rowId = Integer.parseInt(indexEntry.get(0));
+
+                            sendPackageUpdateNotification(notificationTitle, status.get(0).text(), rowId, tracking);
+                        }
                     }
                     else if (carrier_count < db_count) {
                         Log.e("UpdateTrackingDetails", "Carrier is reporting less updates (" + carrier_count + ") than already stored in DB (" + db_count + ")");
                     }
                     else {
                         // updating current datetime in Index table in DB
-                        databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), null);
+                        databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), null, false);
                     }
 
                 } catch (IOException e) {
@@ -80,6 +112,7 @@ public class UpdateTrackingDetails {
     }
 
     protected boolean updateAll() {
+        this.updatingAll = true;
         try {
         DatabaseHelper databaseHelper = new DatabaseHelper(context);
         ArrayList<String> tracking_numbers = databaseHelper.getTrackingNumbers();
@@ -92,5 +125,24 @@ public class UpdateTrackingDetails {
             return false;
         }
         return true;
+    }
+
+    protected void sendPackageUpdateNotification(String title, String message, int packageId, String tracking) {
+        // action that occurs when notification is clicked
+        Intent activityIntent = new Intent(context, PackageDetailsActivity.class);
+        activityIntent.putExtra("tracking", tracking);
+        PendingIntent contentIntent = PendingIntent.getActivity(context, packageId, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // notification builder
+        Notification notification = new NotificationCompat.Builder(context, CHANNEL_PKG_ID)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                .build();
+
+        notificationManager.notify(packageId, notification);
     }
 }

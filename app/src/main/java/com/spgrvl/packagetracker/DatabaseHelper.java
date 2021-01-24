@@ -80,12 +80,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             db.close();
 
-            if(result == -1) {
-                return false;
-            }
-            else {
-                return true;
-            }
+            return result != -1;
         }
         catch(SQLException e) {
             Log.e("SQLException", e.toString());
@@ -116,7 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void updateTrackingIndex(String tracking, String updated, String lastUpdate) {
+    public void updateTrackingIndex(String tracking, String updated, String lastUpdate, Boolean isUnread) {
         // Update index table entry
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -125,6 +120,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(UPDATED_COL, updated);
         if (lastUpdate != null) {
             contentValues.put(LAST_UPDATE_COL, lastUpdate);
+        }
+        if (isUnread) {
             contentValues.put(UNREAD_COL, true);
         }
 
@@ -156,9 +153,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             } while (cursor.moveToNext());
         }
-        else {
-            // failure. do not add anything to the list.
-        }
 
         // close cursor and db when done.
         cursor.close();
@@ -182,14 +176,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 tracking_numbers.add(tracking);
             } while (cursor.moveToNext());
         }
-        else {
-            // failure. do not add anything to the list.
-        }
 
         // close cursor and db when done.
         cursor.close();
         db.close();
         return tracking_numbers;
+    }
+
+    public ArrayList<String> getIndexEntry(String tracking) {
+        // get a single entry including RowID from index table
+
+        ArrayList<String> indexEntry = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String queryString = "SELECT rowid, * FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = '" + tracking + "'";
+
+        Cursor cursor = db.rawQuery(queryString, null);
+        cursor.moveToFirst();
+        indexEntry.add(cursor.getString(0)); // RowID
+        indexEntry.add(cursor.getString(1)); // TrackingNumber
+        indexEntry.add(cursor.getString(2)); // Updated
+        indexEntry.add(cursor.getString(3)); // LastUpdate
+        indexEntry.add(cursor.getString(4)); // CustomName
+        indexEntry.add(cursor.getString(5)); // Unread
+
+        // close cursor and db when done.
+        cursor.close();
+        db.close();
+
+        return indexEntry;
     }
 
     public List<TrackingDetailsModel> getTrackingDetails(String tracking) {
@@ -258,11 +273,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
 
-        if (isUnread == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        return isUnread == 1;
     }
 
     public void setUnreadStatus(String tracking, Boolean isUnread) {

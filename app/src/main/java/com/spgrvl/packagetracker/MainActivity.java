@@ -5,9 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,15 +26,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     ListView trackingNumbersLv;
     DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
     private SwipeRefreshLayout swipeRefreshLayout;
-    private static final int UPD_JOB_ID = 38925;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-        // Schedule background updating
-        scheduleJob();
 
         // Find Button by ID
         FloatingActionButton fab = this.findViewById(R.id.fab);
@@ -95,30 +88,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         showTrackingOnListView();
     }
 
-    private void scheduleJob() {
-        ComponentName componentName = new ComponentName(this, UpdateJobService.class);
-        JobInfo info = new JobInfo.Builder(UPD_JOB_ID, componentName)
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // only when there is internet connection
-                .setPersisted(true) // survive reboots
-                .setPeriodic(15 * 60 * 1000) // interval - 15 minutes
-                .build();
-
-        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-        scheduler.schedule(info);
-    }
-
     private void openTrackingDetails(String trackingNumber) {
         Intent myIntent = new Intent(MainActivity.this, PackageDetailsActivity.class);
         myIntent.putExtra("tracking", trackingNumber);
         MainActivity.this.startActivity(myIntent);
-
-        // Mark item as read - doing it in new thread to avoid UI slow down
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                databaseHelper.setUnreadStatus(trackingNumber, false);
-            }
-        }).start();
     }
 
     private void showTrackingOnListView() {
@@ -137,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void updateIndex() {
-        UpdateTrackingDetails upd = new UpdateTrackingDetails(null, MainActivity.this);
+        UpdateTrackingDetails upd = new UpdateTrackingDetails(null, MainActivity.this, true);
         boolean a = upd.updateAll();
         if (a) {
             runOnUiThread(new Runnable() {
