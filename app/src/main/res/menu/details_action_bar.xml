@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="@string/refresh"
+        android:id="@+id/refresh_button"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/refresh"/>
+
+    <item android:title="@string/edit"
+        android:id="@+id/edit_button"
+        app:showAsAction="collapseActionView"
+        android:icon="@drawable/edit"/>
+
+    <item android:title="@string/delete"
+        android:id="@+id/delete_button"
+        app:showAsAction="collapseActionView"
+        android:icon="@drawable/delete"/>
+</menu>

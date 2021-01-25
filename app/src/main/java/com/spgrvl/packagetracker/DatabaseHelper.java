@@ -207,6 +207,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return indexEntry;
     }
 
+    public boolean editTracking(String tracking, String newTracking, String customName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        try {
+            ContentValues contentValues = new ContentValues();
+            if (!tracking.equals(newTracking)) {
+                db.execSQL("ALTER TABLE '" + tracking + "' RENAME TO '" + newTracking + "'");
+                contentValues.put(TRACKING_COL, newTracking);
+            }
+            contentValues.put(CUSTOM_NAME_COL, customName);
+            db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[]{tracking});
+            return true;
+        }
+        catch(SQLException e) {
+            Log.e("SQLException", e.toString());
+            db.close();
+            return false;
+        }
+    }
+
     public List<TrackingDetailsModel> getTrackingDetails(String tracking) {
         List<TrackingDetailsModel> returnDetailsList = new ArrayList<>();
 

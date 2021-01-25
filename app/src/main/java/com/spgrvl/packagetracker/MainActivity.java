@@ -68,17 +68,17 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 TrackingIndexModel clickedTracking = (TrackingIndexModel) parent.getItemAtPosition(position);
 
                 new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Are you sure?")
-                        .setMessage("Do you want to delete this package?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        .setTitle(R.string.sure_confirmation)
+                        .setMessage(R.string.delete_confirmation)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 databaseHelper.deleteTracking(clickedTracking.getTracking());
                                 showTrackingOnListView();
-                                Toast.makeText(getApplicationContext(), "Deleted package " + clickedTracking.getTracking(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), getString(R.string.package_deleted_partial) + " " + clickedTracking.getTracking(), Toast.LENGTH_SHORT).show();
                             }
                         })
-                        .setNegativeButton("No", null)
+                        .setNegativeButton(R.string.no, null)
                         .show();
                 return true;
             }
@@ -102,10 +102,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         boolean insertData = databaseHelper.addNewTracking(trackingNumber, customName);
 
         if (insertData) {
-            Toast.makeText(MainActivity.this, "Successfully added!", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, R.string.added_successfully, Toast.LENGTH_LONG).show();
         }
         else {
-            Toast.makeText(MainActivity.this, "Something went wrong!", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, R.string.something_went_wrong, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.action_bar, menu);
+        getMenuInflater().inflate(R.menu.index_action_bar, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -178,6 +178,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void submitTracking(String trackingNumber, String customName) {
         ArrayList<String> tracking_numbers = databaseHelper.getTrackingNumbers();
+
+        // remove spaces from start and end of input
+        trackingNumber = trackingNumber.trim();
+        if (customName != null) {
+            customName = customName.trim();
+        }
 
         if (trackingNumber.isEmpty())  {
             Toast.makeText(this, R.string.toast_empty_tracking, Toast.LENGTH_LONG).show();

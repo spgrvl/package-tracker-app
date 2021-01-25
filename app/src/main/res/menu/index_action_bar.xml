@@ -2,7 +2,7 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Refresh"
+    <item android:title="@string/refresh"
         android:id="@+id/refresh_button"
         app:showAsAction="ifRoom"
         android:icon="@drawable/refresh"/>

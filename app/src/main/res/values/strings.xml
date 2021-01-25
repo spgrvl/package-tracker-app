@@ -1,16 +1,23 @@
 <resources>
     <string name="app_name">Greek Package Tracker</string>
-    <string name="button1">First Button</string>
-    <string name="textview1">TextView</string>
-    <string name="textview2">TextView</string>
-    <string name="button_clickMe">Click me</string>
-    <string name="button_back">Back</string>
-    <string name="textbox_hint">Tracking Number</string>
-    <string name="button_search_text">Search</string>
     <string name="camera_hint">Point the camera at a Barcode</string>
     <string name="camera_permission_denied">In order to scan barcode, app needs camera permission.\nPlease visit app settings in your device to enable it again</string>
     <string name="toast_empty_tracking">Please enter a tracking number</string>
     <string name="new_tracking_hint">Tracking Number</string>
     <string name="new_name_hint">Package Name (optional)</string>
     <string name="toast_tracking_exists">This tracking number already exists!</string>
+    <string name="sure_confirmation">Are you sure?</string>
+    <string name="delete_confirmation">Do you want to delete this package?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="package_deleted_partial">Deleted package</string>
+    <string name="added_successfully">Added successfully!</string>
+    <string name="something_went_wrong">Something went wrong!</string>
+    <string name="edited_successfully">Edited successfully!</string>
+    <string name="edit_package">Edit package</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="refresh">Refresh</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
 </resources>
