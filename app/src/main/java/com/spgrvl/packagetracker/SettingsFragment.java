@@ -20,10 +20,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String PREF_NOTIF = "pref_notif";
     public static final String PREF_NOTIF_INTERVAL = "pref_notif_interval";
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
+    private Menu menu;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setHasOptionsMenu(false);
+        setHasOptionsMenu(true);
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
         preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -31,7 +32,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 if (key.equals(PREF_NOTIF) || key.equals(PREF_NOTIF_INTERVAL)) {
                     Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_SHORT).show();
-                    setHasOptionsMenu(true);
+                    menu.findItem(R.id.restart_button).setVisible(true);
                 }
                 if (key.equals(PREF_NOTIF_INTERVAL)) {
                     Preference notifIntervalPref = findPreference(key);
@@ -62,13 +63,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        this.menu = menu;
         inflater.inflate(R.menu.settings_action_bar, menu);
+        menu.findItem(R.id.restart_button).setVisible(false);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.restart_button) {
             triggerRebirth(getContext());
+        } else if (item.getItemId() == android.R.id.home) {
+            getActivity().finish();
         }
         return super.onOptionsItemSelected(item);
     }

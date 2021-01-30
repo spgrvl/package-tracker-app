@@ -117,10 +117,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 @Override
                 public void run() {
                     showTrackingOnListView();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             });
         }
-        swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override

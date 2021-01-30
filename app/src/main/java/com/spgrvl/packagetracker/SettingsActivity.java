@@ -15,6 +15,8 @@ public class SettingsActivity extends AppCompatActivity {
                 .replace(android.R.id.content, new SettingsFragment())
                 .commit();
 
+        this.setTitle(getString(R.string.settings));
+
         // Show back button on action bar
         Objects.requireNonNull(this.getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
     }

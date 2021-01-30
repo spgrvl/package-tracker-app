@@ -24,7 +24,6 @@
     <string name="notif_pref">Notifications</string>
     <string name="notif_pref_summary">Receive notifications about new updates in your packages.</string>
     <string name="notif_interval_pref">Notifications interval</string>
-    <string name="notif_interval_pref_default">15 minutes</string>
     <string name="notif_interval_pref_summary">15 minutes</string>
     <string name="restart">Restart</string>
     <string name="changes_restart_toast">Changes will apply after app restart</string>

@@ -62,10 +62,10 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                 @Override
                 public void run() {
                     showDetailsOnListView();
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             });
         }
-        swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -85,16 +85,12 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                     updateDetails();
                 }
             }).start();
-            return true;
         } else if (itemId == android.R.id.home) {
             finish();
-            return true;
         } else if (itemId == R.id.edit_button) {
             openDialog();
-            return true;
         } else if (itemId == R.id.delete_button) {
             deleteTracking();
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }
