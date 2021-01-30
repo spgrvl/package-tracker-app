@@ -4,10 +4,12 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.preference.PreferenceManager;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,11 +22,12 @@ import static com.spgrvl.packagetracker.App.CHANNEL_PKG_ID;
 
 public class UpdateTrackingDetails {
     private final Boolean isOnForeground;
+    private final boolean notifPref;
     private boolean updatingAll;
     private final NotificationManagerCompat notificationManager;
-
     private final Context context;
     private String tracking;
+    public static final String PREF_NOTIF = "pref_notif";
 
     public UpdateTrackingDetails(String tracking, Context context, Boolean isOnForeground) {
         this.tracking = tracking;
@@ -32,6 +35,10 @@ public class UpdateTrackingDetails {
         this.updatingAll = false;
         this.isOnForeground = isOnForeground;
         notificationManager = NotificationManagerCompat.from(context);
+
+        // Read User preferences
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        notifPref = sharedPreferences.getBoolean(PREF_NOTIF, true);
     }
 
     protected boolean getWebsite() {
@@ -54,14 +61,8 @@ public class UpdateTrackingDetails {
                     }
 
                     DatabaseHelper databaseHelper = new DatabaseHelper(context);
-
-                    // THIS IS JUST FOR TESTING
-                    // Log.e("ELTA", String.valueOf(status.size()));
-                    // Log.e("DB", String.valueOf(databaseHelper.getTrackingDetailsCount(tracking)));
-                    // ABOVE IS JUST FOR TESTING
-
-                    int carrier_count = status.size();
                     int db_count = databaseHelper.getTrackingDetailsCount(tracking);
+                    int carrier_count = status.size();
 
                     if (carrier_count > db_count) {
                         // updating Details table in DB
@@ -71,8 +72,8 @@ public class UpdateTrackingDetails {
                         // mark as unread only if updating all packages and not individually
                         databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), status.get(0).text(), updatingAll);
 
-                        // show notification only if updating all packages in background
-                        if (updatingAll && !isOnForeground) {
+                        // show notification only if updating all packages in background and notifications are enabled on user preferences
+                        if (notifPref && updatingAll && !isOnForeground) {
                             String notificationTitle;
                             ArrayList<String> indexEntry = databaseHelper.getIndexEntry(tracking);
                             String customName = indexEntry.get(4);

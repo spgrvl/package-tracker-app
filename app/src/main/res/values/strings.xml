@@ -20,4 +20,28 @@
     <string name="refresh">Refresh</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <string name="settings">Settings</string>
+    <string name="notif_pref">Notifications</string>
+    <string name="notif_pref_summary">Receive notifications about new updates in your packages.</string>
+    <string name="notif_interval_pref">Notifications interval</string>
+    <string name="notif_interval_pref_default">15 minutes</string>
+    <string name="notif_interval_pref_summary">15 minutes</string>
+    <string name="restart">Restart</string>
+    <string name="changes_restart_toast">Changes will apply after app restart</string>
+    <string name="channelPkg_notification_description">This notification channel displays information about new package updates</string>
+
+    <string-array name="notif_interval_pref_entries">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>2 hours</item>
+        <item>6 hours</item>
+    </string-array>
+    <string-array name="notif_interval_pref_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>120</item>
+        <item>360</item>
+    </string-array>
 </resources>

@@ -5,15 +5,15 @@
     <item android:title="@string/refresh"
         android:id="@+id/refresh_button"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/refresh"/>
+        android:icon="@drawable/ic_refresh"/>
 
     <item android:title="@string/edit"
         android:id="@+id/edit_button"
         app:showAsAction="collapseActionView"
-        android:icon="@drawable/edit"/>
+        android:icon="@drawable/ic_edit"/>
 
     <item android:title="@string/delete"
         android:id="@+id/delete_button"
         app:showAsAction="collapseActionView"
-        android:icon="@drawable/delete"/>
+        android:icon="@drawable/ic_delete"/>
 </menu>

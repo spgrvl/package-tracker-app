@@ -139,6 +139,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     updateIndex();
                 }
             }).start();
+        } else if (item.getItemId() == R.id.settings_button) {
+            startActivity(new Intent(this, SettingsActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }
@@ -167,10 +169,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         if (incomingMessages != null) {
 
-            // capture incoming data
+            // capture incoming barcodes list
             String[] barcodesArray = incomingMessages.getStringArray("barcodesArray");
 
-            // show data in choice dialog
+            // show barcodes in choice dialog
             openChoiceDialog(barcodesArray);
         }
     }

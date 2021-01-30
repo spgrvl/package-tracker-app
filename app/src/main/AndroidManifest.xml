@@ -15,6 +15,7 @@
         android:theme="@style/Theme.PackageTracker">
         <activity android:name=".PackageDetailsActivity" />
         <activity android:name=".BarcodeScanActivity"/>
+        <activity android:name=".SettingsActivity"/>
         <activity android:name=".MainActivity"
             android:launchMode="singleTask">
             <intent-filter>
