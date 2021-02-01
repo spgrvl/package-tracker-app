@@ -2,6 +2,7 @@ package com.spgrvl.packagetracker;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -91,6 +92,10 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             openDialog();
         } else if (itemId == R.id.delete_button) {
             deleteTracking();
+        } else if (itemId == R.id.open_browser_button) {
+            String url="https://itemsearch.elta.gr/el-GR/Query/Direct/" + tracking;
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            this.startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

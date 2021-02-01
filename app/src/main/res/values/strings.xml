@@ -28,6 +28,7 @@
     <string name="restart">Restart</string>
     <string name="changes_restart_toast">Changes will apply after app restart</string>
     <string name="channelPkg_notification_description">This notification channel displays information about new package updates</string>
+    <string name="open_in_browser">Open in browser</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

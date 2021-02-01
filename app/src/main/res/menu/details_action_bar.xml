@@ -16,4 +16,9 @@
         android:id="@+id/delete_button"
         app:showAsAction="collapseActionView"
         android:icon="@drawable/ic_delete"/>
+
+    <item android:title="@string/open_in_browser"
+        android:id="@+id/open_browser_button"
+        app:showAsAction="collapseActionView"
+        android:icon="@drawable/ic_open_in_browser"/>
 </menu>
