@@ -7,6 +7,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +19,8 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener,
@@ -31,6 +34,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Prompt to add package when supported urls are opened with app
+        Uri uri = getIntent().getData();
+        handleUriIntent(uri);
 
         // Find Button by ID
         FloatingActionButton fab = this.findViewById(R.id.fab);
@@ -46,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openDialog();
+                openDialog(null);
             }
         });
 
@@ -110,17 +117,22 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void updateIndex() {
-        UpdateTrackingDetails upd = new UpdateTrackingDetails(null, MainActivity.this, true);
-        boolean a = upd.updateAll();
-        if (a) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    showTrackingOnListView();
-                    swipeRefreshLayout.setRefreshing(false);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                UpdateTrackingDetails upd = new UpdateTrackingDetails(null, MainActivity.this, true);
+                boolean a = upd.updateAll();
+                if (a) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showTrackingOnListView();
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
                 }
-            });
-        }
+            }
+        }).start();
     }
 
     @Override
@@ -133,12 +145,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.refresh_button) {
             swipeRefreshLayout.setRefreshing(true);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    updateIndex();
-                }
-            }).start();
+            updateIndex();
         } else if (item.getItemId() == R.id.settings_button) {
             startActivity(new Intent(this, SettingsActivity.class));
         }
@@ -147,12 +154,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                updateIndex();
-            }
-        }).start();
+        updateIndex();
     }
 
     @Override
@@ -164,16 +166,26 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        // listen for incoming messages
-        Bundle incomingMessages = intent.getExtras();
-
-        if (incomingMessages != null) {
-
-            // capture incoming barcodes list
-            String[] barcodesArray = incomingMessages.getStringArray("barcodesArray");
-
+        // get barcode list from intent
+        String[] barcodesArray = intent.getStringArrayExtra("barcodesArray");
+        if (barcodesArray != null) {
             // show barcodes in choice dialog
             openChoiceDialog(barcodesArray);
+        }
+
+        // handle uri intents when app is already open
+        Uri uri = intent.getData();
+        handleUriIntent(uri);
+    }
+
+    private void handleUriIntent(Uri uri) {
+        if (uri != null) {
+            String regex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
+            Matcher trackingMatcher = Pattern.compile(regex).matcher(uri.toString());
+            if (trackingMatcher.find()) {
+                // Open dialog with the tracking number pre-filled
+                openDialog(trackingMatcher.group(0));
+            }
         }
     }
 
@@ -191,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             Toast.makeText(this, R.string.toast_empty_tracking, Toast.LENGTH_LONG).show();
         } else if (tracking_numbers.contains(trackingNumber)) {
             Toast.makeText(this, R.string.toast_tracking_exists, Toast.LENGTH_LONG).show();
+            openTrackingDetails(trackingNumber);
         } else {
             // Add to database (table + index)
             addTrackingDb(trackingNumber, customName);
@@ -200,8 +213,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
-    public void openDialog() {
-        AddNewDialog addDialog = new AddNewDialog(null);
+    public void openDialog(String tracking) {
+        AddNewDialog addDialog = new AddNewDialog(tracking);
         addDialog.show(getSupportFragmentManager(), "New Tracking Dialog");
     }
 
@@ -213,8 +226,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onPositiveButtonClicked(String[] list, int position) {
         // Open dialog with the tracking number pre-filled with barcode
-        AddNewDialog addDialog = new AddNewDialog(list[position]);
-        addDialog.show(getSupportFragmentManager(), "New Tracking Dialog");
+        openDialog(list[position]);
     }
 
     @Override

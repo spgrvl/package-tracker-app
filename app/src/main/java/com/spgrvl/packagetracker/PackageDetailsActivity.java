@@ -47,6 +47,9 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
 
         showDetailsOnListView();
 
+        // Update details
+        updateDetails();
+
         // Mark item as read in index table
         databaseHelper.setUnreadStatus(tracking, false);
     }
@@ -56,17 +59,22 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     }
 
     private void updateDetails() {
-        UpdateTrackingDetails upd = new UpdateTrackingDetails(tracking, PackageDetailsActivity.this, true);
-        boolean a = upd.getWebsite();
-        if (a) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    showDetailsOnListView();
-                    swipeRefreshLayout.setRefreshing(false);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                UpdateTrackingDetails upd = new UpdateTrackingDetails(tracking, PackageDetailsActivity.this, true);
+                boolean a = upd.getWebsite();
+                if (a) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showDetailsOnListView();
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    });
                 }
-            });
-        }
+            }
+        }).start();
     }
 
     @Override
@@ -80,12 +88,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         int itemId = item.getItemId();
         if (itemId == R.id.refresh_button) {
             swipeRefreshLayout.setRefreshing(true);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    updateDetails();
-                }
-            }).start();
+            updateDetails();
         } else if (itemId == android.R.id.home) {
             finish();
         } else if (itemId == R.id.edit_button) {
@@ -123,12 +126,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
 
     @Override
     public void onRefresh() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                updateDetails();
-            }
-        }).start();
+        updateDetails();
     }
 
 
