@@ -17,6 +17,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import static com.spgrvl.packagetracker.App.CHANNEL_PKG_ID;
 
@@ -46,13 +47,23 @@ public class UpdateTrackingDetails {
             @Override
             public void run() {
                 Document doc;
+                String url;
+                Elements dateTime, status, place;
                 try {
-                    String url = "https://itemsearch.elta.gr/el-GR/Query/Direct/" + tracking;
-                    doc = Jsoup.connect(url).get();
-
-                    Elements dateTime = doc.getElementsByAttributeValue("data-title", "Ημερομηνία & Ώρα");
-                    Elements status = doc.getElementsByAttributeValue("data-title", "Κατάσταση");
-                    Elements place = doc.getElementsByAttributeValue("data-title", "Περιοχή");
+                    Locale currentLanguage = context.getResources().getConfiguration().getLocales().get(0);
+                    if (String.valueOf(currentLanguage).equals("el_GR") || String.valueOf(currentLanguage).equals("el")) {
+                        url = "https://itemsearch.elta.gr/el-GR/Query/Direct/" + tracking;
+                        doc = Jsoup.connect(url).get();
+                        dateTime = doc.getElementsByAttributeValue("data-title", "Ημερομηνία & Ώρα");
+                        status = doc.getElementsByAttributeValue("data-title", "Κατάσταση");
+                        place = doc.getElementsByAttributeValue("data-title", "Περιοχή");
+                    } else {
+                        url = "https://itemsearch.elta.gr/en-GB/Query/Direct/" + tracking;
+                        doc = Jsoup.connect(url).get();
+                        dateTime = doc.getElementsByAttributeValue("data-title", "Date & Time");
+                        status = doc.getElementsByAttributeValue("data-title", "Status");
+                        place = doc.getElementsByAttributeValue("data-title", "Location");
+                    }
 
                     ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
 
@@ -63,6 +74,8 @@ public class UpdateTrackingDetails {
                     DatabaseHelper databaseHelper = new DatabaseHelper(context);
                     int db_count = databaseHelper.getTrackingDetailsCount(tracking);
                     int carrier_count = status.size();
+                    String db_last_update = databaseHelper.getIndexEntry(tracking).get(3);
+                    boolean changedLanguage = !status.get(0).text().equals(db_last_update);
 
                     if (carrier_count > db_count) {
                         // updating Details table in DB
@@ -88,11 +101,12 @@ public class UpdateTrackingDetails {
 
                             sendPackageUpdateNotification(notificationTitle, status.get(0).text(), rowId, tracking);
                         }
-                    }
-                    else if (carrier_count < db_count) {
+                    } else if (changedLanguage) {
+                        databaseHelper.updateTrackingDetails(tracking, detailsList);
+                        databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), status.get(0).text(), false);
+                    } else if (carrier_count < db_count) {
                         Log.e("UpdateTrackingDetails", "Carrier is reporting less updates (" + carrier_count + ") than already stored in DB (" + db_count + ")");
-                    }
-                    else {
+                    } else {
                         // updating current datetime in Index table in DB
                         databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), null, false);
                     }
