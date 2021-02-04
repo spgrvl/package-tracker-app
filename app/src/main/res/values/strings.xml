@@ -34,6 +34,11 @@
     <string name="status_none">Status: None</string>
     <string name="new_package">New package</string>
     <string name="scan">Scan</string>
+    <string name="package_channel">Package Channel</string>
+    <string name="language_pref">Language</string>
+    <string name="language_pref_summary">Change app\'s display language.</string>
+    <string name="general_pref_cat">General</string>
+    <string name="notif_pref_cat">Notifications</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>
@@ -48,5 +53,15 @@
         <item>60</item>
         <item>120</item>
         <item>360</item>
+    </string-array>
+    <string-array name="language_pref_entries">
+        <item>System\'s language</item>
+        <item>English</item>
+        <item>Greek</item>
+    </string-array>
+    <string-array name="language_pref_values" translatable="false">
+        <item>sys</item>
+        <item>en</item>
+        <item>el</item>
     </string-array>
 </resources>

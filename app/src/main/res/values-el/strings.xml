@@ -10,13 +10,13 @@
     <string name="sure_confirmation">Είστε σίγουρος/η;</string>
     <string name="delete_confirmation">Θέλετε να διαγράψετε αυτό το πακέτο;</string>
     <string name="yes">Ναι</string>
-    <string name="no">Όχι</string>
+    <string name="no">Οχι</string>
     <string name="package_deleted_partial">Διαγράφτηκε το πακέτο</string>
     <string name="added_successfully">Προστέθηκε επιτυχώς!</string>
     <string name="something_went_wrong">Κάτι πήγε στραβά!</string>
     <string name="edited_successfully">Η επεξεργασία ήταν επιτυχής!</string>
     <string name="edit_package">Επεξεργασία πακέτου</string>
-    <string name="cancel">Άκυρο</string>
+    <string name="cancel">Ακυρο</string>
     <string name="refresh">Ανανέωση</string>
     <string name="edit">Επεξεργασία</string>
     <string name="delete">Διαγραφή</string>
@@ -25,7 +25,7 @@
     <string name="notif_pref_summary">Λάβετε ειδοποιήσεις για νέες ενημερώσεις στα πακέτα σας.</string>
     <string name="notif_interval_pref">Διάστημα ειδοποιήσεων</string>
     <string name="notif_interval_pref_summary">15 λεπτά</string>
-    <string name="restart">Επανεκκίνηση</string>
+    <string name="restart">Επανεκκινηση</string>
     <string name="changes_restart_toast">Οι αλλαγές θα ισχύσουν μετά την επανεκκίνηση της εφαρμογής</string>
     <string name="channelPkg_notification_description">Αυτό το κανάλι ειδοποιήσεων εμφανίζει πληροφορίες σχετικά με νέες ενημερώσεις πακέτων</string>
     <string name="open_in_browser">Άνοιγμα σε πρόγραμμα περιήγησης</string>
@@ -33,7 +33,12 @@
     <string name="never">Ποτέ</string>
     <string name="status_none">Κατάσταση: Καμία</string>
     <string name="new_package">Νέο Πακέτο</string>
-    <string name="scan">Σάρωση</string>
+    <string name="scan">Σαρωση</string>
+    <string name="package_channel">Κανάλι Πακέτων</string>
+    <string name="language_pref">Γλώσσα</string>
+    <string name="language_pref_summary">Αλλάξτε τη γλώσσα εμφάνισης της εφαρμογής.</string>
+    <string name="general_pref_cat">Γενικές</string>
+    <string name="notif_pref_cat">Ειδοποιήσεις</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>
@@ -41,5 +46,10 @@
         <item>1 ώρα</item>
         <item>2 ώρες</item>
         <item>6 ώρες</item>
+    </string-array>
+    <string-array name="language_pref_entries">
+        <item>Γλώσσα συστήματος</item>
+        <item>Αγγλικά</item>
+        <item>Ελληνικά</item>
     </string-array>
 </resources>

@@ -2,21 +2,40 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <SwitchPreferenceCompat
-        android:key="pref_notif"
-        android:title="@string/notif_pref"
-        android:summary="@string/notif_pref_summary"
-        android:defaultValue="true"
-        app:iconSpaceReserved="false"/>
+    <PreferenceCategory
+        android:title="@string/general_pref_cat"
+        app:iconSpaceReserved="false">
+        <ListPreference
+            android:key="pref_language"
+            android:title="@string/language_pref"
+            android:entries="@array/language_pref_entries"
+            android:entryValues="@array/language_pref_values"
+            android:summary="@string/language_pref_summary"
+            android:defaultValue="sys"
+            app:iconSpaceReserved="false"
+            android:negativeButtonText="@string/cancel"/>
+    </PreferenceCategory>
 
-    <ListPreference
-        android:dependency="pref_notif"
-        android:key="pref_notif_interval"
-        android:title="@string/notif_interval_pref"
-        android:entries="@array/notif_interval_pref_entries"
-        android:entryValues="@array/notif_interval_pref_values"
-        android:summary="@string/notif_interval_pref_summary"
-        android:defaultValue="15"
-        app:iconSpaceReserved="false"/>
+    <PreferenceCategory
+        android:title="@string/notif_pref_cat"
+        app:iconSpaceReserved="false">
+        <SwitchPreferenceCompat
+            android:key="pref_notif"
+            android:title="@string/notif_pref"
+            android:summary="@string/notif_pref_summary"
+            android:defaultValue="true"
+            app:iconSpaceReserved="false"/>
+
+        <ListPreference
+            android:dependency="pref_notif"
+            android:key="pref_notif_interval"
+            android:title="@string/notif_interval_pref"
+            android:entries="@array/notif_interval_pref_entries"
+            android:entryValues="@array/notif_interval_pref_values"
+            android:summary="@string/notif_interval_pref_summary"
+            android:defaultValue="15"
+            app:iconSpaceReserved="false"
+            android:negativeButtonText="@string/cancel"/>
+    </PreferenceCategory>
 
 </PreferenceScreen>

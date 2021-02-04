@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +34,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Set custom language if changed on app preferences
+        Localization localization = new Localization();
+        localization.setLocale(MainActivity.this);
+        this.setTitle(R.string.app_name);
+
         setContentView(R.layout.activity_main);
 
         // Prompt to add package when supported urls are opened with app

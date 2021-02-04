@@ -47,7 +47,7 @@ public class App extends Application {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channelPkg = new NotificationChannel(
                     CHANNEL_PKG_ID,
-                    "Package Channel",
+                    getString(R.string.package_channel),
                     NotificationManager.IMPORTANCE_DEFAULT
             );
             channelPkg.setDescription(getString(R.string.channelPkg_notification_description));

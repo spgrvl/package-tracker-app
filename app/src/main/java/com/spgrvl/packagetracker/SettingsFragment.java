@@ -19,6 +19,7 @@ import androidx.preference.PreferenceFragmentCompat;
 public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String PREF_NOTIF = "pref_notif";
     public static final String PREF_NOTIF_INTERVAL = "pref_notif_interval";
+    public static final String PREF_LANGUAGE = "pref_language";
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
     private Menu menu;
 
@@ -30,7 +31,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (key.equals(PREF_NOTIF) || key.equals(PREF_NOTIF_INTERVAL)) {
+                if (key.equals(PREF_NOTIF) || key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_LANGUAGE)) {
                     Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_SHORT).show();
                     menu.findItem(R.id.restart_button).setVisible(true);
                 }
