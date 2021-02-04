@@ -31,20 +31,20 @@ public class AddNewDialog extends AppCompatDialogFragment {
         View view = inflater.inflate(R.layout.add_new_dialog, null);
 
         builder.setView(view)
-                .setTitle("New package")
-                .setNeutralButton("scan", new DialogInterface.OnClickListener() {
+                .setTitle(R.string.new_package)
+                .setNeutralButton(R.string.scan, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Intent intent = new Intent(getActivity(), BarcodeScanActivity.class);
                         startActivity(intent);
                     }
                 })
-                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                     }
                 })
-                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String tracking = editTextTracking.getText().toString();

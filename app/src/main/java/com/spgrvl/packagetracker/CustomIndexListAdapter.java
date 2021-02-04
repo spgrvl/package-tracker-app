@@ -60,13 +60,19 @@ public class CustomIndexListAdapter extends BaseAdapter {
         }
 
         if (tracking.getUpdated().equals("Never")){
-            holder.updated.setText(tracking.getUpdated());
-        } else if (DateUtils.getRelativeTimeSpanString(Long.parseLong(tracking.getUpdated())).equals("0 minutes ago")) {
-            holder.updated.setText("Less than a minute ago");
+            holder.updated.setText(R.string.never);
+        } else if (DateUtils.getRelativeTimeSpanString(Long.parseLong(tracking.getUpdated())).equals("0 minutes ago") ||
+                DateUtils.getRelativeTimeSpanString(Long.parseLong(tracking.getUpdated())).equals("Πριν από 0 λεπτά")) {
+            holder.updated.setText(R.string.less_than_a_minute_ago);
         } else {
             holder.updated.setText(DateUtils.getRelativeTimeSpanString(Long.parseLong(tracking.getUpdated())));
         }
-        holder.lastUpdate.setText(tracking.getLastUpdate());
+
+        if (tracking.getLastUpdate().equals("Status: None")) {
+            holder.lastUpdate.setText(R.string.status_none);
+        } else {
+            holder.lastUpdate.setText(tracking.getLastUpdate());
+        }
 
         // Set unread effect
         DatabaseHelper databaseHelper = new DatabaseHelper(context);

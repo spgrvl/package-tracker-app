@@ -16,7 +16,7 @@
     <string name="edited_successfully">Edited successfully!</string>
     <string name="edit_package">Edit package</string>
     <string name="cancel">Cancel</string>
-    <string name="ok">OK</string>
+    <string name="ok" translatable="false">OK</string>
     <string name="refresh">Refresh</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
@@ -29,6 +29,11 @@
     <string name="changes_restart_toast">Changes will apply after app restart</string>
     <string name="channelPkg_notification_description">This notification channel displays information about new package updates</string>
     <string name="open_in_browser">Open in browser</string>
+    <string name="less_than_a_minute_ago">Less than a minute ago</string>
+    <string name="never">Never</string>
+    <string name="status_none">Status: None</string>
+    <string name="new_package">New package</string>
+    <string name="scan">Scan</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>
@@ -37,7 +42,7 @@
         <item>2 hours</item>
         <item>6 hours</item>
     </string-array>
-    <string-array name="notif_interval_pref_values">
+    <string-array name="notif_interval_pref_values" translatable="false">
         <item>15</item>
         <item>30</item>
         <item>60</item>
