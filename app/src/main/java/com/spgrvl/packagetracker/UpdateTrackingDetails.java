@@ -75,7 +75,10 @@ public class UpdateTrackingDetails {
                     int db_count = databaseHelper.getTrackingDetailsCount(tracking);
                     int carrier_count = status.size();
                     String db_last_update = databaseHelper.getIndexEntry(tracking).get(3);
-                    boolean changedLanguage = !status.get(0).text().equals(db_last_update);
+                    boolean changedLanguage = false;
+                    if (carrier_count > 0) {
+                        changedLanguage = !status.get(0).text().equals(db_last_update);
+                    }
 
                     if (carrier_count > db_count) {
                         // updating Details table in DB
