@@ -39,6 +39,8 @@
     <string name="language_pref_summary">Αλλάξτε τη γλώσσα εμφάνισης της εφαρμογής.</string>
     <string name="general_pref_cat">Γενικές</string>
     <string name="notif_pref_cat">Ειδοποιήσεις</string>
+    <string name="ask_add_package">Προσθήκη πακέτου;</string>
+    <string name="possible_tracking_id">Εντοπίστηκε πιθανός αριθμός αποστολής:\u0020</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>

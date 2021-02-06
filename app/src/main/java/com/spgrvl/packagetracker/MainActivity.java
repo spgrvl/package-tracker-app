@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -19,10 +21,8 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener,
         AddNewDialog.AddDialogListener, BarcodeSelectionDialog.SingleChoiceListener {
@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     ListView trackingNumbersLv;
     DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
     private SwipeRefreshLayout swipeRefreshLayout;
+    static boolean startedFlag;
+    private final String trackingNumberRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         // Populating the ListView from DB
         showTrackingOnListView();
+
+        startedFlag = true;
     }
 
     private void openTrackingDetails(String trackingNumber) {
@@ -170,6 +174,41 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         showTrackingOnListView();
     }
 
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+        // Read device's clipboard and if a valid tracking number is found, offer to add it
+        if (hasFocus && startedFlag) {
+            ClipboardManager clipboardManager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+            ClipData clipData = clipboardManager.getPrimaryClip();
+            ClipData.Item item = clipData.getItemAt(0);
+            String clipText = item.getText().toString();
+            startedFlag = false;
+
+            Matcher trackingMatcher = Pattern.compile(trackingNumberRegex).matcher(clipText);
+            if (trackingMatcher.find()) {
+                String tracking = trackingMatcher.group(0);
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(R.string.ask_add_package)
+                        .setMessage(getString(R.string.possible_tracking_id) + tracking)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                submitTracking(tracking, null);
+                            }
+                        })
+                        .setNeutralButton(R.string.edit, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                openDialog(tracking);
+                            }
+                        })
+                        .setNegativeButton(R.string.no, null)
+                        .show();
+            }
+        }
+    }
+
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
@@ -187,8 +226,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void handleUriIntent(Uri uri) {
         if (uri != null) {
-            String regex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
-            Matcher trackingMatcher = Pattern.compile(regex).matcher(uri.toString());
+            Matcher trackingMatcher = Pattern.compile(trackingNumberRegex).matcher(uri.toString());
             if (trackingMatcher.find()) {
                 // Open dialog with the tracking number pre-filled
                 openDialog(trackingMatcher.group(0));

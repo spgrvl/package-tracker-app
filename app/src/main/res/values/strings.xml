@@ -39,6 +39,8 @@
     <string name="language_pref_summary">Change app\'s display language.</string>
     <string name="general_pref_cat">General</string>
     <string name="notif_pref_cat">Notifications</string>
+    <string name="ask_add_package">Add Package?</string>
+    <string name="possible_tracking_id">Possible tracking ID detected:\u0020</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

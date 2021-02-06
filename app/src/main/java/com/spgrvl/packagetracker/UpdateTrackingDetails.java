@@ -17,18 +17,19 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Locale;
 
 import static com.spgrvl.packagetracker.App.CHANNEL_PKG_ID;
 
 public class UpdateTrackingDetails {
     private final Boolean isOnForeground;
     private final boolean notifPref;
+    private String languagePref;
     private boolean updatingAll;
     private final NotificationManagerCompat notificationManager;
     private final Context context;
     private String tracking;
     public static final String PREF_NOTIF = "pref_notif";
+    public static final String PREF_LANGUAGE = "pref_language";
 
     public UpdateTrackingDetails(String tracking, Context context, Boolean isOnForeground) {
         this.tracking = tracking;
@@ -40,6 +41,7 @@ public class UpdateTrackingDetails {
         // Read User preferences
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         notifPref = sharedPreferences.getBoolean(PREF_NOTIF, true);
+        languagePref = sharedPreferences.getString(PREF_LANGUAGE, "sys");
     }
 
     protected boolean getWebsite() {
@@ -50,8 +52,13 @@ public class UpdateTrackingDetails {
                 String url;
                 Elements dateTime, status, place;
                 try {
-                    Locale currentLanguage = context.getResources().getConfiguration().getLocales().get(0);
-                    if (String.valueOf(currentLanguage).equals("el_GR") || String.valueOf(currentLanguage).equals("el")) {
+                    // Find system's language if there is no language preference set
+                    if (languagePref.equals("sys")) {
+                        languagePref = String.valueOf(context.getResources().getConfiguration().getLocales().get(0));
+                    }
+
+                    // Fetch tracking details in app's language
+                    if (languagePref.equals("el_GR") || languagePref.equals("el")) {
                         url = "https://itemsearch.elta.gr/el-GR/Query/Direct/" + tracking;
                         doc = Jsoup.connect(url).get();
                         dateTime = doc.getElementsByAttributeValue("data-title", "Ημερομηνία & Ώρα");
