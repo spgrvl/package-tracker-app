@@ -180,31 +180,35 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         // Read device's clipboard and if a valid tracking number is found, offer to add it
         if (hasFocus && startedFlag) {
             ClipboardManager clipboardManager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
-            ClipData clipData = clipboardManager.getPrimaryClip();
-            ClipData.Item item = clipData.getItemAt(0);
-            String clipText = item.getText().toString();
-            startedFlag = false;
+            if (clipboardManager.hasPrimaryClip()) {
+                ClipData clipData = clipboardManager.getPrimaryClip();
+                ClipData.Item item = clipData.getItemAt(0);
+                String clipText = item.getText().toString();
+                startedFlag = false;
 
-            Matcher trackingMatcher = Pattern.compile(trackingNumberRegex).matcher(clipText);
-            if (trackingMatcher.find()) {
-                String tracking = trackingMatcher.group(0);
-                new AlertDialog.Builder(MainActivity.this)
-                        .setTitle(R.string.ask_add_package)
-                        .setMessage(getString(R.string.possible_tracking_id) + tracking)
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                submitTracking(tracking, null);
-                            }
-                        })
-                        .setNeutralButton(R.string.edit, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                openDialog(tracking);
-                            }
-                        })
-                        .setNegativeButton(R.string.no, null)
-                        .show();
+                Matcher trackingMatcher = Pattern.compile(trackingNumberRegex).matcher(clipText);
+                if (trackingMatcher.find()) {
+                    String tracking = trackingMatcher.group(0);
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle(R.string.ask_add_package)
+                            .setMessage(getString(R.string.possible_tracking_id) + tracking)
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    submitTracking(tracking, null);
+                                }
+                            })
+                            .setNeutralButton(R.string.edit, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    openDialog(tracking);
+                                }
+                            })
+                            .setNegativeButton(R.string.no, null)
+                            .show();
+                }
+            } else {
+                startedFlag = false;
             }
         }
     }
