@@ -6,19 +6,21 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.Objects;
 
-public class PackageDetailsActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, EditDialog.AddDialogListener{
+public class PackageDetailsActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, EditDialog.AddDialogListener {
 
     private String tracking;
-    private ListView trackingDetailsLv;
+    private RecyclerView trackingDetailsRv;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     DatabaseHelper databaseHelper = new DatabaseHelper(PackageDetailsActivity.this);
@@ -31,8 +33,9 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         // Show back button on action bar
         Objects.requireNonNull(this.getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        // Find ListView by ID
-        this.trackingDetailsLv = findViewById(R.id.trackingDetailsLv);
+        // Find RecyclerView by ID and set divider
+        this.trackingDetailsRv = findViewById(R.id.trackingDetailsRv);
+        trackingDetailsRv.addItemDecoration(new DividerItemDecoration(trackingDetailsRv.getContext(), DividerItemDecoration.VERTICAL));
 
         // Find SwipeRefreshLayout by ID
         swipeRefreshLayout = findViewById(R.id.swipeRefreshDetails);
@@ -45,7 +48,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         this.tracking = intent.getStringExtra("tracking");
         this.setTitle(tracking);
 
-        showDetailsOnListView();
+        showDetailsOnRecyclerView();
 
         // Update details
         updateDetails();
@@ -54,25 +57,20 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         databaseHelper.setUnreadStatus(tracking, false);
     }
 
-    private void showDetailsOnListView() {
-        trackingDetailsLv.setAdapter(new CustomDetailsListAdapter(this, databaseHelper.getTrackingDetails(tracking)));
+    private void showDetailsOnRecyclerView() {
+        trackingDetailsRv.setAdapter(new CustomDetailsListAdapter(this, databaseHelper.getTrackingDetails(tracking)));
+        trackingDetailsRv.setLayoutManager(new LinearLayoutManager(this));
     }
 
     private void updateDetails() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                UpdateTrackingDetails upd = new UpdateTrackingDetails(tracking, PackageDetailsActivity.this, true);
-                boolean a = upd.getWebsite();
-                if (a) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showDetailsOnListView();
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                    });
-                }
+        new Thread(() -> {
+            UpdateTrackingDetails upd = new UpdateTrackingDetails(tracking, PackageDetailsActivity.this, true);
+            boolean a = upd.getWebsite();
+            if (a) {
+                runOnUiThread(() -> {
+                    showDetailsOnRecyclerView();
+                    swipeRefreshLayout.setRefreshing(false);
+                });
             }
         }).start();
     }
@@ -96,7 +94,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         } else if (itemId == R.id.delete_button) {
             deleteTracking();
         } else if (itemId == R.id.open_browser_button) {
-            String url="https://itemsearch.elta.gr/el-GR/Query/Direct/" + tracking;
+            String url = "https://itemsearch.elta.gr/el-GR/Query/Direct/" + tracking;
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             this.startActivity(intent);
         }
@@ -107,13 +105,10 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         new AlertDialog.Builder(PackageDetailsActivity.this)
                 .setTitle(R.string.sure_confirmation)
                 .setMessage(R.string.delete_confirmation)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        databaseHelper.deleteTracking(tracking);
-                        Toast.makeText(getApplicationContext(), getString(R.string.package_deleted_partial) + " " + tracking, Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
+                .setPositiveButton(R.string.yes, (dialog, which) -> {
+                    databaseHelper.deleteTracking(tracking);
+                    Toast.makeText(getApplicationContext(), getString(R.string.package_deleted_partial) + " " + tracking, Toast.LENGTH_SHORT).show();
+                    finish();
                 })
                 .setNegativeButton(R.string.no, null)
                 .show();
@@ -139,7 +134,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             newCustomName = newCustomName.trim();
         }
 
-        if (newTrackingNumber.isEmpty())  {
+        if (newTrackingNumber.isEmpty()) {
             Toast.makeText(this, R.string.toast_empty_tracking, Toast.LENGTH_LONG).show();
         } else {
             // Edit database (table + index)
@@ -157,8 +152,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                 swipeRefreshLayout.setRefreshing(true);
                 updateDetails();
             }
-        }
-        else {
+        } else {
             Toast.makeText(PackageDetailsActivity.this, R.string.something_went_wrong, Toast.LENGTH_LONG).show();
         }
     }

@@ -1,28 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
 
-    <TextView
-        android:gravity="center"
-        android:text="TextView1"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:id="@+id/trackingTv"/>
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:foreground="?android:attr/selectableItemBackground">
 
-    <TextView
-        android:gravity="center"
-        android:text="TextView2"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:id="@+id/updatedTv"/>
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:columnCount="1"
+            android:padding="8dp">
 
-    <TextView
-        android:gravity="center"
-        android:text="TextView3"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:id="@+id/lastUpdateTv" />
+            <TextView
+                android:id="@+id/trackingTv"
+                android:layout_gravity="center_horizontal"
+                android:text="Tracking"
+                android:textSize="16sp" />
 
-</LinearLayout>
+            <TextView
+                android:id="@+id/updatedTv"
+                android:layout_gravity="center_horizontal"
+                android:text="Updated" />
+
+            <TextView
+                android:id="@+id/lastUpdateTv"
+                android:layout_gravity="center_horizontal"
+                android:text="LastUpdate" />
+
+        </GridLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>

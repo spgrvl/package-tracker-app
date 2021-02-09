@@ -3,6 +3,9 @@ package com.spgrvl.packagetracker;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.ClipData;
@@ -14,8 +17,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -27,7 +28,7 @@ import java.util.regex.Pattern;
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener,
         AddNewDialog.AddDialogListener, BarcodeSelectionDialog.SingleChoiceListener {
 
-    ListView trackingNumbersLv;
+    RecyclerView trackingNumbersRv;
     DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
     private SwipeRefreshLayout swipeRefreshLayout;
     static boolean startedFlag;
@@ -51,57 +52,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         // Find Button by ID
         FloatingActionButton fab = this.findViewById(R.id.fab);
 
-        // Find ListView by ID
-        this.trackingNumbersLv = findViewById(R.id.trackingNumbersLv);
+        // Find RecyclerView by ID and set divider
+        this.trackingNumbersRv = findViewById(R.id.trackingNumbersRv);
+        trackingNumbersRv.addItemDecoration(new DividerItemDecoration(trackingNumbersRv.getContext(), DividerItemDecoration.VERTICAL));
 
         // Find SwipeRefreshLayout by ID
         swipeRefreshLayout = findViewById(R.id.swipeRefreshMain);
         swipeRefreshLayout.setOnRefreshListener(this);
 
         // Called when user clicks fab (floating add button)
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openDialog(null);
-            }
-        });
+        fab.setOnClickListener(v -> openDialog(null));
 
-        // Called when user clicks ListView items
-        trackingNumbersLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                view.setSelected(true);
-                TrackingIndexModel clickedTracking = (TrackingIndexModel) parent.getItemAtPosition(position);
-                openTrackingDetails(clickedTracking.getTracking());
-            }
-        });
-
-        // Called when user long clicks ListView items
-        trackingNumbersLv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
-                TrackingIndexModel clickedTracking = (TrackingIndexModel) parent.getItemAtPosition(position);
-
-                new AlertDialog.Builder(MainActivity.this)
-                        .setTitle(R.string.sure_confirmation)
-                        .setMessage(R.string.delete_confirmation)
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                databaseHelper.deleteTracking(clickedTracking.getTracking());
-                                showTrackingOnListView();
-                                Toast.makeText(getApplicationContext(), getString(R.string.package_deleted_partial) + " " + clickedTracking.getTracking(), Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .setNegativeButton(R.string.no, null)
-                        .show();
-                return true;
-            }
-        });
-
-        // Populating the ListView from DB
-        showTrackingOnListView();
+        // Populating the RecyclerView from DB
+        showTrackingOnRecyclerView();
 
         startedFlag = true;
     }
@@ -112,8 +75,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         MainActivity.this.startActivity(myIntent);
     }
 
-    private void showTrackingOnListView() {
-        trackingNumbersLv.setAdapter(new CustomIndexListAdapter(this, databaseHelper.getAllTracking()));
+    private void showTrackingOnRecyclerView() {
+        trackingNumbersRv.setAdapter(new CustomIndexListAdapter(this, databaseHelper.getAllTracking()));
+        trackingNumbersRv.setLayoutManager(new LinearLayoutManager(this));
     }
 
     public void addTrackingDb(String trackingNumber, String customName) {
@@ -121,27 +85,20 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         if (insertData) {
             Toast.makeText(MainActivity.this, R.string.added_successfully, Toast.LENGTH_LONG).show();
-        }
-        else {
+        } else {
             Toast.makeText(MainActivity.this, R.string.something_went_wrong, Toast.LENGTH_LONG).show();
         }
     }
 
     private void updateIndex() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                UpdateTrackingDetails upd = new UpdateTrackingDetails(null, MainActivity.this, true);
-                boolean a = upd.updateAll();
-                if (a) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showTrackingOnListView();
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                    });
-                }
+        new Thread(() -> {
+            UpdateTrackingDetails upd = new UpdateTrackingDetails(null, MainActivity.this, true);
+            boolean a = upd.updateAll();
+            if (a) {
+                runOnUiThread(() -> {
+                    showTrackingOnRecyclerView();
+                    swipeRefreshLayout.setRefreshing(false);
+                });
             }
         }).start();
     }
@@ -169,9 +126,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        showTrackingOnListView();
+        showTrackingOnRecyclerView();
     }
 
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -179,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         // Read device's clipboard and if a valid tracking number is found, offer to add it
         if (hasFocus && startedFlag) {
-            ClipboardManager clipboardManager = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+            ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             if (clipboardManager.hasPrimaryClip()) {
                 ClipData clipData = clipboardManager.getPrimaryClip();
                 ClipData.Item item = clipData.getItemAt(0);
@@ -192,18 +149,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     new AlertDialog.Builder(MainActivity.this)
                             .setTitle(R.string.ask_add_package)
                             .setMessage(getString(R.string.possible_tracking_id) + tracking)
-                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    submitTracking(tracking, null);
-                                }
-                            })
-                            .setNeutralButton(R.string.edit, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    openDialog(tracking);
-                                }
-                            })
+                            .setPositiveButton(R.string.yes, (dialog, which) -> submitTracking(tracking, null))
+                            .setNeutralButton(R.string.edit, (dialog, which) -> openDialog(tracking))
                             .setNegativeButton(R.string.no, null)
                             .show();
                 }
@@ -248,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             customName = customName.trim();
         }
 
-        if (trackingNumber.isEmpty())  {
+        if (trackingNumber.isEmpty()) {
             Toast.makeText(this, R.string.toast_empty_tracking, Toast.LENGTH_LONG).show();
         } else if (tracking_numbers.contains(trackingNumber)) {
             Toast.makeText(this, R.string.toast_tracking_exists, Toast.LENGTH_LONG).show();
@@ -257,8 +204,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             // Add to database (table + index)
             addTrackingDb(trackingNumber, customName);
 
-            // Update the ListView adapter
-            showTrackingOnListView();
+            // Update the RecyclerView adapter
+            showTrackingOnRecyclerView();
         }
     }
 

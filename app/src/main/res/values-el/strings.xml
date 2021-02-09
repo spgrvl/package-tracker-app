@@ -11,7 +11,7 @@
     <string name="delete_confirmation">Θέλετε να διαγράψετε αυτό το πακέτο;</string>
     <string name="yes">Ναι</string>
     <string name="no">Οχι</string>
-    <string name="package_deleted_partial">Διαγράφτηκε το πακέτο</string>
+    <string name="package_deleted_partial">Διαγράφτηκε το πακέτο\u0020</string>
     <string name="added_successfully">Προστέθηκε επιτυχώς!</string>
     <string name="something_went_wrong">Κάτι πήγε στραβά!</string>
     <string name="edited_successfully">Η επεξεργασία ήταν επιτυχής!</string>
