@@ -30,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATETIME_COL = "Datetime";
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME,null, VERSION);
+        super(context, DATABASE_NAME, null, VERSION);
     }
 
     @Override
@@ -81,8 +81,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.close();
 
             return result != -1;
-        }
-        catch(SQLException e) {
+        } catch (SQLException e) {
             Log.e("SQLException", e.toString());
             db.close();
             return false;
@@ -96,13 +95,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.beginTransaction();
         try {
-            db.execSQL("DELETE FROM " + tracking);
-            for (int i=0; i<detailsList.size(); i++) {
+            db.execSQL("DELETE FROM '" + tracking + "'");
+            for (int i = 0; i < detailsList.size(); i++) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(STATUS_COL, detailsList.get(i).getStatus());
                 contentValues.put(PLACE_COL, detailsList.get(i).getPlace());
                 contentValues.put(DATETIME_COL, detailsList.get(i).getDatetime());
-                db.insert(tracking, null, contentValues);
+                db.insert("'" + tracking + "'", null, contentValues);
             }
             db.setTransactionSuccessful();
         } finally {
@@ -125,7 +124,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(UNREAD_COL, true);
         }
 
-        db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[] {tracking});
+        db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[]{tracking});
 
         db.close();
     }
@@ -219,8 +218,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(CUSTOM_NAME_COL, customName);
             db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[]{tracking});
             return true;
-        }
-        catch(SQLException e) {
+        } catch (SQLException e) {
             Log.e("SQLException", e.toString());
             db.close();
             return false;
@@ -302,7 +300,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(UNREAD_COL, isUnread);
 
-        db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[] {tracking});
+        db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[]{tracking});
 
         db.close();
     }
