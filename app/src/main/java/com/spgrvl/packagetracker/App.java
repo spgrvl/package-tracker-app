@@ -34,8 +34,10 @@ public class App extends Application {
         createNotificationChannels();
 
         if (notifPref) {
-            // Schedule background updating
-            scheduleJob();
+            // Schedule background updating if not already scheduled
+            if (!isJobScheduled()) {
+                scheduleJob();
+            }
         } else {
             // Cancel ongoing update job
             JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
@@ -67,5 +69,15 @@ public class App extends Application {
 
         JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
         scheduler.schedule(info);
+    }
+
+    public boolean isJobScheduled() {
+        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+        for (JobInfo jobInfo : scheduler.getAllPendingJobs()) {
+            if (UPD_JOB_ID == jobInfo.getId()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
