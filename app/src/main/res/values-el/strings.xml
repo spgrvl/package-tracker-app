@@ -51,6 +51,8 @@
     <string name="no_backup_found">Δεν βρέθηκε αντίγραφο ασφαλείας!</string>
     <string name="backup_restored">Η επαναφορά του αντιγράφου ασφαλείας ήταν επιτυχής!</string>
     <string name="restore_error">Παρουσιάστηκε σφάλμα κατά την επαναφορά του αντιγράφου ασφαλείας!</string>
+    <string name="backup_confirmation_msg">Αυτή η ενέργεια θα αντικαταστήσει τυχόν προηγούμενα αντίγραφα ασφαλείας.</string>
+    <string name="restore_confirmation_msg">Τα υπάρχοντα πακέτα δεν θα αντικατασταθούν, θα προστεθούν μόνο όσα δεν υπάρχουν ήδη.</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>

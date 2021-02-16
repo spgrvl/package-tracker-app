@@ -51,6 +51,8 @@
     <string name="no_backup_found">No backup found!</string>
     <string name="backup_restored">Backup restored!</string>
     <string name="restore_error">There was an error while restoring backup!</string>
+    <string name="backup_confirmation_msg">This action will overwrite any previous backups.</string>
+    <string name="restore_confirmation_msg">Current packages won\'t be overwritten, only new ones will be added.</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -57,21 +58,35 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         Preference backup_button = findPreference(BACKUP_BUTTON);
         backup_button.setOnPreferenceClickListener(preference -> {
-            if (isExtStorageRW()) {
-                exportCSV();
-            } else {
-                Toast.makeText(getContext(), R.string.backup_error, Toast.LENGTH_SHORT).show();
-            }
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.sure_confirmation)
+                    .setMessage(R.string.backup_confirmation_msg)
+                    .setPositiveButton(R.string.yes, (dialog, which) -> {
+                        if (isExtStorageRW()) {
+                            exportCSV();
+                        } else {
+                            Toast.makeText(getContext(), R.string.backup_error, Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton(R.string.no, null)
+                    .show();
             return true;
         });
 
         Preference restore_button = findPreference(RESTORE_BUTTON);
         restore_button.setOnPreferenceClickListener(preference -> {
-            if (isExtStorageRW()) {
-                importCSV();
-            } else {
-                Toast.makeText(getContext(), R.string.restore_error, Toast.LENGTH_SHORT).show();
-            }
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.sure_confirmation)
+                    .setMessage(R.string.restore_confirmation_msg)
+                    .setPositiveButton(R.string.yes, (dialog, which) -> {
+                        if (isExtStorageRW()) {
+                            importCSV();
+                        } else {
+                            Toast.makeText(getContext(), R.string.restore_error, Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton(R.string.no, null)
+                    .show();
             return true;
         });
     }
