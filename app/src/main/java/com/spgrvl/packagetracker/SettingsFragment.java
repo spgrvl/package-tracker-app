@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,32 +17,125 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.opencsv.CSVReader;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+
 public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String PREF_NOTIF = "pref_notif";
     public static final String PREF_NOTIF_INTERVAL = "pref_notif_interval";
     public static final String PREF_LANGUAGE = "pref_language";
+    public static final String BACKUP_BUTTON = "backup_button";
+    public static final String RESTORE_BUTTON = "restore_button";
+    public static final String FOLDER_NAME = "Backup";
+    public static final String FILE_NAME = "packages.bak";
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
     private Menu menu;
+    DatabaseHelper databaseHelper = null;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setHasOptionsMenu(true);
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
-        preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (key.equals(PREF_NOTIF) || key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_LANGUAGE)) {
-                    Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_SHORT).show();
-                    menu.findItem(R.id.restart_button).setVisible(true);
-                }
-                if (key.equals(PREF_NOTIF_INTERVAL)) {
-                    Preference notifIntervalPref = findPreference(key);
-                    ListPreference listPref = (ListPreference) notifIntervalPref;
-                    notifIntervalPref.setSummary(listPref.getEntry());
-                }
+        preferenceChangeListener = (sharedPreferences, key) -> {
+            if (key.equals(PREF_NOTIF) || key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_LANGUAGE)) {
+                Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_SHORT).show();
+                menu.findItem(R.id.restart_button).setVisible(true);
+            }
+            if (key.equals(PREF_NOTIF_INTERVAL)) {
+                Preference notifIntervalPref = findPreference(key);
+                ListPreference listPref = (ListPreference) notifIntervalPref;
+                notifIntervalPref.setSummary(listPref.getEntry());
             }
         };
+
+        Preference backup_button = findPreference(BACKUP_BUTTON);
+        backup_button.setOnPreferenceClickListener(preference -> {
+            if (isExtStorageRW()) {
+                exportCSV();
+            } else {
+                Toast.makeText(getContext(), R.string.backup_error, Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        });
+
+        Preference restore_button = findPreference(RESTORE_BUTTON);
+        restore_button.setOnPreferenceClickListener(preference -> {
+            if (isExtStorageRW()) {
+                importCSV();
+            } else {
+                Toast.makeText(getContext(), R.string.restore_error, Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        });
+    }
+
+    private boolean isExtStorageRW() {
+        // check if storage is available for RW operations
+        String extStorageState = Environment.getExternalStorageState();
+        return extStorageState.equals(Environment.MEDIA_MOUNTED);
+    }
+
+    private void exportCSV() {
+        // complete filepath
+        String filePathAndName = getActivity().getExternalFilesDir(FOLDER_NAME) + "/" + FILE_NAME;
+
+        // get records from index table
+        List<TrackingIndexModel> recordsList = databaseHelper.getAllTracking();
+        StringBuilder csvContent = new StringBuilder();
+        for (int i = 0; i < recordsList.size(); i++) {
+            csvContent.append(Objects.toString(recordsList.get(i).getTracking(), "").replace(",", "."));
+            csvContent.append(",");
+            csvContent.append(Objects.toString(recordsList.get(i).getCustomName(), "").replace(",", "."));
+            csvContent.append("\n");
+        }
+
+        // write csv file
+        File bakFile = new File(getActivity().getExternalFilesDir(FOLDER_NAME), (FILE_NAME));
+        FileOutputStream fos;
+        try {
+            fos = new FileOutputStream(bakFile);
+            fos.write(csvContent.toString().getBytes());
+            Toast.makeText(getContext(), getString(R.string.backup_exported_to) + filePathAndName, Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), R.string.backup_error, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void importCSV() {
+        // use same path and file name as backup
+        String filePathAndName = getActivity().getExternalFilesDir(FOLDER_NAME) + "/" + FILE_NAME;
+
+        File csvFile = new File(filePathAndName);
+
+        // check if exists
+        if (csvFile.exists()) {
+            // backup exists
+            try {
+                CSVReader csvReader = new CSVReader(new FileReader(csvFile.getAbsolutePath()));
+
+                String[] nextLine;
+                while ((nextLine = csvReader.readNext()) != null) {
+                    String tracking = nextLine[0];
+                    String customName = nextLine[1];
+                    databaseHelper.addNewTracking(tracking, customName);
+                }
+                Toast.makeText(getContext(), R.string.backup_restored, Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getContext(), R.string.restore_error, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // backup does not exist
+            Toast.makeText(getContext(), R.string.no_backup_found, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -53,6 +147,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         Preference notifIntervalPref = findPreference(PREF_NOTIF_INTERVAL);
         ListPreference listPref = (ListPreference) notifIntervalPref;
         notifIntervalPref.setSummary(listPref.getEntry());
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        databaseHelper = new DatabaseHelper(getContext());
     }
 
     @Override

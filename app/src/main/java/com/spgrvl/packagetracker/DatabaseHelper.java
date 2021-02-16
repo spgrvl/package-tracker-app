@@ -64,6 +64,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean addNewTracking(String Tracking, String CustomName) {
         SQLiteDatabase db = this.getWritableDatabase();
 
+        // While exporting from backup, empty strings should be converted to null
+        if (Tracking.equals("")) {
+            Tracking = null;
+        }
+        if (CustomName.equals("")) {
+            CustomName = null;
+        }
+
         // Create table for details of new Tracking number
         try {
             String createTrackingTable = "CREATE TABLE IF NOT EXISTS '" + Tracking + "'(" + STATUS_COL + " TEXT, " + PLACE_COL + " TEXT, " + DATETIME_COL + " TEXT )";

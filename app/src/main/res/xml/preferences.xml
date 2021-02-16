@@ -38,4 +38,20 @@
             android:negativeButtonText="@string/cancel"/>
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="@string/backup_restore_cat"
+        app:iconSpaceReserved="false">
+        <Preference
+            android:title="@string/backup_pref"
+            android:key="backup_button"
+            android:summary="@string/backup_pref_summary"
+            app:iconSpaceReserved="false"/>
+        <Preference
+            android:title="@string/restore_pref"
+            android:key="restore_button"
+            android:summary="@string/restore_pref_summary"
+            app:iconSpaceReserved="false"/>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

@@ -41,6 +41,16 @@
     <string name="notif_pref_cat">Ειδοποιήσεις</string>
     <string name="ask_add_package">Προσθήκη πακέτου;</string>
     <string name="possible_tracking_id">Εντοπίστηκε πιθανός αριθμός αποστολής:\u0020</string>
+    <string name="backup_restore_cat">Δημιουργία &amp; Επαναφορά Αντιγράφων Ασφαλείας</string>
+    <string name="backup_pref">Δημιουργία Αντιγράφου Ασφαλείας</string>
+    <string name="restore_pref">Επαναφορά Αντιγράφου Ασφαλείας</string>
+    <string name="backup_pref_summary">Δημιουργήστε ένα αντίγραφo ασφαλείας των πακέτων σας.</string>
+    <string name="restore_pref_summary">Επαναφέρετε ένα αντίγραφo ασφαλείας των πακέτων σας.</string>
+    <string name="backup_exported_to">Το αντίγραφο ασφαλείας αποθηκεύτηκε σε:\n\n</string>
+    <string name="backup_error">Παρουσιάστηκε σφάλμα κατά τη δημιουργία αντιγράφων ασφαλείας!</string>
+    <string name="no_backup_found">Δεν βρέθηκε αντίγραφο ασφαλείας!</string>
+    <string name="backup_restored">Η επαναφορά του αντιγράφου ασφαλείας ήταν επιτυχής!</string>
+    <string name="restore_error">Παρουσιάστηκε σφάλμα κατά την επαναφορά του αντιγράφου ασφαλείας!</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>

@@ -41,6 +41,16 @@
     <string name="notif_pref_cat">Notifications</string>
     <string name="ask_add_package">Add Package?</string>
     <string name="possible_tracking_id">Possible tracking ID detected:\u0020</string>
+    <string name="backup_restore_cat">Backup &amp; Restore</string>
+    <string name="backup_pref">Backup</string>
+    <string name="restore_pref">Restore</string>
+    <string name="backup_pref_summary">Backup your packages</string>
+    <string name="restore_pref_summary">Restore your packages</string>
+    <string name="backup_exported_to">Backup exported to:\n\n</string>
+    <string name="backup_error">There was an error while taking backup!</string>
+    <string name="no_backup_found">No backup found!</string>
+    <string name="backup_restored">Backup restored!</string>
+    <string name="restore_error">There was an error while restoring backup!</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>
