@@ -15,8 +15,10 @@ public class App extends Application {
     public static final String CHANNEL_PKG_ID = "channelPkg";
     public static final String PREF_NOTIF = "pref_notif";
     public static final String PREF_NOTIF_INTERVAL = "pref_notif_interval";
+    public static final String JOB_COUNTER = "job_counter";
     private static final int UPD_JOB_ID = 38925;
     private String notifIntervalPref;
+    private SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate() {
@@ -26,7 +28,7 @@ public class App extends Application {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         // Read User preferences
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean notifPref = sharedPreferences.getBoolean(PREF_NOTIF, true);
         notifIntervalPref = sharedPreferences.getString(PREF_NOTIF_INTERVAL, "15");
 
@@ -60,6 +62,12 @@ public class App extends Application {
     }
 
     private void scheduleJob() {
+        // Set a job counter
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(JOB_COUNTER, 1);
+        editor.apply();
+
+        // Schedule the job
         ComponentName componentName = new ComponentName(this, UpdateJobService.class);
         JobInfo info = new JobInfo.Builder(UPD_JOB_ID, componentName)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // only when there is internet connection
