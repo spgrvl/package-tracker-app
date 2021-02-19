@@ -1,18 +1,16 @@
 package com.spgrvl.packagetracker;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -22,11 +20,13 @@ public class CustomIndexListAdapter extends RecyclerView.Adapter<CustomIndexList
     private final List<TrackingIndexModel> listData;
     private final LayoutInflater layoutInflater;
     private final Context context;
+    private final MainActivity mainActivity;
 
     public CustomIndexListAdapter(Context context, List<TrackingIndexModel> listData) {
         this.listData = listData;
         this.context = context;
         layoutInflater = LayoutInflater.from(context);
+        this.mainActivity = (MainActivity) context;
     }
 
     @NonNull
@@ -71,25 +71,30 @@ public class CustomIndexListAdapter extends RecyclerView.Adapter<CustomIndexList
         }
 
         // Called when user clicks RecyclerView items
-        holder.parentView.setOnClickListener(v -> openTrackingDetails(tracking.getTracking()));
+        holder.parentView.setOnClickListener(v -> {
+            if (!mainActivity.isInSelectionMode) {
+                openTrackingDetails(tracking.getTracking());
+            } else {
+                mainActivity.selectItem(holder.checkbox, position);
+            }
+        });
 
         // Called when user long clicks RecyclerView items
         holder.parentView.setOnLongClickListener(v -> {
-            new AlertDialog.Builder(context)
-                    .setTitle(R.string.sure_confirmation)
-                    .setMessage(R.string.delete_confirmation)
-                    .setPositiveButton(R.string.yes, (dialog, which) -> {
-                        // Remove item from DB
-                        databaseHelper.deleteTracking(tracking.getTracking());
-                        // Remove item from adapter
-                        listData.remove(tracking);
-                        notifyDataSetChanged();
-                        Toast.makeText(context, context.getString(R.string.package_deleted_partial) + tracking.getTracking(), Toast.LENGTH_SHORT).show();
-                    })
-                    .setNegativeButton(R.string.no, null)
-                    .show();
+            mainActivity.startSelection(position);
             return true;
         });
+
+        if (mainActivity.isInSelectionMode) {
+            if (mainActivity.position == position) {
+                holder.checkbox.setChecked(true);
+                mainActivity.position = -1;
+            }
+            holder.checkbox.setVisibility(View.VISIBLE);
+        } else {
+            holder.checkbox.setVisibility(View.GONE);
+            holder.checkbox.setChecked(false);
+        }
     }
 
     @Override
@@ -106,14 +111,16 @@ public class CustomIndexListAdapter extends RecyclerView.Adapter<CustomIndexList
         TextView tracking;
         TextView updated;
         TextView lastUpdate;
+        CheckBox checkbox;
         private final View parentView;
 
         public ViewHolder(@NonNull View view) {
             super(view);
             this.parentView = view;
-            this.tracking = (TextView) view.findViewById(R.id.trackingTv);
-            this.updated = (TextView) view.findViewById(R.id.updatedTv);
-            this.lastUpdate = (TextView) view.findViewById(R.id.lastUpdateTv);
+            this.tracking = view.findViewById(R.id.trackingTv);
+            this.updated = view.findViewById(R.id.updatedTv);
+            this.lastUpdate = view.findViewById(R.id.lastUpdateTv);
+            this.checkbox = view.findViewById(R.id.checkbox);
         }
     }
 

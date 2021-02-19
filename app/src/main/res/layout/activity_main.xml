@@ -28,7 +28,10 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/trackingNumbersRv"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            app:layoutManager="LinearLayoutManager"
+            app:reverseLayout="true"
+            app:stackFromEnd="true" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

@@ -1,6 +1,5 @@
 package com.spgrvl.packagetracker;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,7 +10,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -59,7 +57,6 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
 
     private void showDetailsOnRecyclerView() {
         trackingDetailsRv.setAdapter(new CustomDetailsListAdapter(this, databaseHelper.getTrackingDetails(tracking)));
-        trackingDetailsRv.setLayoutManager(new LinearLayoutManager(this));
     }
 
     private void updateDetails() {
@@ -107,7 +104,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                 .setMessage(R.string.delete_confirmation)
                 .setPositiveButton(R.string.yes, (dialog, which) -> {
                     databaseHelper.deleteTracking(tracking);
-                    Toast.makeText(getApplicationContext(), getString(R.string.package_deleted_partial) + " " + tracking, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.package_deleted, tracking), Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .setNegativeButton(R.string.no, null)

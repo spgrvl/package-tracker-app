@@ -4,24 +4,24 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,8 +31,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     RecyclerView trackingNumbersRv;
     DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
     private SwipeRefreshLayout swipeRefreshLayout;
+    private final ArrayList<String> selectionList = new ArrayList<>();
+    private int counter = 0;
+    public int position = -1;
     static boolean startedFlag;
+    public boolean isInSelectionMode = false;
     private final String trackingNumberRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
+    private CustomIndexListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +81,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void showTrackingOnRecyclerView() {
-        trackingNumbersRv.setAdapter(new CustomIndexListAdapter(this, databaseHelper.getAllTracking()));
-        trackingNumbersRv.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new CustomIndexListAdapter(MainActivity.this, databaseHelper.getAllTracking());
+        trackingNumbersRv.setAdapter(adapter);
     }
 
     public void addTrackingDb(String trackingNumber, String customName) {
@@ -106,7 +111,24 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.index_action_bar, menu);
+        menu.setGroupVisible(R.id.selection_group, false);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (isInSelectionMode) {
+            menu.setGroupVisible(R.id.main_group, false);
+            menu.setGroupVisible(R.id.selection_group, true);
+            Objects.requireNonNull(this.getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        } else {
+            menu.setGroupVisible(R.id.selection_group, false);
+            menu.setGroupVisible(R.id.main_group, true);
+            Objects.requireNonNull(this.getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
+            this.setTitle(R.string.app_name);
+        }
+
+        return true;
     }
 
     @Override
@@ -116,6 +138,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             updateIndex();
         } else if (item.getItemId() == R.id.settings_button) {
             startActivity(new Intent(this, SettingsActivity.class));
+        } else if (item.getItemId() == android.R.id.home) {
+            clearSelectionMode();
+        } else if (item.getItemId() == R.id.selection_delete_button && selectionList.size() > 0) {
+            delete_packages();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -227,5 +253,72 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onNegativeButtonClicked() {
+    }
+
+    public void startSelection(int index) {
+        if (!isInSelectionMode) {
+            isInSelectionMode = true;
+            selectionList.add(databaseHelper.getAllTracking().get(index).getTracking());
+            counter++;
+            updateToolbarText(counter);
+            position = index;
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private void updateToolbarText(int counter) {
+        invalidateOptionsMenu();
+        if (counter == 0) {
+            clearSelectionMode();
+        } else if (counter == 1) {
+            this.setTitle(getString(R.string.one_item_selected));
+        } else {
+            this.setTitle(getString(R.string.multiple_items_selected, counter));
+        }
+    }
+
+    private void clearSelectionMode() {
+        isInSelectionMode = false;
+        invalidateOptionsMenu();
+        counter = 0;
+        selectionList.clear();
+        adapter.notifyDataSetChanged();
+    }
+
+    public void selectItem(View v, int index) {
+        if (((CheckBox) v).isChecked()) {
+            ((CheckBox) v).setChecked(false);
+            selectionList.remove(databaseHelper.getAllTracking().get(index).getTracking());
+            counter--;
+        } else {
+            ((CheckBox) v).setChecked(true);
+            selectionList.add(databaseHelper.getAllTracking().get(index).getTracking());
+            counter++;
+        }
+        updateToolbarText(counter);
+    }
+
+    private void delete_packages() {
+        String msg, toast_msg;
+        if (selectionList.size() == 1) {
+            msg = getString(R.string.delete_confirmation);
+            toast_msg = getString(R.string.package_deleted, selectionList.get(0));
+        } else {
+            msg = getString(R.string.delete_multiple_confirmation, selectionList.size());
+            toast_msg = getString(R.string.packages_deleted, selectionList.size());
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.sure_confirmation)
+                .setMessage(msg)
+                .setPositiveButton(R.string.yes, (dialog, which) -> {
+                    for (String tracking : selectionList) {
+                        databaseHelper.deleteTracking(tracking);
+                    }
+                    showTrackingOnRecyclerView();
+                    Toast.makeText(this, toast_msg, Toast.LENGTH_SHORT).show();
+                    clearSelectionMode();
+                })
+                .setNegativeButton(R.string.no, ((dialog, which) -> clearSelectionMode()))
+                .show();
     }
 }

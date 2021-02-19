@@ -8,9 +8,11 @@
     <string name="toast_tracking_exists">This tracking number already exists!</string>
     <string name="sure_confirmation">Are you sure?</string>
     <string name="delete_confirmation">Do you want to delete this package?</string>
+    <string name="delete_multiple_confirmation">Do you want to delete %1$d packages?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="package_deleted_partial">Deleted package\u0020</string>
+    <string name="package_deleted">Deleted package %1$s</string>
+    <string name="packages_deleted">Deleted %1$d packages</string>
     <string name="added_successfully">Added successfully!</string>
     <string name="something_went_wrong">Something went wrong!</string>
     <string name="edited_successfully">Edited successfully!</string>
@@ -53,6 +55,8 @@
     <string name="restore_error">There was an error while restoring backup!</string>
     <string name="backup_confirmation_msg">This action will overwrite any previous backups.</string>
     <string name="restore_confirmation_msg">Current packages won\'t be overwritten, only new ones will be added.</string>
+    <string name="one_item_selected">1 item selected</string>
+    <string name="multiple_items_selected">%1$d items selected</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

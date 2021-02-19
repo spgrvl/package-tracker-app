@@ -5,32 +5,46 @@
     android:foreground="?android:attr/selectableItemBackground"
     android:padding="8dp">
 
-    <TextView
-        android:id="@+id/trackingTv"
+    <CheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:clickable="false" />
+
+    <LinearLayout
+        android:id="@+id/tvLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:gravity="center_horizontal"
-        android:maxLines="1"
-        android:text="Tracking"
-        android:textSize="16sp" />
+        android:layout_toEndOf="@+id/checkbox"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/updatedTv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/trackingTv"
-        android:layout_centerHorizontal="true"
-        android:text="Updated" />
+        <TextView
+            android:id="@+id/trackingTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:text="Tracking"
+            android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/lastUpdateTv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/updatedTv"
-        android:layout_centerHorizontal="true"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:text="LastUpdate" />
+        <TextView
+            android:id="@+id/updatedTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="Updated" />
+
+        <TextView
+            android:id="@+id/lastUpdateTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:text="LastUpdate" />
+
+    </LinearLayout>
 
 </RelativeLayout>

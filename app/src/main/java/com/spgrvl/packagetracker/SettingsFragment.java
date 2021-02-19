@@ -140,6 +140,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 while ((nextLine = csvReader.readNext()) != null) {
                     String tracking = nextLine[0];
                     String customName = nextLine[1];
+                    if (customName.equals("")) {
+                        customName = null;
+                    }
                     databaseHelper.addNewTracking(tracking, customName);
                 }
                 Toast.makeText(getContext(), R.string.backup_restored, Toast.LENGTH_SHORT).show();

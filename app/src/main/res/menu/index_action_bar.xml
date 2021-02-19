@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:title="@string/refresh"
-        android:id="@+id/refresh_button"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_refresh"/>
+    <group android:id="@+id/main_group">
+        <item
+            android:id="@+id/refresh_button"
+            android:icon="@drawable/ic_refresh"
+            android:title="@string/refresh"
+            app:showAsAction="ifRoom" />
 
-    <item android:title="@string/settings"
-        android:id="@+id/settings_button"
-        app:showAsAction="collapseActionView"
-        android:icon="@drawable/ic_settings"/>
+        <item
+            android:id="@+id/settings_button"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/settings"
+            app:showAsAction="collapseActionView" />
+    </group>
+
+    <group android:id="@+id/selection_group">
+        <item
+            android:id="@+id/selection_delete_button"
+            android:icon="@drawable/ic_delete"
+            android:title="@string/delete"
+            app:showAsAction="always" />
+    </group>
 </menu>

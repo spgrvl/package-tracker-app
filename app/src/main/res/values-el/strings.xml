@@ -9,9 +9,11 @@
     <string name="toast_tracking_exists">Αυτός ο αριθμός αποστολής υπάρχει ήδη!</string>
     <string name="sure_confirmation">Είστε σίγουρος/η;</string>
     <string name="delete_confirmation">Θέλετε να διαγράψετε αυτό το πακέτο;</string>
+    <string name="delete_multiple_confirmation">Θέλετε να διαγράψετε %1$d πακέτα;</string>
     <string name="yes">Ναι</string>
     <string name="no">Οχι</string>
-    <string name="package_deleted_partial">Διαγράφτηκε το πακέτο\u0020</string>
+    <string name="package_deleted">Διαγράφηκε το πακέτο %1$s</string>
+    <string name="packages_deleted">Διαγράφηκαν %1$d πακέτα</string>
     <string name="added_successfully">Προστέθηκε επιτυχώς!</string>
     <string name="something_went_wrong">Κάτι πήγε στραβά!</string>
     <string name="edited_successfully">Η επεξεργασία ήταν επιτυχής!</string>
@@ -53,6 +55,8 @@
     <string name="restore_error">Παρουσιάστηκε σφάλμα κατά την επαναφορά του αντιγράφου ασφαλείας!</string>
     <string name="backup_confirmation_msg">Αυτή η ενέργεια θα αντικαταστήσει τυχόν προηγούμενα αντίγραφα ασφαλείας.</string>
     <string name="restore_confirmation_msg">Τα υπάρχοντα πακέτα δεν θα αντικατασταθούν, θα προστεθούν μόνο όσα δεν υπάρχουν ήδη.</string>
+    <string name="one_item_selected">Επιλέχθηκε 1 στοιχείο</string>
+    <string name="multiple_items_selected">Επιλέχθηκαν %1$d στοιχεία</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>
