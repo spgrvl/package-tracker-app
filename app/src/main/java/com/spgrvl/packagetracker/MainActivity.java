@@ -12,6 +12,7 @@ import android.content.ClipboardManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,6 +39,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public boolean isInSelectionMode = false;
     private final String trackingNumberRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
     private CustomIndexListAdapter adapter;
+    private static final long RV_UPDATE_INTERVAL = 10000;
+    private Handler rvHandler;
+    private Runnable rvRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +74,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         // Populating the RecyclerView from DB
         showTrackingOnRecyclerView();
+
+        // Refresh package entries every 10 seconds
+        rvHandler = new Handler();
+        rvRunnable = () -> {
+            if (!isInSelectionMode) {
+                adapter.notifyDataSetChanged();
+            }
+            rvHandler.postDelayed(rvRunnable, RV_UPDATE_INTERVAL);
+        };
 
         startedFlag = true;
     }
@@ -106,6 +119,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 });
             }
         }).start();
+    }
+
+    private void resumeHandler() {
+        pauseHandler(); // cancelling any existing handlers if any
+        rvHandler.post(rvRunnable);
+    }
+
+    private void pauseHandler() {
+        rvHandler.removeCallbacks(rvRunnable);
     }
 
     @Override
@@ -152,9 +174,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     @Override
+    public void onPause() {
+        pauseHandler();
+        super.onPause();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-        showTrackingOnRecyclerView();
+        resumeHandler();
     }
 
     public void onWindowFocusChanged(boolean hasFocus) {
