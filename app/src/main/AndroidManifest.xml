@@ -31,6 +31,8 @@
                     android:host="itemsearch.elta.gr"/>
                 <data android:scheme="https"
                     android:host="www.elta.gr"/>
+                <data android:scheme="https"
+                    android:host="www.acscourier.net"/>
             </intent-filter>
         </activity>
 

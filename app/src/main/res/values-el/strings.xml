@@ -57,6 +57,7 @@
     <string name="restore_confirmation_msg">Τα υπάρχοντα πακέτα δεν θα αντικατασταθούν, θα προστεθούν μόνο όσα δεν υπάρχουν ήδη.</string>
     <string name="one_item_selected">Επιλέχθηκε 1 στοιχείο</string>
     <string name="multiple_items_selected">Επιλέχθηκαν %1$d στοιχεία</string>
+    <string name="action_failed_invalid_tracking">Η εκτέλεση αυτής της ενέργειας δεν ήταν δυνατή λόγω μη έγκυρου αριθμού αποστολής</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>

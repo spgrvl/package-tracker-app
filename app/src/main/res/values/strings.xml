@@ -57,6 +57,7 @@
     <string name="restore_confirmation_msg">Current packages won\'t be overwritten, only new ones will be added.</string>
     <string name="one_item_selected">1 item selected</string>
     <string name="multiple_items_selected">%1$d items selected</string>
+    <string name="action_failed_invalid_tracking">This action could not be performed due to invalid tracking number</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

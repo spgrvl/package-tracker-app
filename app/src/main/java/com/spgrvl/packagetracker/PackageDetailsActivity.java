@@ -14,12 +14,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class PackageDetailsActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, EditDialog.AddDialogListener {
 
     private String tracking;
     private RecyclerView trackingDetailsRv;
     private SwipeRefreshLayout swipeRefreshLayout;
+    public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
+    public static final String acsTrackingRegex = "[0-9]{10}";
 
     DatabaseHelper databaseHelper = new DatabaseHelper(PackageDetailsActivity.this);
 
@@ -91,9 +94,19 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         } else if (itemId == R.id.delete_button) {
             deleteTracking();
         } else if (itemId == R.id.open_browser_button) {
-            String url = "https://itemsearch.elta.gr/el-GR/Query/Direct/" + tracking;
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            this.startActivity(intent);
+            String carrier = detectCarrier();
+            if (carrier != null) {
+                String url = null;
+                if (carrier.equals("elta")) {
+                    url = "https://itemsearch.elta.gr/el-GR/Query/Direct/" + tracking;
+                } else if (carrier.equals("acs")) {
+                    url = "https://a.acssp.gr/track/?k=etr:" + tracking;
+                }
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                this.startActivity(intent);
+            } else {
+                Toast.makeText(this, R.string.action_failed_invalid_tracking, Toast.LENGTH_LONG).show();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -152,5 +165,14 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         } else {
             Toast.makeText(PackageDetailsActivity.this, R.string.something_went_wrong, Toast.LENGTH_LONG).show();
         }
+    }
+
+    private String detectCarrier() {
+        if (Pattern.compile(eltaTrackingRegex).matcher(tracking).find()) {
+            return "elta";
+        } else if (Pattern.compile(acsTrackingRegex).matcher(tracking).find()) {
+            return "acs";
+        }
+        return null;
     }
 }

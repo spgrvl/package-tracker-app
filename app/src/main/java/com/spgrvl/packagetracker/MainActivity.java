@@ -37,7 +37,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public int position = -1;
     static boolean startedFlag;
     public boolean isInSelectionMode = false;
-    private final String trackingNumberRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
+    public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
+    public static final String acsTrackingRegex = "[0-9]{10}";
+    public static final String trackingNumberRegex = String.format("(%s)|(%s)", eltaTrackingRegex, acsTrackingRegex);
     private CustomIndexListAdapter adapter;
     private static final long RV_UPDATE_INTERVAL = 10000;
     private Handler rvHandler;
