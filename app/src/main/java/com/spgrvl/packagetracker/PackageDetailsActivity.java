@@ -22,6 +22,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     private RecyclerView trackingDetailsRv;
     private SwipeRefreshLayout swipeRefreshLayout;
     public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
+    public static final String speedexTrackingRegex = "[0-9]{12}";
     public static final String acsTrackingRegex = "[0-9]{10}";
 
     DatabaseHelper databaseHelper = new DatabaseHelper(PackageDetailsActivity.this);
@@ -97,10 +98,16 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             String carrier = detectCarrier();
             if (carrier != null) {
                 String url = null;
-                if (carrier.equals("elta")) {
-                    url = "https://itemsearch.elta.gr/el-GR/Query/Direct/" + tracking;
-                } else if (carrier.equals("acs")) {
-                    url = "https://a.acssp.gr/track/?k=etr:" + tracking;
+                switch (carrier) {
+                    case "elta":
+                        url = "https://itemsearch.elta.gr/el-GR/Query/Direct/" + tracking;
+                        break;
+                    case "speedex":
+                        url = "http://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
+                        break;
+                    case "acs":
+                        url = "https://a.acssp.gr/track/?k=etr:" + tracking;
+                        break;
                 }
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 this.startActivity(intent);
@@ -170,6 +177,8 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     private String detectCarrier() {
         if (Pattern.compile(eltaTrackingRegex).matcher(tracking).find()) {
             return "elta";
+        } else if (Pattern.compile(speedexTrackingRegex).matcher(tracking).find()) {
+            return "speedex";
         } else if (Pattern.compile(acsTrackingRegex).matcher(tracking).find()) {
             return "acs";
         }

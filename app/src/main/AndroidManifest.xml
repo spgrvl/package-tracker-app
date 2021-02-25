@@ -12,7 +12,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PackageTracker">
+        android:theme="@style/Theme.PackageTracker"
+        android:usesCleartextTraffic="true">
         <activity android:name=".PackageDetailsActivity" />
         <activity android:name=".BarcodeScanActivity"/>
         <activity android:name=".SettingsActivity"/>
@@ -33,6 +34,8 @@
                     android:host="www.elta.gr"/>
                 <data android:scheme="https"
                     android:host="www.acscourier.net"/>
+                <data android:scheme="http"
+                    android:host="www.speedex.gr"/>
             </intent-filter>
         </activity>
 

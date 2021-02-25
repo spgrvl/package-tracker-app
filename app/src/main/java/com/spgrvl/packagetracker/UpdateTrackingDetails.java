@@ -48,6 +48,7 @@ public class UpdateTrackingDetails {
     public static final String PREF_NOTIF = "pref_notif";
     public static final String PREF_LANGUAGE = "pref_language";
     public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
+    public static final String speedexTrackingRegex = "[0-9]{12}";
     public static final String acsTrackingRegex = "[0-9]{10}";
 
     public UpdateTrackingDetails(String tracking, Context context, Boolean isOnForeground) {
@@ -96,6 +97,40 @@ public class UpdateTrackingDetails {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return detailsList;
+    }
+
+    private ArrayList<TrackingDetailsModel> trackSpeedex() {
+        Document doc;
+        String url, deliveredSubtitle;
+        Elements deliveredTitle, deliveredSubtitleClass, cardTitle, cardSubtitleClass;
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+
+        try {
+            // Fetch tracking details
+            url = "http://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
+            doc = Jsoup.connect(url).get();
+
+            cardTitle = doc.getElementsByClass("card-title");
+            cardSubtitleClass = doc.getElementsByClass("card-subtitle text-muted mb-0 pt-1");
+
+            for (int i = 0; i < cardTitle.size()-1; i++) {
+                String cardSubtitle = cardSubtitleClass.get(i).child(0).text();
+                detailsList.add(new TrackingDetailsModel(cardTitle.get(i).text(),
+                        cardSubtitle.split(", ")[0],
+                        cardSubtitle.split(", ")[1].replace(" στις ", " ")));
+            }
+
+            deliveredTitle = doc.getElementsByClass("card-title delivered-title");
+            deliveredSubtitleClass = doc.getElementsByClass("card-subtitle text-muted mb-0 pt-1 delivered-subtitle");
+            deliveredSubtitle = deliveredSubtitleClass.get(0).child(0).text();
+            detailsList.add(new TrackingDetailsModel(deliveredTitle.get(0).text(),
+                    deliveredSubtitle.split(", ")[0],
+                    deliveredSubtitle.split(", ")[1].replace(" στις ", " ")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Collections.reverse(detailsList);
         return detailsList;
     }
 
@@ -166,6 +201,8 @@ public class UpdateTrackingDetails {
     private String detectCarrier() {
         if (Pattern.compile(eltaTrackingRegex).matcher(tracking).find()) {
             return "elta";
+        } else if (Pattern.compile(speedexTrackingRegex).matcher(tracking).find()) {
+            return "speedex";
         } else if (Pattern.compile(acsTrackingRegex).matcher(tracking).find()) {
             return "acs";
         }
@@ -178,10 +215,16 @@ public class UpdateTrackingDetails {
 
             String carrier = detectCarrier();
             if (carrier != null) {
-                if (carrier.equals("elta")) {
-                    detailsList = trackElta();
-                } else if (carrier.equals("acs")) {
-                    detailsList = trackAcs();
+                switch (carrier) {
+                    case "elta":
+                        detailsList = trackElta();
+                        break;
+                    case "speedex":
+                        detailsList = trackSpeedex();
+                        break;
+                    case "acs":
+                        detailsList = trackAcs();
+                        break;
                 }
             }
 
