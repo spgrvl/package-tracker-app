@@ -173,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
+        clearSelectionMode();
         updateIndex();
     }
 
@@ -185,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onResume() {
         super.onResume();
+        showTrackingOnRecyclerView();
         resumeHandler();
     }
 
