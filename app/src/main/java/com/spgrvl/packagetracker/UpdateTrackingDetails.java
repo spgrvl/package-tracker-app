@@ -11,11 +11,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.RequestFuture;
-import com.android.volley.toolbox.Volley;
-
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,8 +26,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import static com.spgrvl.packagetracker.App.CHANNEL_PKG_ID;
 
@@ -99,7 +101,6 @@ public class UpdateTrackingDetails {
 
     private ArrayList<TrackingDetailsModel> trackAcs() {
         String url;
-        RequestQueue mQueue;
         ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
 
         // Find system's language if there is no language preference set
@@ -114,29 +115,50 @@ public class UpdateTrackingDetails {
             url = "https://www.acscourier.net/en/track-and-trace?p_p_id=ACSCustomersAreaTrackTrace_WAR_ACSCustomersAreaportlet&p_p_lifecycle=2&p_p_resource_id=trackTraceJson&generalCode=" + tracking;
         }
 
-        RequestFuture<JSONObject> future = RequestFuture.newFuture();
-        JsonObjectRequest request = new JsonObjectRequest(url, new JSONObject(), future, future);
-        mQueue = Volley.newRequestQueue(context);
-        mQueue.add(request);
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                e.printStackTrace();
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String myResponse = response.body().string();
+                    try {
+                        JSONObject jsonResponseObject = new JSONObject(myResponse);
+                        JSONArray jsonResultsArray = jsonResponseObject.getJSONArray("results");
+                        JSONObject jsonResultsObject = jsonResultsArray.getJSONObject(0);
+                        JSONArray jsonCpArray = jsonResultsObject.getJSONArray("controlPoints");
+                        for (int i = 0; i < jsonCpArray.length(); i++) {
+                            JSONObject jsonCpObject = jsonCpArray.getJSONObject(i);
+                            long timestampMillis = jsonCpObject.getLong("date");
+                            DateFormat timestamp = new SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.FRANCE);
+                            Date date = new Date(timestampMillis);
+                            String status = jsonCpObject.getString("description");
+                            String place = jsonCpObject.getString("controlPoint");
+                            detailsList.add(new TrackingDetailsModel(status, place, timestamp.format(date)));
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                countDownLatch.countDown();
+            }
+        });
 
         try {
-            JSONObject response = future.get();
-            JSONArray jsonArray1 = response.getJSONArray("results");
-            JSONObject jsonObject = jsonArray1.getJSONObject(0);
-            JSONArray jsonArray = jsonObject.getJSONArray("controlPoints");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject controlPoint = jsonArray.getJSONObject(i);
-                long timestampMillis = controlPoint.getLong("date");
-                DateFormat timestamp = new SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.FRANCE);
-                Date date = new Date(timestampMillis);
-                String status = controlPoint.getString("description");
-                String place = controlPoint.getString("controlPoint");
-                detailsList.add(new TrackingDetailsModel(status, place, timestamp.format(date)));
-            }
-        } catch (InterruptedException | ExecutionException | JSONException e) {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         Collections.reverse(detailsList);
         return detailsList;
     }
@@ -152,7 +174,7 @@ public class UpdateTrackingDetails {
 
     protected boolean getWebsite() {
         Thread t = new Thread(() -> {
-            ArrayList<TrackingDetailsModel> detailsList;
+            ArrayList<TrackingDetailsModel> detailsList = null;
 
             String carrier = detectCarrier();
             if (carrier != null) {
@@ -160,11 +182,7 @@ public class UpdateTrackingDetails {
                     detailsList = trackElta();
                 } else if (carrier.equals("acs")) {
                     detailsList = trackAcs();
-                } else {
-                    detailsList = null;
                 }
-            } else {
-                detailsList = new ArrayList<>();
             }
 
             DatabaseHelper databaseHelper = new DatabaseHelper(context);
