@@ -11,12 +11,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class CustomDetailsListAdapter extends RecyclerView.Adapter<CustomDetailsListAdapter.ViewHolder> {
+public class CustomDetailsRvAdapter extends RecyclerView.Adapter<CustomDetailsRvAdapter.ViewHolder> {
 
     private final List<TrackingDetailsModel> listData;
     private final LayoutInflater layoutInflater;
 
-    public CustomDetailsListAdapter(Context context, List<TrackingDetailsModel> listData) {
+    public CustomDetailsRvAdapter(Context context, List<TrackingDetailsModel> listData) {
         this.listData = listData;
         layoutInflater = LayoutInflater.from(context);
     }
@@ -46,15 +46,15 @@ public class CustomDetailsListAdapter extends RecyclerView.Adapter<CustomDetails
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView status;
-        TextView place;
-        TextView datetime;
+        final TextView status;
+        final TextView place;
+        final TextView datetime;
 
         public ViewHolder(@NonNull View view) {
             super(view);
-            this.status = (TextView) view.findViewById(R.id.statusTv);
-            this.place = (TextView) view.findViewById(R.id.placeTv);
-            this.datetime = (TextView) view.findViewById(R.id.datetimeTv);
+            this.status = view.findViewById(R.id.statusTv);
+            this.place = view.findViewById(R.id.placeTv);
+            this.datetime = view.findViewById(R.id.datetimeTv);
         }
     }
 

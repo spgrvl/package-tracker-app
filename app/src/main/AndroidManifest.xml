@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.spgrvl.packagetracker">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -15,9 +16,10 @@
         android:theme="@style/Theme.PackageTracker"
         android:usesCleartextTraffic="true">
         <activity android:name=".PackageDetailsActivity" />
-        <activity android:name=".BarcodeScanActivity"/>
-        <activity android:name=".SettingsActivity"/>
-        <activity android:name=".MainActivity"
+        <activity android:name=".BarcodeScanActivity" />
+        <activity android:name=".SettingsActivity" />
+        <activity
+            android:name=".MainActivity"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,21 +27,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="https"
-                    android:host="itemsearch.elta.gr"/>
-                <data android:scheme="https"
-                    android:host="www.elta.gr"/>
-                <data android:scheme="https"
-                    android:host="www.acscourier.net"/>
-                <data android:scheme="http"
-                    android:host="www.speedex.gr"/>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="itemsearch.elta.gr"
+                    android:scheme="https" />
+                <data
+                    android:host="www.elta.gr"
+                    android:scheme="https" />
+                <data
+                    android:host="www.acscourier.net"
+                    android:scheme="https" />
+                <data
+                    android:host="www.speedex.gr"
+                    android:scheme="http" />
             </intent-filter>
         </activity>
 
-        <service android:name=".UpdateJobService"
+        <service
+            android:name=".UpdateJobService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 

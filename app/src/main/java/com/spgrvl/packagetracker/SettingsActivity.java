@@ -1,7 +1,9 @@
 package com.spgrvl.packagetracker;
 
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.Objects;
 
 public class SettingsActivity extends AppCompatActivity {

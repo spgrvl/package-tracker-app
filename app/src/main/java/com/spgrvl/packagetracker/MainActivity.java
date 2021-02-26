@@ -1,12 +1,5 @@
 package com.spgrvl.packagetracker;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
@@ -20,6 +13,13 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         AddNewDialog.AddDialogListener, BarcodeSelectionDialog.SingleChoiceListener {
 
     RecyclerView trackingNumbersRv;
-    DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
+    final DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
     private SwipeRefreshLayout swipeRefreshLayout;
     private final ArrayList<String> selectionList = new ArrayList<>();
     private int counter = 0;
@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public static final String speedexTrackingRegex = "[0-9]{12}";
     public static final String acsTrackingRegex = "[0-9]{10}";
     public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)", eltaTrackingRegex, speedexTrackingRegex, acsTrackingRegex);
-    private CustomIndexListAdapter adapter;
+    private CustomIndexRvAdapter adapter;
     private static final long RV_UPDATE_INTERVAL = 10000;
     private Handler rvHandler;
     private Runnable rvRunnable;
@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         } else {
             findViewById(R.id.empty_layout).setVisibility(View.GONE);
         }
-        adapter = new CustomIndexListAdapter(MainActivity.this, allTracking);
+        adapter = new CustomIndexRvAdapter(MainActivity.this, allTracking);
         trackingNumbersRv.setAdapter(adapter);
     }
 
@@ -290,10 +290,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void onPositiveButtonClicked(String[] list, int position) {
         // Open dialog with the tracking number pre-filled with barcode
         openDialog(list[position]);
-    }
-
-    @Override
-    public void onNegativeButtonClicked() {
     }
 
     public void startSelection(int index) {

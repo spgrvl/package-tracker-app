@@ -6,51 +6,51 @@
         android:title="@string/general_pref_cat"
         app:iconSpaceReserved="false">
         <ListPreference
-            android:key="pref_language"
-            android:title="@string/language_pref"
+            android:defaultValue="sys"
             android:entries="@array/language_pref_entries"
             android:entryValues="@array/language_pref_values"
+            android:key="pref_language"
+            android:negativeButtonText="@string/cancel"
             android:summary="@string/language_pref_summary"
-            android:defaultValue="sys"
-            app:iconSpaceReserved="false"
-            android:negativeButtonText="@string/cancel"/>
+            android:title="@string/language_pref"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/notif_pref_cat"
         app:iconSpaceReserved="false">
         <SwitchPreferenceCompat
-            android:key="pref_notif"
-            android:title="@string/notif_pref"
-            android:summary="@string/notif_pref_summary"
             android:defaultValue="true"
-            app:iconSpaceReserved="false"/>
+            android:key="pref_notif"
+            android:summary="@string/notif_pref_summary"
+            android:title="@string/notif_pref"
+            app:iconSpaceReserved="false" />
 
         <ListPreference
+            android:defaultValue="15"
             android:dependency="pref_notif"
-            android:key="pref_notif_interval"
-            android:title="@string/notif_interval_pref"
             android:entries="@array/notif_interval_pref_entries"
             android:entryValues="@array/notif_interval_pref_values"
+            android:key="pref_notif_interval"
+            android:negativeButtonText="@string/cancel"
             android:summary="@string/notif_interval_pref_summary"
-            android:defaultValue="15"
-            app:iconSpaceReserved="false"
-            android:negativeButtonText="@string/cancel"/>
+            android:title="@string/notif_interval_pref"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
         android:title="@string/backup_restore_cat"
         app:iconSpaceReserved="false">
         <Preference
-            android:title="@string/backup_pref"
             android:key="backup_button"
             android:summary="@string/backup_pref_summary"
-            app:iconSpaceReserved="false"/>
+            android:title="@string/backup_pref"
+            app:iconSpaceReserved="false" />
         <Preference
-            android:title="@string/restore_pref"
             android:key="restore_button"
             android:summary="@string/restore_pref_summary"
-            app:iconSpaceReserved="false"/>
+            android:title="@string/restore_pref"
+            app:iconSpaceReserved="false" />
 
     </PreferenceCategory>
 

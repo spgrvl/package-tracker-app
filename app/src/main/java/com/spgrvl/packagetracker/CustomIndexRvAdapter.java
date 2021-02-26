@@ -15,14 +15,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class CustomIndexListAdapter extends RecyclerView.Adapter<CustomIndexListAdapter.ViewHolder> {
+public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdapter.ViewHolder> {
 
     private final List<TrackingIndexModel> listData;
     private final LayoutInflater layoutInflater;
     private final Context context;
     private final MainActivity mainActivity;
 
-    public CustomIndexListAdapter(Context context, List<TrackingIndexModel> listData) {
+    public CustomIndexRvAdapter(Context context, List<TrackingIndexModel> listData) {
         this.listData = listData;
         this.context = context;
         layoutInflater = LayoutInflater.from(context);
@@ -108,10 +108,10 @@ public class CustomIndexListAdapter extends RecyclerView.Adapter<CustomIndexList
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tracking;
-        TextView updated;
-        TextView lastUpdate;
-        CheckBox checkbox;
+        final TextView tracking;
+        final TextView updated;
+        final TextView lastUpdate;
+        final CheckBox checkbox;
         private final View parentView;
 
         public ViewHolder(@NonNull View view) {

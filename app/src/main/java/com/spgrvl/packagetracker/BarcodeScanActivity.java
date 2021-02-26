@@ -1,10 +1,5 @@
 package com.spgrvl.packagetracker;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,14 +11,20 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import java.io.IOException;
+import java.util.Objects;
 
-public class BarcodeScanActivity extends AppCompatActivity{
+public class BarcodeScanActivity extends AppCompatActivity {
 
     private SurfaceView surfaceView;
     private BarcodeDetector barcodeDetector;
@@ -96,7 +97,7 @@ public class BarcodeScanActivity extends AppCompatActivity{
             @Override
             public void receiveDetections(@NonNull Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                if(barcodes.size() > 0){
+                if (barcodes.size() > 0) {
 
                     // play sound
                     toneGen.startTone(ToneGenerator.TONE_CDMA_PIP, 50);
@@ -124,14 +125,14 @@ public class BarcodeScanActivity extends AppCompatActivity{
     @Override
     protected void onPause() {
         super.onPause();
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
         cameraSource.release();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
         initialiseDetectorsAndSources();
     }
 

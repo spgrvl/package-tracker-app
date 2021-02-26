@@ -1,5 +1,7 @@
 package com.spgrvl.packagetracker;
 
+import androidx.annotation.NonNull;
+
 public class TrackingDetailsModel {
     private String status;
     private String place;
@@ -13,6 +15,7 @@ public class TrackingDetailsModel {
     }
 
     // toString
+    @NonNull
     @Override
     public String toString() {
         return "TrackingDetailsModel{" +

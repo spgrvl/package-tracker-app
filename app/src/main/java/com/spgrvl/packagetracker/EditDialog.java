@@ -2,7 +2,6 @@ package com.spgrvl.packagetracker;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class EditDialog extends AppCompatDialogFragment {
     private final String tracking;
@@ -27,27 +27,21 @@ public class EditDialog extends AppCompatDialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.add_new_dialog, null);
 
         builder.setView(view)
                 .setTitle(R.string.edit_package)
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
+                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
                 })
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String newTracking = editTextTracking.getText().toString();
-                        String newCustomName = editTextCustomName.getText().toString();
-                        if (newCustomName.isEmpty()) {
-                            newCustomName = null;
-                        }
-                        listener.editTracking(tracking, newTracking, newCustomName);
+                .setPositiveButton(R.string.ok, (dialogInterface, i) -> {
+                    String newTracking = editTextTracking.getText().toString();
+                    String newCustomName = editTextCustomName.getText().toString();
+                    if (newCustomName.isEmpty()) {
+                        newCustomName = null;
                     }
+                    listener.editTracking(tracking, newTracking, newCustomName);
                 });
         editTextTracking = view.findViewById(R.id.editText_tracking);
         editTextCustomName = view.findViewById(R.id.editText_customName);

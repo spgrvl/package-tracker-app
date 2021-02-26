@@ -3,11 +3,12 @@ package com.spgrvl.packagetracker;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+
+import java.util.Objects;
 
 public class BarcodeSelectionDialog extends DialogFragment {
 
@@ -15,7 +16,6 @@ public class BarcodeSelectionDialog extends DialogFragment {
 
     public interface SingleChoiceListener {
         void onPositiveButtonClicked(String[] list, int position);
-        void onNegativeButtonClicked();
     }
 
     SingleChoiceListener myListener;
@@ -26,7 +26,7 @@ public class BarcodeSelectionDialog extends DialogFragment {
         try {
             myListener = (SingleChoiceListener) context;
         } catch (Exception e) {
-            throw new ClassCastException(getActivity().toString() + " SingleChoiceListener must implemented");
+            throw new ClassCastException(Objects.requireNonNull(getActivity()).toString() + " SingleChoiceListener must implemented");
         }
     }
 
@@ -36,33 +36,19 @@ public class BarcodeSelectionDialog extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        String[] list = getArguments().getStringArray("barcodes");
+        String[] list = Objects.requireNonNull(getArguments()).getStringArray("barcodes");
 
         builder.setTitle("Choose a barcode to add")
-                .setSingleChoiceItems(list, position, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        position = i;
-                    }
-                })
-                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        myListener.onPositiveButtonClicked(list, position);
-                    }
-                })
-                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        myListener.onNegativeButtonClicked();
-                    }
+                .setSingleChoiceItems(list, position, (dialogInterface, i) -> position = i)
+                .setPositiveButton("ok", (dialogInterface, i) -> myListener.onPositiveButtonClicked(list, position))
+                .setNegativeButton("cancel", (dialogInterface, i) -> {
                 });
 
         return builder.create();
     }
 
     public static BarcodeSelectionDialog newInstance(String[] barcodes) {
-        BarcodeSelectionDialog dialog = new BarcodeSelectionDialog ();
+        BarcodeSelectionDialog dialog = new BarcodeSelectionDialog();
 
         Bundle args = new Bundle();
         args.putStringArray("barcodes", barcodes);

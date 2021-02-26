@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:title="@string/refresh"
+    <item
         android:id="@+id/refresh_button"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_refresh"/>
+        android:icon="@drawable/ic_refresh"
+        android:title="@string/refresh"
+        app:showAsAction="ifRoom" />
 
-    <item android:title="@string/edit"
+    <item
         android:id="@+id/edit_button"
-        app:showAsAction="collapseActionView"
-        android:icon="@drawable/ic_edit"/>
+        android:icon="@drawable/ic_edit"
+        android:title="@string/edit"
+        app:showAsAction="collapseActionView" />
 
-    <item android:title="@string/delete"
+    <item
         android:id="@+id/delete_button"
-        app:showAsAction="collapseActionView"
-        android:icon="@drawable/ic_delete"/>
+        android:icon="@drawable/ic_delete"
+        android:title="@string/delete"
+        app:showAsAction="collapseActionView" />
 
-    <item android:title="@string/open_in_browser"
+    <item
         android:id="@+id/open_browser_button"
-        app:showAsAction="collapseActionView"
-        android:icon="@drawable/ic_open_in_browser"/>
+        android:icon="@drawable/ic_open_in_browser"
+        android:title="@string/open_in_browser"
+        app:showAsAction="collapseActionView" />
 </menu>

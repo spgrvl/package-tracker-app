@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
 
@@ -166,7 +167,7 @@ public class UpdateTrackingDetails {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    String myResponse = response.body().string();
+                    String myResponse = Objects.requireNonNull(response.body()).string();
                     try {
                         JSONObject jsonResponseObject = new JSONObject(myResponse);
                         JSONArray jsonResultsArray = jsonResponseObject.getJSONArray("results");

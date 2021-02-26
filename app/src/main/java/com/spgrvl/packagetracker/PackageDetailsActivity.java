@@ -27,7 +27,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     public static final String speedexTrackingRegex = "[0-9]{12}";
     public static final String acsTrackingRegex = "[0-9]{10}";
 
-    DatabaseHelper databaseHelper = new DatabaseHelper(PackageDetailsActivity.this);
+    final DatabaseHelper databaseHelper = new DatabaseHelper(PackageDetailsActivity.this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +68,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         } else {
             findViewById(R.id.empty_details).setVisibility(View.GONE);
         }
-        trackingDetailsRv.setAdapter(new CustomDetailsListAdapter(this, trackingDetails));
+        trackingDetailsRv.setAdapter(new CustomDetailsRvAdapter(this, trackingDetails));
     }
 
     private void updateDetails() {

@@ -52,13 +52,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             if (key.equals(PREF_NOTIF_INTERVAL)) {
                 Preference notifIntervalPref = findPreference(key);
                 ListPreference listPref = (ListPreference) notifIntervalPref;
-                notifIntervalPref.setSummary(listPref.getEntry());
+                Objects.requireNonNull(notifIntervalPref).setSummary(listPref.getEntry());
             }
         };
 
         Preference backup_button = findPreference(BACKUP_BUTTON);
-        backup_button.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(getActivity())
+        Objects.requireNonNull(backup_button).setOnPreferenceClickListener(preference -> {
+            new AlertDialog.Builder(Objects.requireNonNull(getActivity()))
                     .setTitle(R.string.sure_confirmation)
                     .setMessage(R.string.backup_confirmation_msg)
                     .setPositiveButton(R.string.yes, (dialog, which) -> {
@@ -74,8 +74,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
 
         Preference restore_button = findPreference(RESTORE_BUTTON);
-        restore_button.setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(getActivity())
+        Objects.requireNonNull(restore_button).setOnPreferenceClickListener(preference -> {
+            new AlertDialog.Builder(Objects.requireNonNull(getActivity()))
                     .setTitle(R.string.sure_confirmation)
                     .setMessage(R.string.restore_confirmation_msg)
                     .setPositiveButton(R.string.yes, (dialog, which) -> {
@@ -99,7 +99,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void exportCSV() {
         // complete filepath
-        String filePathAndName = getActivity().getExternalFilesDir(FOLDER_NAME) + "/" + FILE_NAME;
+        String filePathAndName = Objects.requireNonNull(getActivity()).getExternalFilesDir(FOLDER_NAME) + "/" + FILE_NAME;
 
         // get records from index table
         List<TrackingIndexModel> recordsList = databaseHelper.getAllTracking();
@@ -126,7 +126,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void importCSV() {
         // use same path and file name as backup
-        String filePathAndName = getActivity().getExternalFilesDir(FOLDER_NAME) + "/" + FILE_NAME;
+        String filePathAndName = Objects.requireNonNull(getActivity()).getExternalFilesDir(FOLDER_NAME) + "/" + FILE_NAME;
 
         File csvFile = new File(filePathAndName);
 
@@ -164,7 +164,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         Preference notifIntervalPref = findPreference(PREF_NOTIF_INTERVAL);
         ListPreference listPref = (ListPreference) notifIntervalPref;
-        notifIntervalPref.setSummary(listPref.getEntry());
+        Objects.requireNonNull(notifIntervalPref).setSummary(listPref.getEntry());
     }
 
     @Override
@@ -190,9 +190,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.restart_button) {
-            triggerRebirth(getContext());
+            triggerRebirth(Objects.requireNonNull(getContext()));
         } else if (item.getItemId() == android.R.id.home) {
-            getActivity().finish();
+            Objects.requireNonNull(getActivity()).finish();
         }
         return super.onOptionsItemSelected(item);
     }

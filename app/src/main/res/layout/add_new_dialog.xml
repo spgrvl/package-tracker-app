@@ -15,8 +15,8 @@
         android:id="@+id/editText_tracking"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/editText_customName"
         android:hint="@string/new_tracking_hint"
-        android:inputType="text"
-        android:layout_below="@+id/editText_customName"/>
+        android:inputType="text" />
 
 </RelativeLayout>
