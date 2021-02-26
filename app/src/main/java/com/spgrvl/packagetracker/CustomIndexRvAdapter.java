@@ -21,12 +21,14 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
     private final LayoutInflater layoutInflater;
     private final Context context;
     private final MainActivity mainActivity;
+    private final DatabaseHelper databaseHelper;
 
     public CustomIndexRvAdapter(Context context, List<TrackingIndexModel> listData) {
         this.listData = listData;
         this.context = context;
         layoutInflater = LayoutInflater.from(context);
         this.mainActivity = (MainActivity) context;
+        databaseHelper = new DatabaseHelper(context);
     }
 
     @NonNull
@@ -61,14 +63,8 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             holder.lastUpdate.setText(tracking.getLastUpdate());
         }
 
-        // Set unread effect
-        DatabaseHelper databaseHelper = new DatabaseHelper(context);
-        boolean isUnread = databaseHelper.getUnreadStatus(tracking.getTracking());
-        if (isUnread) {
-            holder.tracking.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.updated.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.lastUpdate.setTypeface(Typeface.DEFAULT_BOLD);
-        }
+        // change the font style depending on package read status
+        applyReadStatus(holder, tracking);
 
         // Called when user clicks RecyclerView items
         holder.parentView.setOnClickListener(v -> {
@@ -121,6 +117,19 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             this.updated = view.findViewById(R.id.updatedTv);
             this.lastUpdate = view.findViewById(R.id.lastUpdateTv);
             this.checkbox = view.findViewById(R.id.checkbox);
+        }
+    }
+
+    private void applyReadStatus(ViewHolder holder, TrackingIndexModel tracking) {
+        boolean isUnread = databaseHelper.getUnreadStatus(tracking.getTracking());
+        if (isUnread) {
+            holder.tracking.setTypeface(Typeface.DEFAULT_BOLD);
+            holder.updated.setTypeface(Typeface.DEFAULT_BOLD);
+            holder.lastUpdate.setTypeface(Typeface.DEFAULT_BOLD);
+        } else {
+            holder.tracking.setTypeface(Typeface.DEFAULT);
+            holder.updated.setTypeface(Typeface.DEFAULT);
+            holder.lastUpdate.setTypeface(Typeface.DEFAULT);
         }
     }
 
