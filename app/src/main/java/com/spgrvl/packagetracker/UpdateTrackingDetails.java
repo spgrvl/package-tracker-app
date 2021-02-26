@@ -114,7 +114,7 @@ public class UpdateTrackingDetails {
             cardTitle = doc.getElementsByClass("card-title");
             cardSubtitleClass = doc.getElementsByClass("card-subtitle text-muted mb-0 pt-1");
 
-            for (int i = 0; i < cardTitle.size()-1; i++) {
+            for (int i = 0; i < cardTitle.size() - 1; i++) {
                 String cardSubtitle = cardSubtitleClass.get(i).child(0).text();
                 detailsList.add(new TrackingDetailsModel(cardTitle.get(i).text(),
                         cardSubtitle.split(", ")[0],
@@ -211,7 +211,7 @@ public class UpdateTrackingDetails {
 
     protected boolean getWebsite() {
         Thread t = new Thread(() -> {
-            ArrayList<TrackingDetailsModel> detailsList = null;
+            ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
 
             String carrier = detectCarrier();
             if (carrier != null) {

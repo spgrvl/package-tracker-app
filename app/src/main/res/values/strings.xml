@@ -58,6 +58,9 @@
     <string name="one_item_selected">1 item selected</string>
     <string name="multiple_items_selected">%1$d items selected</string>
     <string name="action_failed_invalid_tracking">This action could not be performed due to invalid tracking number</string>
+    <string name="no_packages">No packages</string>
+    <string name="no_packages_instructions">Add a new package using \"+\"</string>
+    <string name="no_status_information">No status information available yet</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -98,7 +99,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void showTrackingOnRecyclerView() {
-        adapter = new CustomIndexListAdapter(MainActivity.this, databaseHelper.getAllTracking());
+        List<TrackingIndexModel> allTracking = databaseHelper.getAllTracking();
+        if (allTracking.size() == 0) {
+            findViewById(R.id.empty_layout).setVisibility(View.VISIBLE);
+        } else {
+            findViewById(R.id.empty_layout).setVisibility(View.GONE);
+        }
+        adapter = new CustomIndexListAdapter(MainActivity.this, allTracking);
         trackingNumbersRv.setAdapter(adapter);
     }
 

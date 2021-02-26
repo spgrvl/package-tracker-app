@@ -58,6 +58,9 @@
     <string name="one_item_selected">Επιλέχθηκε 1 στοιχείο</string>
     <string name="multiple_items_selected">Επιλέχθηκαν %1$d στοιχεία</string>
     <string name="action_failed_invalid_tracking">Η εκτέλεση αυτής της ενέργειας δεν ήταν δυνατή λόγω μη έγκυρου αριθμού αποστολής</string>
+    <string name="no_packages">Δεν υπάρχουν πακέτα</string>
+    <string name="no_packages_instructions">Προσθέστε ένα πακέτο πατώντας το \"+\"</string>
+    <string name="no_status_information">Δεν υπάρχουν ακόμη διαθέσιμες πληροφορίες κατάστασης</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>

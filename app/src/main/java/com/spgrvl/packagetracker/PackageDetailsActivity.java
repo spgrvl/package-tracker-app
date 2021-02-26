@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -60,7 +62,13 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     }
 
     private void showDetailsOnRecyclerView() {
-        trackingDetailsRv.setAdapter(new CustomDetailsListAdapter(this, databaseHelper.getTrackingDetails(tracking)));
+        List<TrackingDetailsModel> trackingDetails = databaseHelper.getTrackingDetails(tracking);
+        if (trackingDetails.size() == 0) {
+            findViewById(R.id.empty_details).setVisibility(View.VISIBLE);
+        } else {
+            findViewById(R.id.empty_details).setVisibility(View.GONE);
+        }
+        trackingDetailsRv.setAdapter(new CustomDetailsListAdapter(this, trackingDetails));
     }
 
     private void updateDetails() {
