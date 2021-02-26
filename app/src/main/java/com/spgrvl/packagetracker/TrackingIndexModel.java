@@ -7,6 +7,7 @@ public class TrackingIndexModel {
     private String updated;
     private String lastUpdate;
     private String customName;
+    private boolean isSelected;
 
     // constructors
     public TrackingIndexModel(String tracking, String updated, String lastUpdate, String customName) {
@@ -25,6 +26,7 @@ public class TrackingIndexModel {
                 ", updated='" + updated + '\'' +
                 ", lastUpdate='" + lastUpdate + '\'' +
                 ", customName='" + customName + '\'' +
+                ", isSelected='" + isSelected + '\'' +
                 '}';
     }
 
@@ -59,5 +61,13 @@ public class TrackingIndexModel {
 
     public void setCustomName(String customName) {
         this.customName = customName;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.isSelected = selected;
     }
 }

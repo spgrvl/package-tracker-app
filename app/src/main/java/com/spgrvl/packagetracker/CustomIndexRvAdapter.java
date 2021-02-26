@@ -81,6 +81,13 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             return true;
         });
 
+        // set checkbox status
+        holder.checkbox.setOnCheckedChangeListener(null);
+        holder.checkbox.setChecked(tracking.isSelected());
+
+        holder.checkbox.setOnCheckedChangeListener((checkboxView, isChecked) -> tracking.setSelected(isChecked));
+
+        // detect if in multiple selection mode
         if (mainActivity.isInSelectionMode) {
             if (mainActivity.position == position) {
                 holder.checkbox.setChecked(true);
@@ -89,7 +96,9 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             holder.checkbox.setVisibility(View.VISIBLE);
         } else {
             holder.checkbox.setVisibility(View.GONE);
-            holder.checkbox.setChecked(false);
+            for (TrackingIndexModel t : listData) {
+                t.setSelected(false);
+            }
         }
     }
 
