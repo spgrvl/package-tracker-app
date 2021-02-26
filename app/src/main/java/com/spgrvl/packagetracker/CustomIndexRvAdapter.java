@@ -112,6 +112,18 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         return position;
     }
 
+    public void selectAll() {
+        for (TrackingIndexModel t : listData) {
+            t.setSelected(true);
+            notifyDataSetChanged();
+            if (!mainActivity.selectionList.contains(t.getTracking())) {
+                mainActivity.selectionList.add(t.getTracking());
+            }
+            mainActivity.counter = getItemCount();
+            mainActivity.updateToolbarText();
+        }
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView tracking;
         final TextView updated;

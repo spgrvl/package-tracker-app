@@ -34,8 +34,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     RecyclerView trackingNumbersRv;
     final DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
     private SwipeRefreshLayout swipeRefreshLayout;
-    private final ArrayList<String> selectionList = new ArrayList<>();
-    private int counter = 0;
+    protected final ArrayList<String> selectionList = new ArrayList<>();
+    protected int counter = 0;
     public int position = -1;
     static boolean startedFlag;
     public boolean isInSelectionMode = false;
@@ -173,6 +173,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (item.getItemId() == android.R.id.home) {
             clearSelectionMode();
+        } else if (item.getItemId() == R.id.select_all) {
+            adapter.selectAll();
         } else if (item.getItemId() == R.id.selection_delete_button && selectionList.size() > 0) {
             delete_packages();
         }
@@ -297,13 +299,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             isInSelectionMode = true;
             selectionList.add(databaseHelper.getAllTracking().get(index).getTracking());
             counter++;
-            updateToolbarText(counter);
+            updateToolbarText();
             position = index;
             adapter.notifyDataSetChanged();
         }
     }
 
-    private void updateToolbarText(int counter) {
+    protected void updateToolbarText() {
         invalidateOptionsMenu();
         if (counter == 0) {
             clearSelectionMode();
@@ -332,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             selectionList.add(databaseHelper.getAllTracking().get(index).getTracking());
             counter++;
         }
-        updateToolbarText(counter);
+        updateToolbarText();
     }
 
     private void delete_packages() {
