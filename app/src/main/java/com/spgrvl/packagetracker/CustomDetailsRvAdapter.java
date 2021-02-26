@@ -1,10 +1,13 @@
 package com.spgrvl.packagetracker;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,6 +36,15 @@ public class CustomDetailsRvAdapter extends RecyclerView.Adapter<CustomDetailsRv
         holder.status.setText(tracking.getStatus());
         holder.place.setText(tracking.getPlace());
         holder.datetime.setText(tracking.getDatetime());
+
+        // Called when user long clicks RecyclerView items
+        holder.parentView.setOnLongClickListener(v -> {
+            ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("text", tracking.getStatus() + ", \n" + tracking.getPlace() + ", \n" + tracking.getDatetime());
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(v.getContext(), R.string.status_to_clipboard, Toast.LENGTH_SHORT).show();
+            return true;
+        });
     }
 
     @Override
@@ -49,9 +61,11 @@ public class CustomDetailsRvAdapter extends RecyclerView.Adapter<CustomDetailsRv
         final TextView status;
         final TextView place;
         final TextView datetime;
+        private final View parentView;
 
         public ViewHolder(@NonNull View view) {
             super(view);
+            this.parentView = view;
             this.status = view.findViewById(R.id.statusTv);
             this.place = view.findViewById(R.id.placeTv);
             this.datetime = view.findViewById(R.id.datetimeTv);

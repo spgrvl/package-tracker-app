@@ -62,6 +62,7 @@
     <string name="no_packages_instructions">Προσθέστε ένα πακέτο πατώντας το \"+\"</string>
     <string name="no_status_information">Δεν υπάρχουν ακόμη διαθέσιμες πληροφορίες κατάστασης</string>
     <string name="select_all">Επιλογή όλων</string>
+    <string name="status_to_clipboard">Η κατάσταση αντιγράφηκε στο πρόχειρο</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>
