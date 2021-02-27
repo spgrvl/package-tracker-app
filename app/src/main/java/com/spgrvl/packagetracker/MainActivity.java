@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public static final String acsTrackingRegex = "[0-9]{10}";
     public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)", eltaTrackingRegex, speedexTrackingRegex, acsTrackingRegex);
     private CustomIndexRvAdapter adapter;
+    private FloatingActionButton fab;
     private static final long RV_UPDATE_INTERVAL = 10000;
     private Handler rvHandler;
     private Runnable rvRunnable;
@@ -75,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         handleUriIntent(uri);
 
         // Find Button by ID
-        FloatingActionButton fab = this.findViewById(R.id.fab);
+        fab = this.findViewById(R.id.fab);
 
         // Find RecyclerView by ID and set divider
         this.trackingNumbersRv = findViewById(R.id.trackingNumbersRv);
@@ -327,6 +328,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void startSelection(int index) {
         if (!isInSelectionMode) {
             isInSelectionMode = true;
+            fab.setVisibility(View.GONE);
             selectionList.add(databaseHelper.getAllTracking().get(index).getTracking());
             counter++;
             updateToolbarText();
@@ -348,6 +350,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void clearSelectionMode() {
         isInSelectionMode = false;
+        fab.setVisibility(View.VISIBLE);
         invalidateOptionsMenu();
         counter = 0;
         selectionList.clear();
