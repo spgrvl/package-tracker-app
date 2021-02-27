@@ -32,6 +32,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String PREF_NOTIF_INTERVAL = "pref_notif_interval";
     public static final String PREF_LANGUAGE = "pref_language";
     public static final String PREF_CLIPBOARD = "pref_clipboard";
+    public static final String PREF_THEME = "pref_theme";
     public static final String BACKUP_BUTTON = "backup_button";
     public static final String RESTORE_BUTTON = "restore_button";
     public static final String FOLDER_NAME = "Backup";
@@ -46,7 +47,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
         preferenceChangeListener = (sharedPreferences, key) -> {
-            if (key.equals(PREF_NOTIF) || key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_LANGUAGE) || key.equals(PREF_CLIPBOARD)) {
+            if (key.equals(PREF_NOTIF) || key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_LANGUAGE) || key.equals(PREF_CLIPBOARD) || key.equals(PREF_THEME)) {
                 Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
                 menu.findItem(R.id.restart_button).setVisible(true);
             }

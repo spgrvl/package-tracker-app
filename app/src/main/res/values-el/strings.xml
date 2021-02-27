@@ -24,7 +24,7 @@
     <string name="delete">Διαγραφή</string>
     <string name="settings">Ρυθμίσεις</string>
     <string name="notif_pref">Ειδοποιήσεις</string>
-    <string name="notif_pref_summary">Λάβετε ειδοποιήσεις για νέες ενημερώσεις στα πακέτα σας.</string>
+    <string name="notif_pref_summary">Λάβετε ειδοποιήσεις για νέες ενημερώσεις στα πακέτα σας</string>
     <string name="notif_interval_pref">Διάστημα ειδοποιήσεων</string>
     <string name="notif_interval_pref_summary">15 λεπτά</string>
     <string name="restart">Επανεκκινηση</string>
@@ -38,7 +38,7 @@
     <string name="scan">Σαρωση</string>
     <string name="package_channel">Κανάλι Πακέτων</string>
     <string name="language_pref">Γλώσσα</string>
-    <string name="language_pref_summary">Αλλάξτε τη γλώσσα εμφάνισης της εφαρμογής.</string>
+    <string name="language_pref_summary">Αλλάξτε τη γλώσσα εμφάνισης της εφαρμογής</string>
     <string name="general_pref_cat">Γενικές</string>
     <string name="notif_pref_cat">Ειδοποιήσεις</string>
     <string name="ask_add_package">Προσθήκη πακέτου;</string>
@@ -46,8 +46,8 @@
     <string name="backup_restore_cat">Δημιουργία &amp; Επαναφορά Αντιγράφων Ασφαλείας</string>
     <string name="backup_pref">Δημιουργία Αντιγράφου Ασφαλείας</string>
     <string name="restore_pref">Επαναφορά Αντιγράφου Ασφαλείας</string>
-    <string name="backup_pref_summary">Δημιουργήστε ένα αντίγραφo ασφαλείας των πακέτων σας.</string>
-    <string name="restore_pref_summary">Επαναφέρετε ένα αντίγραφo ασφαλείας των πακέτων σας.</string>
+    <string name="backup_pref_summary">Δημιουργήστε ένα αντίγραφo ασφαλείας των πακέτων σας</string>
+    <string name="restore_pref_summary">Επαναφέρετε ένα αντίγραφo ασφαλείας των πακέτων σας</string>
     <string name="backup_exported_to">Το αντίγραφο ασφαλείας αποθηκεύτηκε σε:\n\n</string>
     <string name="backup_error">Παρουσιάστηκε σφάλμα κατά τη δημιουργία αντιγράφων ασφαλείας!</string>
     <string name="no_backup_found">Δεν βρέθηκε αντίγραφο ασφαλείας!</string>
@@ -66,6 +66,8 @@
     <string name="clipboard_pref_summary">Εντοπισμός αριθμού αποστολής από το πρόχειρο της συσκευής</string>
     <string name="clipboard_pref">Ανίχνευση προχείρου</string>
     <string name="auto_detect_cat">Αυτόματη ανίχνευση πακέτων</string>
+    <string name="theme_pref_summary">Αλλάξτε το θέμα της εφαρμογής</string>
+    <string name="theme_pref">Θέμα</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>
@@ -78,5 +80,10 @@
         <item>Γλώσσα συστήματος</item>
         <item>Αγγλικά</item>
         <item>Ελληνικά</item>
+    </string-array>
+    <string-array name="theme_pref_entries">
+        <item>Θέμα συστήματος</item>
+        <item>Ανοιχτό θέμα</item>
+        <item>Σκούρο θέμα</item>
     </string-array>
 </resources>

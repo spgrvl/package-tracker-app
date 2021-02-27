@@ -14,6 +14,16 @@
             android:summary="@string/language_pref_summary"
             android:title="@string/language_pref"
             app:iconSpaceReserved="false" />
+
+        <ListPreference
+            android:defaultValue="sys"
+            android:entries="@array/theme_pref_entries"
+            android:entryValues="@array/theme_pref_values"
+            android:key="pref_theme"
+            android:negativeButtonText="@string/cancel"
+            android:summary="@string/theme_pref_summary"
+            android:title="@string/theme_pref"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory

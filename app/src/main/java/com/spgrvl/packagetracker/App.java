@@ -9,11 +9,13 @@ import android.content.ComponentName;
 import android.content.SharedPreferences;
 import android.os.Build;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
 public class App extends Application {
     public static final String CHANNEL_PKG_ID = "channelPkg";
     public static final String PREF_NOTIF = "pref_notif";
+    public static final String PREF_THEME = "pref_theme";
     public static final String PREF_NOTIF_INTERVAL = "pref_notif_interval";
     public static final String JOB_COUNTER = "job_counter";
     private static final int UPD_JOB_ID = 38925;
@@ -31,6 +33,20 @@ public class App extends Application {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean notifPref = sharedPreferences.getBoolean(PREF_NOTIF, true);
         notifIntervalPref = sharedPreferences.getString(PREF_NOTIF_INTERVAL, "15");
+
+        // Set app's theme based on user's preference
+        String themePref = sharedPreferences.getString(PREF_THEME, "sys");
+        switch (themePref) {
+            case "sys":
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                break;
+            case "light":
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+            case "dark":
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+        }
 
         // Create notification channels
         createNotificationChannels();

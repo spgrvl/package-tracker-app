@@ -24,7 +24,7 @@
     <string name="delete">Delete</string>
     <string name="settings">Settings</string>
     <string name="notif_pref">Notifications</string>
-    <string name="notif_pref_summary">Receive notifications about new updates in your packages.</string>
+    <string name="notif_pref_summary">Receive notifications about new updates in your packages</string>
     <string name="notif_interval_pref">Notifications interval</string>
     <string name="notif_interval_pref_summary">15 minutes</string>
     <string name="restart">Restart</string>
@@ -38,7 +38,7 @@
     <string name="scan">Scan</string>
     <string name="package_channel">Package Channel</string>
     <string name="language_pref">Language</string>
-    <string name="language_pref_summary">Change app\'s display language.</string>
+    <string name="language_pref_summary">Change app\'s display language</string>
     <string name="general_pref_cat">General</string>
     <string name="notif_pref_cat">Notifications</string>
     <string name="ask_add_package">Add Package?</string>
@@ -63,9 +63,11 @@
     <string name="no_status_information">No status information available yet</string>
     <string name="select_all">Select all</string>
     <string name="status_to_clipboard">Status copied to clipboard</string>
-    <string name="clipboard_pref_summary">Detect tracking number from clipboard and offer to add it.</string>
+    <string name="clipboard_pref_summary">Detect tracking number from clipboard and offer to add it</string>
     <string name="clipboard_pref">Clipboard detection</string>
     <string name="auto_detect_cat">Auto-Detect Packages</string>
+    <string name="theme_pref_summary">Change app\'s theme</string>
+    <string name="theme_pref">Theme</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>
@@ -90,5 +92,15 @@
         <item>sys</item>
         <item>en</item>
         <item>el</item>
+    </string-array>
+    <string-array name="theme_pref_entries">
+        <item>System\'s theme</item>
+        <item>Light theme</item>
+        <item>Dark theme</item>
+    </string-array>
+    <string-array name="theme_pref_values" translatable="false">
+        <item>sys</item>
+        <item>light</item>
+        <item>dark</item>
     </string-array>
 </resources>
