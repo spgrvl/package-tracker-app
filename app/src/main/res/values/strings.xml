@@ -63,6 +63,9 @@
     <string name="no_status_information">No status information available yet</string>
     <string name="select_all">Select all</string>
     <string name="status_to_clipboard">Status copied to clipboard</string>
+    <string name="clipboard_pref_summary">Detect tracking number from clipboard and offer to add it.</string>
+    <string name="clipboard_pref">Clipboard detection</string>
+    <string name="auto_detect_cat">Auto-Detect Packages</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

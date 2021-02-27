@@ -39,6 +39,17 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:title="@string/auto_detect_cat"
+        app:iconSpaceReserved="false">
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="pref_clipboard"
+            android:summary="@string/clipboard_pref_summary"
+            android:title="@string/clipboard_pref"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="@string/backup_restore_cat"
         app:iconSpaceReserved="false">
         <Preference
@@ -51,7 +62,6 @@
             android:summary="@string/restore_pref_summary"
             android:title="@string/restore_pref"
             app:iconSpaceReserved="false" />
-
     </PreferenceCategory>
 
 </PreferenceScreen>

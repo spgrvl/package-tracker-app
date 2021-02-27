@@ -3,6 +3,7 @@ package com.spgrvl.packagetracker;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -39,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public int position = -1;
     static boolean startedFlag;
     public boolean isInSelectionMode = false;
+    private boolean clipboardPref;
+    public static final String PREF_CLIPBOARD = "pref_clipboard";
     public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
     public static final String speedexTrackingRegex = "[0-9]{12}";
     public static final String acsTrackingRegex = "[0-9]{10}";
@@ -47,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private static final long RV_UPDATE_INTERVAL = 10000;
     private Handler rvHandler;
     private Runnable rvRunnable;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +61,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         Localization localization = new Localization();
         localization.setLocale(MainActivity.this);
         this.setTitle(R.string.app_name);
+
+        // Read User preferences regarding clipboard access
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        clipboardPref = sharedPreferences.getBoolean(PREF_CLIPBOARD, false);
 
         setContentView(R.layout.activity_main);
 
@@ -204,7 +213,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onWindowFocusChanged(hasFocus);
 
         // Read device's clipboard and if a valid tracking number is found, offer to add it
-        if (hasFocus && startedFlag) {
+        // Only if set in app preferences
+        if (clipboardPref && hasFocus && startedFlag) {
             ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             if (clipboardManager.hasPrimaryClip()) {
                 ClipData clipData = clipboardManager.getPrimaryClip();

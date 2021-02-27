@@ -31,6 +31,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String PREF_NOTIF = "pref_notif";
     public static final String PREF_NOTIF_INTERVAL = "pref_notif_interval";
     public static final String PREF_LANGUAGE = "pref_language";
+    public static final String PREF_CLIPBOARD = "pref_clipboard";
     public static final String BACKUP_BUTTON = "backup_button";
     public static final String RESTORE_BUTTON = "restore_button";
     public static final String FOLDER_NAME = "Backup";
@@ -45,8 +46,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
         preferenceChangeListener = (sharedPreferences, key) -> {
-            if (key.equals(PREF_NOTIF) || key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_LANGUAGE)) {
-                Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_SHORT).show();
+            if (key.equals(PREF_NOTIF) || key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_LANGUAGE) || key.equals(PREF_CLIPBOARD)) {
+                Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
                 menu.findItem(R.id.restart_button).setVisible(true);
             }
             if (key.equals(PREF_NOTIF_INTERVAL)) {
@@ -58,7 +59,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         Preference backup_button = findPreference(BACKUP_BUTTON);
         Objects.requireNonNull(backup_button).setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(Objects.requireNonNull(getActivity()))
+            new AlertDialog.Builder(requireActivity())
                     .setTitle(R.string.sure_confirmation)
                     .setMessage(R.string.backup_confirmation_msg)
                     .setPositiveButton(R.string.yes, (dialog, which) -> {
@@ -75,7 +76,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         Preference restore_button = findPreference(RESTORE_BUTTON);
         Objects.requireNonNull(restore_button).setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(Objects.requireNonNull(getActivity()))
+            new AlertDialog.Builder(requireActivity())
                     .setTitle(R.string.sure_confirmation)
                     .setMessage(R.string.restore_confirmation_msg)
                     .setPositiveButton(R.string.yes, (dialog, which) -> {
@@ -99,7 +100,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void exportCSV() {
         // complete filepath
-        String filePathAndName = Objects.requireNonNull(getActivity()).getExternalFilesDir(FOLDER_NAME) + "/" + FILE_NAME;
+        String filePathAndName = requireActivity().getExternalFilesDir(FOLDER_NAME) + "/" + FILE_NAME;
 
         // get records from index table
         List<TrackingIndexModel> recordsList = databaseHelper.getAllTracking();
@@ -126,7 +127,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void importCSV() {
         // use same path and file name as backup
-        String filePathAndName = Objects.requireNonNull(getActivity()).getExternalFilesDir(FOLDER_NAME) + "/" + FILE_NAME;
+        String filePathAndName = requireActivity().getExternalFilesDir(FOLDER_NAME) + "/" + FILE_NAME;
 
         File csvFile = new File(filePathAndName);
 
@@ -190,9 +191,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.restart_button) {
-            triggerRebirth(Objects.requireNonNull(getContext()));
+            triggerRebirth(requireContext());
         } else if (item.getItemId() == android.R.id.home) {
-            Objects.requireNonNull(getActivity()).finish();
+            requireActivity().finish();
         }
         return super.onOptionsItemSelected(item);
     }

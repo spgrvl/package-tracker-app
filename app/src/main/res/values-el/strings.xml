@@ -63,6 +63,9 @@
     <string name="no_status_information">Δεν υπάρχουν ακόμη διαθέσιμες πληροφορίες κατάστασης</string>
     <string name="select_all">Επιλογή όλων</string>
     <string name="status_to_clipboard">Η κατάσταση αντιγράφηκε στο πρόχειρο</string>
+    <string name="clipboard_pref_summary">Εντοπισμός αριθμού αποστολής από το πρόχειρο της συσκευής</string>
+    <string name="clipboard_pref">Ανίχνευση προχείρου</string>
+    <string name="auto_detect_cat">Αυτόματη ανίχνευση πακέτων</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>
