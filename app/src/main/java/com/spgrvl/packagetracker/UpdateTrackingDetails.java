@@ -243,8 +243,8 @@ public class UpdateTrackingDetails {
                 databaseHelper.updateTrackingDetails(tracking, detailsList);
 
                 // updating latest status and current datetime in Index table in DB
-                // mark as unread only if updating all packages and not individually
-                databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), detailsList.get(0).getStatus(), updatingAll);
+                // mark as unread only if updating all packages and not individually or updating while in foreground
+                databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), detailsList.get(0).getStatus(), updatingAll | isOnForeground);
 
                 // show notification only if updating all packages in background and notifications are enabled on user preferences
                 if (notifPref && updatingAll && !isOnForeground) {

@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private static final long RV_UPDATE_INTERVAL = 10000;
     private Handler rvHandler;
     private Runnable rvRunnable;
-    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         this.setTitle(R.string.app_name);
 
         // Read User preferences regarding clipboard access
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         clipboardPref = sharedPreferences.getBoolean(PREF_CLIPBOARD, false);
 
         setContentView(R.layout.activity_main);
@@ -137,6 +136,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     showTrackingOnRecyclerView();
                     swipeRefreshLayout.setRefreshing(false);
                 });
+            }
+        }).start();
+    }
+
+    private void updatePackage(String tracking) {
+        new Thread(() -> {
+            UpdateTrackingDetails upd = new UpdateTrackingDetails(tracking, MainActivity.this, true);
+            boolean a = upd.getWebsite();
+            if (a) {
+                runOnUiThread(this::showTrackingOnRecyclerView);
             }
         }).start();
     }
@@ -285,6 +294,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
             // Update the RecyclerView adapter
             showTrackingOnRecyclerView();
+
+            // Update that specific package
+            updatePackage(trackingNumber);
         }
     }
 
