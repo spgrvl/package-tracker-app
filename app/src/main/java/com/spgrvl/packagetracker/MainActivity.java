@@ -2,8 +2,11 @@ package com.spgrvl.packagetracker;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -128,16 +131,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void updateIndex() {
-        new Thread(() -> {
-            UpdateTrackingDetails upd = new UpdateTrackingDetails(null, MainActivity.this, true);
-            boolean a = upd.updateAll();
-            if (a) {
-                runOnUiThread(() -> {
-                    showTrackingOnRecyclerView();
-                    swipeRefreshLayout.setRefreshing(false);
-                });
-            }
-        }).start();
+        if (isNetworkAvailable()) {
+            new Thread(() -> {
+                UpdateTrackingDetails upd = new UpdateTrackingDetails(null, MainActivity.this, true);
+                boolean a = upd.updateAll();
+                if (a) {
+                    runOnUiThread(() -> {
+                        showTrackingOnRecyclerView();
+                        swipeRefreshLayout.setRefreshing(false);
+                    });
+                }
+            }).start();
+        } else {
+            Toast.makeText(MainActivity.this, R.string.no_internet, Toast.LENGTH_SHORT).show();
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     private void updatePackage(String tracking) {
@@ -381,5 +389,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 })
                 .setNegativeButton(R.string.no, ((dialog, which) -> clearSelectionMode()))
                 .show();
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
 }

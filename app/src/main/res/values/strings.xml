@@ -68,6 +68,7 @@
     <string name="auto_detect_cat">Auto-Detect Packages</string>
     <string name="theme_pref_summary">Change app\'s theme</string>
     <string name="theme_pref">Theme</string>
+    <string name="no_internet">There is no active internet connection</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

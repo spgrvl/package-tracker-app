@@ -1,6 +1,9 @@
 package com.spgrvl.packagetracker;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -55,7 +58,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         showDetailsOnRecyclerView();
 
         // Update details
-        updateDetails();
+        updateDetails(false);
 
         // Mark item as read in index table
         databaseHelper.setUnreadStatus(tracking, false);
@@ -71,17 +74,22 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         trackingDetailsRv.setAdapter(new CustomDetailsRvAdapter(this, trackingDetails));
     }
 
-    private void updateDetails() {
-        new Thread(() -> {
-            UpdateTrackingDetails upd = new UpdateTrackingDetails(tracking, PackageDetailsActivity.this, true);
-            boolean a = upd.getWebsite();
-            if (a) {
-                runOnUiThread(() -> {
-                    showDetailsOnRecyclerView();
-                    swipeRefreshLayout.setRefreshing(false);
-                });
-            }
-        }).start();
+    private void updateDetails(boolean manualUpdate) {
+        if (isNetworkAvailable()) {
+            new Thread(() -> {
+                UpdateTrackingDetails upd = new UpdateTrackingDetails(tracking, PackageDetailsActivity.this, true);
+                boolean a = upd.getWebsite();
+                if (a) {
+                    runOnUiThread(() -> {
+                        showDetailsOnRecyclerView();
+                        swipeRefreshLayout.setRefreshing(false);
+                    });
+                }
+            }).start();
+        } else if (manualUpdate) {
+            Toast.makeText(this, R.string.no_internet, Toast.LENGTH_SHORT).show();
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     @Override
@@ -95,7 +103,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         int itemId = item.getItemId();
         if (itemId == R.id.refresh_button) {
             swipeRefreshLayout.setRefreshing(true);
-            updateDetails();
+            updateDetails(true);
         } else if (itemId == android.R.id.home) {
             finish();
         } else if (itemId == R.id.edit_button) {
@@ -146,7 +154,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
 
     @Override
     public void onRefresh() {
-        updateDetails();
+        updateDetails(true);
     }
 
 
@@ -170,12 +178,12 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     private void editTrackingDb(String trackingNumber, String newTrackingNumber, String newCustomName) {
         boolean updateData = databaseHelper.editTracking(trackingNumber, newTrackingNumber, newCustomName);
         if (updateData) {
-            Toast.makeText(PackageDetailsActivity.this, R.string.edited_successfully, Toast.LENGTH_LONG).show();
+            Toast.makeText(PackageDetailsActivity.this, R.string.edited_successfully, Toast.LENGTH_SHORT).show();
             if (!tracking.equals(newTrackingNumber)) {
                 this.tracking = newTrackingNumber;
                 this.setTitle(tracking);
                 swipeRefreshLayout.setRefreshing(true);
-                updateDetails();
+                updateDetails(true);
             }
         } else {
             Toast.makeText(PackageDetailsActivity.this, R.string.something_went_wrong, Toast.LENGTH_LONG).show();
@@ -191,5 +199,11 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             return "acs";
         }
         return null;
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
 }
