@@ -12,8 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
-import java.util.Objects;
-
 public class AddNewDialog extends AppCompatDialogFragment {
     private final String barcode;
     private EditText editTextTracking;
@@ -49,7 +47,7 @@ public class AddNewDialog extends AppCompatDialogFragment {
                 });
         editTextTracking = view.findViewById(R.id.editText_tracking);
         editTextCustomName = view.findViewById(R.id.editText_customName);
-        if (barcode != null){
+        if (barcode != null) {
             editTextTracking.setText(barcode);
         }
         return builder.create();

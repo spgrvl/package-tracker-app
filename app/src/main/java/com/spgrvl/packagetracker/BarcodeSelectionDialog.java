@@ -8,8 +8,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
-import java.util.Objects;
-
 public class BarcodeSelectionDialog extends DialogFragment {
 
     int position = 0; //default selected position
@@ -26,7 +24,7 @@ public class BarcodeSelectionDialog extends DialogFragment {
         try {
             myListener = (SingleChoiceListener) context;
         } catch (Exception e) {
-            throw new ClassCastException(Objects.requireNonNull(getActivity()).toString() + " SingleChoiceListener must implemented");
+            throw new ClassCastException(requireActivity().toString() + " SingleChoiceListener must implemented");
         }
     }
 
@@ -36,12 +34,12 @@ public class BarcodeSelectionDialog extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        String[] list = Objects.requireNonNull(getArguments()).getStringArray("barcodes");
+        String[] list = requireArguments().getStringArray("barcodes");
 
-        builder.setTitle("Choose a barcode to add")
+        builder.setTitle(R.string.choose_barcode)
                 .setSingleChoiceItems(list, position, (dialogInterface, i) -> position = i)
-                .setPositiveButton("ok", (dialogInterface, i) -> myListener.onPositiveButtonClicked(list, position))
-                .setNegativeButton("cancel", (dialogInterface, i) -> {
+                .setPositiveButton(R.string.ok, (dialogInterface, i) -> myListener.onPositiveButtonClicked(list, position))
+                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
                 });
 
         return builder.create();
