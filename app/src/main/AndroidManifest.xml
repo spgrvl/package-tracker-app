@@ -40,7 +40,13 @@
                     android:host="www.elta.gr"
                     android:scheme="https" />
                 <data
+                    android:host="www.elta-courier.gr"
+                    android:scheme="https" />
+                <data
                     android:host="www.acscourier.net"
+                    android:scheme="https" />
+                <data
+                    android:host="a.acssp.gr"
                     android:scheme="https" />
                 <data
                     android:host="www.speedex.gr"
