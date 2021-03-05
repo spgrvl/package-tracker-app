@@ -1,5 +1,7 @@
 package com.spgrvl.packagetracker;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -29,6 +31,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
     public static final String speedexTrackingRegex = "[0-9]{12}";
     public static final String acsTrackingRegex = "[0-9]{10}";
+    public static final String cometHellasTrackingRegex = "[0-9]{8}";
 
     final DatabaseHelper databaseHelper = new DatabaseHelper(PackageDetailsActivity.this);
 
@@ -124,6 +127,14 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                     case "acs":
                         url = "https://a.acssp.gr/track/?k=etr:" + tracking;
                         break;
+                    case "cometHellas":
+                        url = "https://www.comethellas.gr/track-n-trace/";
+                        // Copy tracking number to clipboard since there is no direct url
+                        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("text", tracking);
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(this, R.string.tracking_copied_clipboard, Toast.LENGTH_LONG).show();
+                        break;
                 }
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 this.startActivity(intent);
@@ -197,6 +208,8 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             return "speedex";
         } else if (Pattern.compile(acsTrackingRegex).matcher(tracking).find()) {
             return "acs";
+        } else if (Pattern.compile(cometHellasTrackingRegex).matcher(tracking).find()) {
+            return "cometHellas";
         }
         return null;
     }

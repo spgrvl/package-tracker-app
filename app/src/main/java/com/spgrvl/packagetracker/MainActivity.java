@@ -49,7 +49,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
     public static final String speedexTrackingRegex = "[0-9]{12}";
     public static final String acsTrackingRegex = "[0-9]{10}";
-    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)", eltaTrackingRegex, speedexTrackingRegex, acsTrackingRegex);
+    public static final String cometHellasTrackingRegex = "[0-9]{8}";
+    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)", eltaTrackingRegex, speedexTrackingRegex, acsTrackingRegex, cometHellasTrackingRegex);
     private CustomIndexRvAdapter adapter;
     private FloatingActionButton fab;
     private static final long RV_UPDATE_INTERVAL = 10000;

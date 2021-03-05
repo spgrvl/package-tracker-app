@@ -51,6 +51,9 @@
                 <data
                     android:host="www.speedex.gr"
                     android:scheme="http" />
+                <data
+                    android:host="www.comethellas.gr"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
 

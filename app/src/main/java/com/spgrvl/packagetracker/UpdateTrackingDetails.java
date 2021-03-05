@@ -51,6 +51,7 @@ public class UpdateTrackingDetails {
     public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
     public static final String speedexTrackingRegex = "[0-9]{12}";
     public static final String acsTrackingRegex = "[0-9]{10}";
+    public static final String cometHellasTrackingRegex = "[0-9]{8}";
 
     public UpdateTrackingDetails(String tracking, Context context, Boolean isOnForeground) {
         this.tracking = tracking;
@@ -199,6 +200,67 @@ public class UpdateTrackingDetails {
         return detailsList;
     }
 
+    private ArrayList<TrackingDetailsModel> trackCometHellas() {
+        String url;
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+
+        url = "https://www.comethellas.gr/ry4A0yqtF0nePjzSAdXEGjmJmLuXajIzwseKknxx.php?vouchers=" + tracking;
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Referer", "https://www.comethellas.gr/track-n-trace/")
+                .build();
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                e.printStackTrace();
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String myResponse = Objects.requireNonNull(response.body()).string();
+                    try {
+                        JSONArray jsonArray = new JSONArray(myResponse);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                            String datetime = jsonObject.getString("datetime");
+                            String statusTemp = jsonObject.getString("status")
+                                    .replace("<i>", "\n")
+                                    .replace("</i>", "");
+                            Log.e("statusTemp", statusTemp);
+                            String status = statusTemp.split(" \\[")[0];
+                            String place = "";
+                            if (statusTemp.contains(" [")) {
+                                place = statusTemp.split(" \\[")[1]
+                                        .split("]")[0]
+                                        .trim()
+                                        .replaceAll(" +", " ");
+                                Log.e("place", place);
+                            }
+                            detailsList.add(new TrackingDetailsModel(status, place, datetime));
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                countDownLatch.countDown();
+            }
+        });
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Collections.reverse(detailsList);
+        return detailsList;
+    }
+
     private String detectCarrier() {
         if (Pattern.compile(eltaTrackingRegex).matcher(tracking).find()) {
             return "elta";
@@ -206,6 +268,8 @@ public class UpdateTrackingDetails {
             return "speedex";
         } else if (Pattern.compile(acsTrackingRegex).matcher(tracking).find()) {
             return "acs";
+        } else if (Pattern.compile(cometHellasTrackingRegex).matcher(tracking).find()) {
+            return "cometHellas";
         }
         return null;
     }
@@ -225,6 +289,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "acs":
                         detailsList = trackAcs();
+                        break;
+                    case "cometHellas":
+                        detailsList = trackCometHellas();
                         break;
                 }
             }
