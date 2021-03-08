@@ -54,6 +54,9 @@
                 <data
                     android:host="www.comethellas.gr"
                     android:scheme="https" />
+                <data
+                    android:host="www.taxydromiki.com"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
 

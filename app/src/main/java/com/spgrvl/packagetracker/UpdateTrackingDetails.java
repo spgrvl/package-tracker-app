@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.Call;
@@ -50,7 +51,7 @@ public class UpdateTrackingDetails {
     public static final String PREF_LANGUAGE = "pref_language";
     public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
     public static final String speedexTrackingRegex = "[0-9]{12}";
-    public static final String acsTrackingRegex = "[0-9]{10}";
+    public static final String acsOrGenikiTrackingRegex = "[0-9]{10}";
     public static final String cometHellasTrackingRegex = "[0-9]{8}";
 
     public UpdateTrackingDetails(String tracking, Context context, Boolean isOnForeground) {
@@ -99,6 +100,54 @@ public class UpdateTrackingDetails {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return detailsList;
+    }
+
+    private ArrayList<TrackingDetailsModel> trackGeniki() {
+        Document doc;
+        String url;
+        Elements status, location, date, time;
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+
+        try {
+            // Find system's language if there is no language preference set
+            if (languagePref.equals("sys")) {
+                languagePref = String.valueOf(context.getResources().getConfiguration().getLocales().get(0));
+            }
+
+            // Fetch tracking details in app's language
+            if (languagePref.equals("el_GR") || languagePref.equals("el")) {
+                url = "https://www.taxydromiki.com/track/" + tracking;
+            } else {
+                url = "https://www.taxydromiki.com/en/track/" + tracking;
+            }
+            doc = Jsoup.connect(url).get();
+            status = doc.getElementsByClass("checkpoint-status");
+            location = doc.getElementsByClass("checkpoint-location");
+            date = doc.getElementsByClass("checkpoint-date");
+            time = doc.getElementsByClass("checkpoint-time");
+            String dateProper, dateTime = "";
+
+            int locationSize = location.size();
+            for (int i = 0; i < locationSize; i++) {
+                Matcher dateMatcher = Pattern.compile("[0-9]{2}/[0-9]{2}/[0-9]{4}").matcher(date.get(i).ownText());
+                if (dateMatcher.find()) {
+                    dateProper = dateMatcher.group(0);
+                    dateTime = dateProper + " " + time.get(i).ownText();
+                }
+                detailsList.add(new TrackingDetailsModel(status.get(i).ownText(), location.get(i).ownText(), dateTime));
+            }
+            // delivery entry has no location so needs to be added manually
+            Matcher dateMatcher = Pattern.compile("[0-9]{2}/[0-9]{2}/[0-9]{4}").matcher(date.get(locationSize).ownText());
+            if (dateMatcher.find()) {
+                dateProper = dateMatcher.group(0);
+                dateTime = dateProper + " " + time.get(locationSize).ownText();
+            }
+            detailsList.add(new TrackingDetailsModel(status.get(locationSize).ownText(), "", dateTime));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Collections.reverse(detailsList);
         return detailsList;
     }
 
@@ -229,18 +278,16 @@ public class UpdateTrackingDetails {
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject = jsonArray.getJSONObject(i);
                             String datetime = jsonObject.getString("datetime");
-                            String statusTemp = jsonObject.getString("status")
+                            String statusAndPlace = jsonObject.getString("status")
                                     .replace("<i>", "\n")
                                     .replace("</i>", "");
-                            Log.e("statusTemp", statusTemp);
-                            String status = statusTemp.split(" \\[")[0];
+                            String status = statusAndPlace.split(" \\[")[0];
                             String place = "";
-                            if (statusTemp.contains(" [")) {
-                                place = statusTemp.split(" \\[")[1]
+                            if (statusAndPlace.contains(" [")) {
+                                place = statusAndPlace.split(" \\[")[1]
                                         .split("]")[0]
                                         .trim()
                                         .replaceAll(" +", " ");
-                                Log.e("place", place);
                             }
                             detailsList.add(new TrackingDetailsModel(status, place, datetime));
                         }
@@ -266,12 +313,62 @@ public class UpdateTrackingDetails {
             return "elta";
         } else if (Pattern.compile(speedexTrackingRegex).matcher(tracking).find()) {
             return "speedex";
-        } else if (Pattern.compile(acsTrackingRegex).matcher(tracking).find()) {
-            return "acs";
+        } else if (Pattern.compile(acsOrGenikiTrackingRegex).matcher(tracking).find()) {
+            return acsOrGeniki();
         } else if (Pattern.compile(cometHellasTrackingRegex).matcher(tracking).find()) {
             return "cometHellas";
         }
         return null;
+    }
+
+    private String acsOrGeniki() {
+        // determine if tracking belongs to ACS or Geniki
+        final boolean[] isAcs = {false};
+
+        String url = "https://www.acscourier.net/el/track-and-trace?p_p_id=ACSCustomersAreaTrackTrace_WAR_ACSCustomersAreaportlet&p_p_lifecycle=2&p_p_resource_id=trackTraceJson&generalCode=" + tracking;
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                e.printStackTrace();
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String myResponse = Objects.requireNonNull(response.body()).string();
+                    try {
+                        JSONObject jsonResponseObject = new JSONObject(myResponse);
+                        JSONArray jsonResultsArray = jsonResponseObject.getJSONArray("results");
+                        if (jsonResultsArray.length() > 0) {
+                            isAcs[0] = true;
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                countDownLatch.countDown();
+            }
+        });
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (isAcs[0]) {
+            return "acs";
+        } else {
+            return "geniki";
+        }
     }
 
     protected boolean getWebsite() {
@@ -292,6 +389,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "cometHellas":
                         detailsList = trackCometHellas();
+                        break;
+                    case "geniki":
+                        detailsList = trackGeniki();
                         break;
                 }
             }

@@ -9,5 +9,6 @@ It's an app that allows users to track their packages from Greek carriers in one
 * ELTA
 * ELTA Courier
 * ACS Courier
+* Geniki Taxydromiki
 * Speedex
 * Comet Hellas

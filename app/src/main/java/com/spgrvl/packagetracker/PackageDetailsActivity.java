@@ -19,9 +19,22 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class PackageDetailsActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, EditDialog.AddDialogListener {
 
@@ -30,7 +43,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     private SwipeRefreshLayout swipeRefreshLayout;
     public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
     public static final String speedexTrackingRegex = "[0-9]{12}";
-    public static final String acsTrackingRegex = "[0-9]{10}";
+    public static final String acsOrGenikiTrackingRegex = "[0-9]{10}";
     public static final String cometHellasTrackingRegex = "[0-9]{8}";
 
     final DatabaseHelper databaseHelper = new DatabaseHelper(PackageDetailsActivity.this);
@@ -135,6 +148,9 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                         clipboard.setPrimaryClip(clip);
                         Toast.makeText(this, R.string.tracking_copied_clipboard, Toast.LENGTH_LONG).show();
                         break;
+                    case "geniki":
+                        url = "https://www.taxydromiki.com/track/" + tracking;
+                        break;
                 }
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 this.startActivity(intent);
@@ -206,12 +222,62 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             return "elta";
         } else if (Pattern.compile(speedexTrackingRegex).matcher(tracking).find()) {
             return "speedex";
-        } else if (Pattern.compile(acsTrackingRegex).matcher(tracking).find()) {
-            return "acs";
+        } else if (Pattern.compile(acsOrGenikiTrackingRegex).matcher(tracking).find()) {
+            return acsOrGeniki();
         } else if (Pattern.compile(cometHellasTrackingRegex).matcher(tracking).find()) {
             return "cometHellas";
         }
         return null;
+    }
+
+    private String acsOrGeniki() {
+        // determine if tracking belongs to ACS or Geniki
+        final boolean[] isAcs = {false};
+
+        String url = "https://www.acscourier.net/el/track-and-trace?p_p_id=ACSCustomersAreaTrackTrace_WAR_ACSCustomersAreaportlet&p_p_lifecycle=2&p_p_resource_id=trackTraceJson&generalCode=" + tracking;
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                e.printStackTrace();
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String myResponse = Objects.requireNonNull(response.body()).string();
+                    try {
+                        JSONObject jsonResponseObject = new JSONObject(myResponse);
+                        JSONArray jsonResultsArray = jsonResponseObject.getJSONArray("results");
+                        if (jsonResultsArray.length() > 0) {
+                            isAcs[0] = true;
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                countDownLatch.countDown();
+            }
+        });
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (isAcs[0]) {
+            return "acs";
+        } else {
+            return "geniki";
+        }
     }
 
     private boolean isNetworkAvailable() {
