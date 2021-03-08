@@ -327,7 +327,7 @@ public class UpdateTrackingDetails {
                     // use unique RowID in order to send individual notifications for each package and be able to follow up later
                     int rowId = Integer.parseInt(indexEntry.get(0));
 
-                    sendPackageUpdateNotification(notificationTitle, detailsList.get(0).getStatus(), rowId, tracking);
+                    sendPackageUpdateNotification(notificationTitle, String.format("%s (%s)", detailsList.get(0).getStatus(), detailsList.get(0).getPlace()), rowId, tracking);
                 }
             } else if (changedLanguage) {
                 databaseHelper.updateTrackingDetails(tracking, detailsList);
