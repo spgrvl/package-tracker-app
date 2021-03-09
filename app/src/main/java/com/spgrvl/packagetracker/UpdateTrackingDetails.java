@@ -144,7 +144,7 @@ public class UpdateTrackingDetails {
                 dateTime = dateProper + " " + time.get(locationSize).ownText();
             }
             detailsList.add(new TrackingDetailsModel(status.get(locationSize).ownText(), "", dateTime));
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         Collections.reverse(detailsList);

@@ -25,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -47,6 +48,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     public static final String cometHellasTrackingRegex = "[0-9]{8}";
 
     final DatabaseHelper databaseHelper = new DatabaseHelper(PackageDetailsActivity.this);
+    private String customName = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +71,18 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
 
         // Parameter in Intent, sent from MainActivity
         this.tracking = intent.getStringExtra("tracking");
-        this.setTitle(tracking);
+
+        // Fetch custom name from DB
+        ArrayList<String> indexEntry = databaseHelper.getIndexEntry(tracking);
+        customName = indexEntry.get(4);
+
+        // Set title and subtitle in action bar
+        if (customName != null) {
+            this.setTitle(customName);
+            getSupportActionBar().setSubtitle(tracking);
+        } else {
+            this.setTitle(tracking);
+        }
 
         showDetailsOnRecyclerView();
 
@@ -197,8 +210,13 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         if (newTrackingNumber.isEmpty()) {
             Toast.makeText(this, R.string.toast_empty_tracking, Toast.LENGTH_LONG).show();
         } else {
-            // Edit database (table + index)
-            editTrackingDb(trackingNumber, newTrackingNumber, newCustomName);
+            // Edit database (table + index) if changed
+            if (newCustomName == null && customName == null && newTrackingNumber.equals(tracking) ||
+                    (newCustomName != null && newCustomName.equals(customName) && newTrackingNumber.equals(tracking))) {
+                Toast.makeText(PackageDetailsActivity.this, "No information changed", Toast.LENGTH_SHORT).show();
+            } else {
+                editTrackingDb(trackingNumber, newTrackingNumber, newCustomName);
+            }
         }
     }
 
@@ -206,12 +224,17 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         boolean updateData = databaseHelper.editTracking(trackingNumber, newTrackingNumber, newCustomName);
         if (updateData) {
             Toast.makeText(PackageDetailsActivity.this, R.string.edited_successfully, Toast.LENGTH_SHORT).show();
-            if (!tracking.equals(newTrackingNumber)) {
-                this.tracking = newTrackingNumber;
+            this.tracking = newTrackingNumber;
+            // Set title and subtitle in action bar
+            if (newCustomName != null) {
+                this.setTitle(newCustomName);
+                Objects.requireNonNull(getSupportActionBar()).setSubtitle(tracking);
+            } else {
                 this.setTitle(tracking);
-                swipeRefreshLayout.setRefreshing(true);
-                updateDetails(true);
+                Objects.requireNonNull(getSupportActionBar()).setSubtitle(null);
             }
+            swipeRefreshLayout.setRefreshing(true);
+            updateDetails(true);
         } else {
             Toast.makeText(PackageDetailsActivity.this, R.string.something_went_wrong, Toast.LENGTH_LONG).show();
         }
