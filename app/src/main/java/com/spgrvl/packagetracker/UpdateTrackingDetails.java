@@ -13,7 +13,6 @@ import androidx.preference.PreferenceManager;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -97,7 +96,7 @@ public class UpdateTrackingDetails {
             for (int i = 0; i < status.size(); i++) {
                 detailsList.add(new TrackingDetailsModel(status.get(i).text(), place.get(i).text(), dateTime.get(i).text()));
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return detailsList;
@@ -178,7 +177,7 @@ public class UpdateTrackingDetails {
             detailsList.add(new TrackingDetailsModel(deliveredTitle.get(0).text(),
                     deliveredSubtitle.split(", ")[0],
                     deliveredSubtitle.split(", ")[1].replace(" στις ", " ")));
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         Collections.reverse(detailsList);
@@ -232,7 +231,7 @@ public class UpdateTrackingDetails {
                             String place = jsonCpObject.getString("controlPoint");
                             detailsList.add(new TrackingDetailsModel(status, place, timestamp.format(date)));
                         }
-                    } catch (JSONException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -291,7 +290,7 @@ public class UpdateTrackingDetails {
                             }
                             detailsList.add(new TrackingDetailsModel(status, place, datetime));
                         }
-                    } catch (JSONException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -350,7 +349,7 @@ public class UpdateTrackingDetails {
                         if (jsonResultsArray.length() > 0) {
                             isAcs[0] = true;
                         }
-                    } catch (JSONException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
