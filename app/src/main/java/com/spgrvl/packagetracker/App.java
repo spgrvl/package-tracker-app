@@ -3,24 +3,25 @@ package com.spgrvl.packagetracker;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.SharedPreferences;
 import android.os.Build;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
+import java.util.concurrent.TimeUnit;
 
 public class App extends Application {
     public static final String CHANNEL_PKG_ID = "channelPkg";
     public static final String PREF_NOTIF = "pref_notif";
     public static final String PREF_THEME = "pref_theme";
     public static final String PREF_NOTIF_INTERVAL = "pref_notif_interval";
-    public static final String JOB_COUNTER = "job_counter";
-    private static final int UPD_JOB_ID = 38925;
     private String notifIntervalPref;
-    private SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate() {
@@ -30,7 +31,7 @@ public class App extends Application {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         // Read User preferences
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean notifPref = sharedPreferences.getBoolean(PREF_NOTIF, true);
         notifIntervalPref = sharedPreferences.getString(PREF_NOTIF_INTERVAL, "15");
 
@@ -51,15 +52,12 @@ public class App extends Application {
         // Create notification channels
         createNotificationChannels();
 
+        // Schedule background updating
         if (notifPref) {
-            // Schedule background updating if not already scheduled
-            if (!isJobScheduled()) {
-                scheduleJob();
-            }
+            scheduleWorker();
         } else {
-            // Cancel ongoing update job
-            JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-            scheduler.cancel(UPD_JOB_ID);
+            // Cancel ongoing update worker
+            WorkManager.getInstance(this).cancelUniqueWork("updateWorker");
         }
     }
 
@@ -77,31 +75,21 @@ public class App extends Application {
         }
     }
 
-    private void scheduleJob() {
-        // Set a job counter
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(JOB_COUNTER, 1);
-        editor.apply();
-
-        // Schedule the job
-        ComponentName componentName = new ComponentName(this, UpdateJobService.class);
-        JobInfo info = new JobInfo.Builder(UPD_JOB_ID, componentName)
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) // only when there is internet connection
-                .setPersisted(true) // survive reboots
-                .setPeriodic(Integer.parseInt(notifIntervalPref) * 60 * 1000) // interval in minutes
+    private void scheduleWorker() {
+        // Schedule the update worker
+        PeriodicWorkRequest updateWorkRequest = new PeriodicWorkRequest.Builder(
+                UpdateWorker.class,
+                Integer.parseInt(notifIntervalPref),
+                TimeUnit.MINUTES)
+                .setConstraints(new Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                )
                 .build();
 
-        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-        scheduler.schedule(info);
-    }
-
-    public boolean isJobScheduled() {
-        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-        for (JobInfo jobInfo : scheduler.getAllPendingJobs()) {
-            if (UPD_JOB_ID == jobInfo.getId()) {
-                return true;
-            }
-        }
-        return false;
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "updateWorker",
+                ExistingPeriodicWorkPolicy.REPLACE,
+                updateWorkRequest);
     }
 }

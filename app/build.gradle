@@ -10,8 +10,8 @@ android {
         applicationId "com.spgrvl.packagetracker"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 50
-        versionName "1.19.2"
+        versionCode 51
+        versionName "1.20"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -45,4 +45,6 @@ dependencies {
     implementation 'com.opencsv:opencsv:5.3'
     // OkHttp library for requests
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    // WorkManager for managing background tasks
+    implementation "androidx.work:work-runtime:2.5.0"
 }
