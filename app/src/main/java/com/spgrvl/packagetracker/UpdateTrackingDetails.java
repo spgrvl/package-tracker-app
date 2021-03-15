@@ -9,6 +9,7 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.TaskStackBuilder;
 import androidx.preference.PreferenceManager;
 
 import org.jetbrains.annotations.NotNull;
@@ -466,9 +467,12 @@ public class UpdateTrackingDetails {
 
     protected void sendPackageUpdateNotification(String title, String message, int packageId, String tracking) {
         // action that occurs when notification is clicked
-        Intent activityIntent = new Intent(context, PackageDetailsActivity.class);
-        activityIntent.putExtra("tracking", tracking);
-        PendingIntent contentIntent = PendingIntent.getActivity(context, packageId, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent resultIntent = new Intent(context, PackageDetailsActivity.class);
+        resultIntent.putExtra("tracking", tracking);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        stackBuilder.addNextIntentWithParentStack(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(packageId, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // notification builder
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_PKG_ID)
@@ -476,7 +480,7 @@ public class UpdateTrackingDetails {
                 .setContentTitle(title)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(contentIntent)
+                .setContentIntent(resultPendingIntent)
                 .setAutoCancel(true)
                 .build();
 

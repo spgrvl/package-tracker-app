@@ -16,15 +16,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PackageTracker"
         android:usesCleartextTraffic="true">
-        <activity android:name=".PackageDetailsActivity" />
-        <activity android:name=".BarcodeScanActivity" />
-        <activity android:name=".SettingsActivity" />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -59,6 +55,11 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".PackageDetailsActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity android:name=".BarcodeScanActivity" />
+        <activity android:name=".SettingsActivity" />
     </application>
 
 </manifest>
