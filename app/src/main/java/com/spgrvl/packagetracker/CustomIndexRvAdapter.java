@@ -34,7 +34,7 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(layoutInflater.inflate(R.layout.main_view_item, null));
+        return new ViewHolder(layoutInflater.inflate(R.layout.main_view_item, parent, false));
     }
 
     @Override

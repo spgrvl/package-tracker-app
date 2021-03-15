@@ -27,7 +27,7 @@ public class CustomDetailsRvAdapter extends RecyclerView.Adapter<CustomDetailsRv
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(layoutInflater.inflate(R.layout.tracking_details_item, null));
+        return new ViewHolder(layoutInflater.inflate(R.layout.tracking_details_item, parent, false));
     }
 
     @Override
