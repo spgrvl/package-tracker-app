@@ -71,6 +71,7 @@
     <string name="no_internet">There is no active internet connection</string>
     <string name="choose_barcode">Choose a barcode to add</string>
     <string name="tracking_copied_clipboard">Tracking number was copied to your clipboard</string>
+    <string name="no_information_changed">No information changed</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

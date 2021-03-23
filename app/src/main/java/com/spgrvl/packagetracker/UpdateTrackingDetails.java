@@ -50,7 +50,7 @@ public class UpdateTrackingDetails {
     public static final String PREF_NOTIF = "pref_notif";
     public static final String PREF_LANGUAGE = "pref_language";
     public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
-    public static final String speedexTrackingRegex = "[0-9]{12}";
+    public static final String speedexOrCourierCenterTrackingRegex = "[0-9]{12}";
     public static final String acsOrGenikiTrackingRegex = "[0-9]{10}";
     public static final String cometHellasTrackingRegex = "[0-9]{8}";
 
@@ -308,11 +308,38 @@ public class UpdateTrackingDetails {
         return detailsList;
     }
 
+    private ArrayList<TrackingDetailsModel> trackCourierCenter() {
+        Document doc;
+        String url;
+        Elements date, time, status, place;
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+
+        try {
+            // Fetch tracking details
+            url = "https://www.courier.gr/track/result?tracknr=" + tracking;
+            doc = Jsoup.connect(url).get();
+            date = doc.getElementsByClass("td date");
+            time = doc.getElementsByClass("td time");
+            status = doc.getElementsByClass("td action");
+            place = doc.getElementsByClass("td area");
+
+            for (int i = 0; i < status.size(); i++) {
+                detailsList.add(new TrackingDetailsModel(
+                        status.get(i).text().replace(" ΝΟ: [" + tracking + "]", ""),
+                        place.get(i).text(),
+                        String.format("%s %s", date.get(i).text(), time.get(i).text())));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return detailsList;
+    }
+
     private String detectCarrier() {
         if (Pattern.compile(eltaTrackingRegex).matcher(tracking).find()) {
             return "elta";
-        } else if (Pattern.compile(speedexTrackingRegex).matcher(tracking).find()) {
-            return "speedex";
+        } else if (Pattern.compile(speedexOrCourierCenterTrackingRegex).matcher(tracking).find()) {
+            return speedexOrCourierCenter();
         } else if (Pattern.compile(acsOrGenikiTrackingRegex).matcher(tracking).find()) {
             return acsOrGeniki();
         } else if (Pattern.compile(cometHellasTrackingRegex).matcher(tracking).find()) {
@@ -323,51 +350,45 @@ public class UpdateTrackingDetails {
 
     private String acsOrGeniki() {
         // determine if tracking belongs to ACS or Geniki
-        final boolean[] isAcs = {false};
-
-        String url = "https://www.acscourier.net/el/track-and-trace?p_p_id=ACSCustomersAreaTrackTrace_WAR_ACSCustomersAreaportlet&p_p_lifecycle=2&p_p_resource_id=trackTraceJson&generalCode=" + tracking;
-
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                e.printStackTrace();
-                countDownLatch.countDown();
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String myResponse = Objects.requireNonNull(response.body()).string();
-                    try {
-                        JSONObject jsonResponseObject = new JSONObject(myResponse);
-                        JSONArray jsonResultsArray = jsonResponseObject.getJSONArray("results");
-                        if (jsonResultsArray.length() > 0) {
-                            isAcs[0] = true;
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                countDownLatch.countDown();
-            }
-        });
+        boolean isGeniki = false;
 
         try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
+            String url = "https://www.taxydromiki.com/track/" + tracking;
+            Document doc = Jsoup.connect(url).get();
+            Elements date = doc.getElementsByClass("checkpoint-date");
+            if (date.size() > 0) {
+                isGeniki = true;
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if (isAcs[0]) {
-            return "acs";
-        } else {
+        if (isGeniki) {
             return "geniki";
+        } else {
+            return "acs";
+        }
+    }
+
+    private String speedexOrCourierCenter() {
+        // determine if tracking belongs to Speedex or Courier Center
+        boolean isCourierCenter = false;
+
+        try {
+            String url = "https://www.courier.gr/track/result?tracknr=" + tracking;
+            Document doc = Jsoup.connect(url).get();
+            Elements date = doc.getElementsByClass("td date");
+            if (date.size() > 0) {
+                isCourierCenter = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (isCourierCenter) {
+            return "courierCenter";
+        } else {
+            return "speedex";
         }
     }
 
@@ -393,6 +414,9 @@ public class UpdateTrackingDetails {
                     case "geniki":
                         detailsList = trackGeniki();
                         break;
+                    case "courierCenter":
+                        detailsList = trackCourierCenter();
+                        break;
                 }
             }
 
@@ -411,7 +435,7 @@ public class UpdateTrackingDetails {
 
                 // updating latest status and current datetime in Index table in DB
                 // mark as unread only if updating all packages and not individually or updating while in foreground
-                databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), detailsList.get(0).getStatus(), updatingAll | isOnForeground);
+                databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), detailsList.get(0).getStatus(), updatingAll | isOnForeground, carrier);
 
                 // show notification only if updating all packages in background and notifications are enabled on user preferences
                 if (notifPref && updatingAll && !isOnForeground) {
@@ -431,12 +455,12 @@ public class UpdateTrackingDetails {
                 }
             } else if (changedLanguage) {
                 databaseHelper.updateTrackingDetails(tracking, detailsList);
-                databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), detailsList.get(0).getStatus(), false);
+                databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), detailsList.get(0).getStatus(), false, carrier);
             } else if (carrier_count < db_count) {
                 Log.e("UpdateTrackingDetails", "Carrier is reporting less updates (" + carrier_count + ") than already stored in DB (" + db_count + ")");
             } else {
                 // updating current datetime in Index table in DB
-                databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), null, false);
+                databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), null, false, carrier);
             }
         });
         t.start();

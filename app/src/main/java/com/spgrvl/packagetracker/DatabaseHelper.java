@@ -16,7 +16,7 @@ import static java.lang.Integer.parseInt;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int VERSION = 3;
+    public static final int VERSION = 4;
 
     public static final String DATABASE_NAME = "tracking.db";
     public static final String INDEX_TABLE = "Tracking_Index";
@@ -25,6 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String LAST_UPDATE_COL = "LastUpdate";
     public static final String CUSTOM_NAME_COL = "CustomName";
     public static final String UNREAD_COL = "Unread";
+    public static final String CARRIER_COL = "Carrier";
     public static final String STATUS_COL = "Status";
     public static final String PLACE_COL = "Place";
     public static final String DATETIME_COL = "Datetime";
@@ -35,7 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE IF NOT EXISTS " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT, " + UNREAD_COL + " BOOLEAN NOT NULL CHECK ( " + UNREAD_COL + " IN (0,1)))";
+        String createTable = "CREATE TABLE IF NOT EXISTS " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT, " + UNREAD_COL + " BOOLEAN NOT NULL, " + CARRIER_COL + " TEXT CHECK ( " + UNREAD_COL + " IN (0,1)))";
         db.execSQL(createTable);
     }
 
@@ -55,6 +56,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int unreadColumnIndex = cursor.getColumnIndex(UNREAD_COL);
         if (unreadColumnIndex < 0) {
             db.execSQL("ALTER TABLE " + INDEX_TABLE + " ADD COLUMN " + UNREAD_COL + " BOOLEAN NOT NULL DEFAULT 0 CHECK ( " + UNREAD_COL + " IN (0,1))");
+        }
+
+        // check if CARRIER_COL exists and if not add it
+        int carrierColumnIndex = cursor.getColumnIndex(CARRIER_COL);
+        if (carrierColumnIndex < 0) {
+            db.execSQL("ALTER TABLE " + INDEX_TABLE + " ADD COLUMN " + CARRIER_COL + " TEXT");
         }
 
         // close cursor when done.
@@ -110,13 +117,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void updateTrackingIndex(String tracking, String updated, String lastUpdate, Boolean isUnread) {
+    public void updateTrackingIndex(String tracking, String updated, String lastUpdate, Boolean isUnread, String carrier) {
         // Update index table entry
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(UPDATED_COL, updated);
+        contentValues.put(CARRIER_COL, carrier);
         if (lastUpdate != null) {
             contentValues.put(LAST_UPDATE_COL, lastUpdate);
         }
@@ -198,6 +206,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         indexEntry.add(cursor.getString(3)); // LastUpdate
         indexEntry.add(cursor.getString(4)); // CustomName
         indexEntry.add(cursor.getString(5)); // Unread
+        indexEntry.add(cursor.getString(6)); // Carrier
 
         // close cursor and db when done.
         cursor.close();

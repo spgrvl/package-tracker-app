@@ -47,10 +47,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private boolean clipboardPref;
     public static final String PREF_CLIPBOARD = "pref_clipboard";
     public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
-    public static final String speedexTrackingRegex = "[0-9]{12}";
+    public static final String speedexOrCourierCenterTrackingRegex = "[0-9]{12}";
     public static final String acsOrGenikiTrackingRegex = "[0-9]{10}";
     public static final String cometHellasTrackingRegex = "[0-9]{8}";
-    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)", eltaTrackingRegex, speedexTrackingRegex, acsOrGenikiTrackingRegex, cometHellasTrackingRegex);
+    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)", eltaTrackingRegex, speedexOrCourierCenterTrackingRegex, acsOrGenikiTrackingRegex, cometHellasTrackingRegex);
     private CustomIndexRvAdapter adapter;
     private FloatingActionButton fab;
     private static final long RV_UPDATE_INTERVAL = 10000;

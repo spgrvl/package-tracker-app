@@ -54,6 +54,9 @@
                 <data
                     android:host="www.taxydromiki.com"
                     android:scheme="https" />
+                <data
+                    android:host="www.courier.gr"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
         <activity

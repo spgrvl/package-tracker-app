@@ -12,3 +12,4 @@ It's an app that allows users to track their packages from Greek carriers in one
 * Geniki Taxydromiki
 * Speedex
 * Comet Hellas
+* Courier Center

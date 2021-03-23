@@ -71,6 +71,7 @@
     <string name="no_internet">Δεν υπάρχει ενεργή σύνδεση στο Διαδίκτυο</string>
     <string name="choose_barcode">Επιλέξτε ένα barcode για προσθήκη</string>
     <string name="tracking_copied_clipboard">Ο αριθμός αποστολής αντιγράφηκε στο πρόχειρο</string>
+    <string name="no_information_changed">Δεν έγινε αλλαγή των πληροφοριών</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>
