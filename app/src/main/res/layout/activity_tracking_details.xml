@@ -6,10 +6,22 @@
     android:layout_height="match_parent"
     tools:context=".PackageDetailsActivity">
 
+    <TextView
+        android:id="@+id/carrierTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?carrierTvColor"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="Carrier"
+        android:textAllCaps="true"
+        android:textStyle="bold" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshDetails"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/carrierTv"
         android:layout_centerInParent="true">
 
         <androidx.recyclerview.widget.RecyclerView

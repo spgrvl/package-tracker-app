@@ -72,6 +72,13 @@
     <string name="choose_barcode">Choose a barcode to add</string>
     <string name="tracking_copied_clipboard">Tracking number was copied to your clipboard</string>
     <string name="no_information_changed">No information changed</string>
+    <string name="elta">Elta</string>
+    <string name="speedex">Speedex</string>
+    <string name="acs">ACS Courier</string>
+    <string name="cometHellas">Comet Hellas</string>
+    <string name="geniki">Geniki Taxydromiki</string>
+    <string name="courierCenter">Courier Center</string>
+    <string name="unknown_carrier">Unknown carrier</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

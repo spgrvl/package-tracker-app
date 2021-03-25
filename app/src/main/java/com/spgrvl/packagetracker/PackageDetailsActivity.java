@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -32,6 +33,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     final DatabaseHelper databaseHelper = new DatabaseHelper(PackageDetailsActivity.this);
     ArrayList<String> indexEntry;
     private String customName = null;
+    private TextView carrierTv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +69,10 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             this.setTitle(tracking);
         }
 
+        // Find Carrier TextView by ID and set value
+        this.carrierTv = findViewById(R.id.carrierTv);
+        carrierTv.setText(getCarrier(true));
+
         showDetailsOnRecyclerView();
 
         // Update details
@@ -94,6 +100,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                 if (a) {
                     runOnUiThread(() -> {
                         showDetailsOnRecyclerView();
+                        carrierTv.setText(getCarrier(true));
                         swipeRefreshLayout.setRefreshing(false);
                     });
                 }
@@ -123,7 +130,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         } else if (itemId == R.id.delete_button) {
             deleteTracking();
         } else if (itemId == R.id.open_browser_button) {
-            String carrier = getCarrier();
+            String carrier = getCarrier(false);
             if (carrier != null) {
                 String url = null;
                 switch (carrier) {
@@ -178,10 +185,21 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         editDialog.show(getSupportFragmentManager(), "Edit Tracking Dialog");
     }
 
-    private String getCarrier() {
+    private String getCarrier(boolean presentable) {
         // Fetch carrier from DB
         indexEntry = databaseHelper.getIndexEntry(tracking);
-        return indexEntry.get(6);
+        String carrier = indexEntry.get(6);
+
+        if (presentable) {
+            if (carrier != null) {
+                int resId = getResources().getIdentifier(carrier, "string", getPackageName());
+                return getResources().getString(resId);
+            } else {
+                return getString(R.string.unknown_carrier);
+            }
+        } else {
+            return carrier;
+        }
     }
 
     @Override
