@@ -79,6 +79,7 @@
     <string name="geniki">Γενικη Ταχυδρομικη</string>
     <string name="courierCenter">Courier Center</string>
     <string name="unknown_carrier">Αγνωστος παροχος</string>
+    <string name="copy_tracking_number">Αντιγραφή αριθμού αποστολής</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>

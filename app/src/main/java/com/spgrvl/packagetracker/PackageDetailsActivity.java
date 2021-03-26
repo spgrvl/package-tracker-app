@@ -129,6 +129,8 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             openDialog();
         } else if (itemId == R.id.delete_button) {
             deleteTracking();
+        } else if (itemId == R.id.copy_tracking_number) {
+            copyTracking();
         } else if (itemId == R.id.open_browser_button) {
             String carrier = getCarrier(false);
             if (carrier != null) {
@@ -146,10 +148,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                     case "cometHellas":
                         url = "https://www.comethellas.gr/track-n-trace/";
                         // Copy tracking number to clipboard since there is no direct url
-                        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData clip = ClipData.newPlainText("text", tracking);
-                        clipboard.setPrimaryClip(clip);
-                        Toast.makeText(this, R.string.tracking_copied_clipboard, Toast.LENGTH_LONG).show();
+                        copyTracking();
                         break;
                     case "geniki":
                         url = "https://www.taxydromiki.com/track/" + tracking;
@@ -165,6 +164,13 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void copyTracking() {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("text", tracking);
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(this, R.string.tracking_copied_clipboard, Toast.LENGTH_LONG).show();
     }
 
     private void deleteTracking() {

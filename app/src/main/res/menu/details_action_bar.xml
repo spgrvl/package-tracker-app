@@ -21,6 +21,12 @@
         app:showAsAction="collapseActionView" />
 
     <item
+        android:id="@+id/copy_tracking_number"
+        android:icon="@drawable/ic_copy"
+        android:title="@string/copy_tracking_number"
+        app:showAsAction="collapseActionView" />
+
+    <item
         android:id="@+id/open_browser_button"
         android:icon="@drawable/ic_open_in_browser"
         android:title="@string/open_in_browser"
