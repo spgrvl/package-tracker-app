@@ -228,6 +228,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         resumeHandler();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (isInSelectionMode) {
+            clearSelectionMode();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
 
