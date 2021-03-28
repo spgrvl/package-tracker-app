@@ -40,7 +40,15 @@ public class CustomDetailsRvAdapter extends RecyclerView.Adapter<CustomDetailsRv
         // Called when user long clicks RecyclerView items
         holder.parentView.setOnLongClickListener(v -> {
             ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("text", tracking.getStatus() + ", \n" + tracking.getPlace() + ", \n" + tracking.getDatetime());
+
+            String clipboardMessage;
+            if (!tracking.getPlace().equals("")) {
+                clipboardMessage = tracking.getStatus() + ", \n" + tracking.getPlace() + ", \n" + tracking.getDatetime();
+            } else {
+                clipboardMessage = tracking.getStatus() + ", \n" + tracking.getDatetime();
+            }
+
+            ClipData clip = ClipData.newPlainText("text", clipboardMessage);
             clipboard.setPrimaryClip(clip);
             Toast.makeText(v.getContext(), R.string.status_to_clipboard, Toast.LENGTH_SHORT).show();
             return true;

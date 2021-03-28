@@ -448,10 +448,17 @@ public class UpdateTrackingDetails {
                         notificationTitle = tracking;
                     }
 
+                    String notificationMessage;
+                    if (!detailsList.get(0).getPlace().equals("")) {
+                        notificationMessage = String.format("%s (%s)", detailsList.get(0).getStatus(), detailsList.get(0).getPlace());
+                    } else {
+                        notificationMessage = detailsList.get(0).getStatus();
+                    }
+
                     // use unique RowID in order to send individual notifications for each package and be able to follow up later
                     int rowId = Integer.parseInt(indexEntry.get(0));
 
-                    sendPackageUpdateNotification(notificationTitle, String.format("%s (%s)", detailsList.get(0).getStatus(), detailsList.get(0).getPlace()), rowId, tracking);
+                    sendPackageUpdateNotification(notificationTitle, notificationMessage, rowId, tracking);
                 }
             } else if (changedLanguage) {
                 databaseHelper.updateTrackingDetails(tracking, detailsList);
