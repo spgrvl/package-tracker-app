@@ -156,6 +156,9 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                     case "courierCenter":
                         url = "https://www.courier.gr/track/result?tracknr=" + tracking;
                         break;
+                    case "delatolas":
+                        url = "https://docuclass.delatolas.com/tnt_temp.php?id=" + tracking;
+                        break;
                 }
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 this.startActivity(intent);

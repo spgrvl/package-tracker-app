@@ -33,8 +33,10 @@ import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static com.spgrvl.packagetracker.App.CHANNEL_PKG_ID;
@@ -51,6 +53,7 @@ public class UpdateTrackingDetails {
     public static final String PREF_LANGUAGE = "pref_language";
     public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
     public static final String speedexOrCourierCenterTrackingRegex = "[0-9]{12}";
+    public static final String delatolasTrackingRegex = "[A-Za-z0-9]{12}";
     public static final String acsOrGenikiTrackingRegex = "[0-9]{10}";
     public static final String cometHellasTrackingRegex = "[0-9]{8}";
 
@@ -335,6 +338,73 @@ public class UpdateTrackingDetails {
         return detailsList;
     }
 
+    private ArrayList<TrackingDetailsModel> trackDelatolas() {
+        String url;
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+
+        String lang;
+        // Find system's language if there is no language preference set
+        if (languagePref.equals("sys")) {
+            languagePref = String.valueOf(context.getResources().getConfiguration().getLocales().get(0));
+        }
+
+        if (languagePref.equals("el_GR") || languagePref.equals("el")) {
+            lang = "el";
+        } else {
+            lang = "en";
+        }
+
+        url = "https://docuclass.delatolas.com/js/code/epod/track_and_trace/tnt_server.php";
+
+        OkHttpClient client = new OkHttpClient();
+
+        RequestBody formBody = new FormBody.Builder()
+                .add("cmd", "getstatusnew")
+                .add("orderid", tracking)
+                .add("language", lang)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(formBody)
+                .build();
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                e.printStackTrace();
+                countDownLatch.countDown();
+            }
+
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String myResponse = Objects.requireNonNull(response.body()).string();
+
+                    // Extract data from response
+                    Matcher entriesMatcher = Pattern.compile("\\{h_date.*?\\}").matcher(myResponse);
+                    while (entriesMatcher.find()) {
+                        Matcher entriesDataMatcher = Pattern.compile("\\{h_date:'(\\d{2}/\\d{2}/\\d{4})',h_status:'(.*)'\\}").matcher(Objects.requireNonNull(entriesMatcher.group(0)));
+                        if (entriesDataMatcher.find()) {
+                            String date = entriesDataMatcher.group(1);
+                            String status = entriesDataMatcher.group(2);
+                            detailsList.add(new TrackingDetailsModel(status, "", date));
+                        }
+                    }
+                }
+                countDownLatch.countDown();
+            }
+        });
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Collections.reverse(detailsList);
+        return detailsList;
+    }
+
     private String detectCarrier() {
         if (Pattern.compile(eltaTrackingRegex).matcher(tracking).find()) {
             return "elta";
@@ -344,6 +414,8 @@ public class UpdateTrackingDetails {
             return acsOrGeniki();
         } else if (Pattern.compile(cometHellasTrackingRegex).matcher(tracking).find()) {
             return "cometHellas";
+        } else if (Pattern.compile(delatolasTrackingRegex).matcher(tracking).find()) {
+            return "delatolas";
         }
         return null;
     }
@@ -416,6 +488,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "courierCenter":
                         detailsList = trackCourierCenter();
+                        break;
+                    case "delatolas":
+                        detailsList = trackDelatolas();
                         break;
                 }
             }
