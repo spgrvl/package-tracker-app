@@ -51,11 +51,11 @@ public class UpdateTrackingDetails {
     private String tracking;
     public static final String PREF_NOTIF = "pref_notif";
     public static final String PREF_LANGUAGE = "pref_language";
-    public static final String eltaTrackingRegex = "[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}";
-    public static final String speedexOrCourierCenterTrackingRegex = "[0-9]{12}";
-    public static final String delatolasTrackingRegex = "[A-Za-z0-9]{12}";
-    public static final String acsOrGenikiTrackingRegex = "[0-9]{10}";
-    public static final String cometHellasTrackingRegex = "[0-9]{8}";
+    public static final String eltaTrackingRegex = "^[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}$";
+    public static final String speedexOrCourierCenterTrackingRegex = "^[0-9]{12}$";
+    public static final String delatolasTrackingRegex = "^[A-Za-z0-9]{12}$";
+    public static final String acsOrGenikiTrackingRegex = "^[0-9]{10}$";
+    public static final String cometHellasTrackingRegex = "^[0-9]{8}$";
 
     public UpdateTrackingDetails(String tracking, Context context, Boolean isOnForeground) {
         this.tracking = tracking;
@@ -580,6 +580,13 @@ public class UpdateTrackingDetails {
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(packageId, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        // action that occurs when "MARK READ" button is clicked
+        Intent markReadIntent = new Intent(context, NotificationReceiver.class);
+        markReadIntent.putExtra("tracking", tracking);
+        markReadIntent.putExtra("packageId", packageId);
+        PendingIntent markReadPendingIntent =
+                PendingIntent.getBroadcast(context, packageId, markReadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         // notification builder
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_PKG_ID)
                 .setSmallIcon(R.drawable.ic_notification)
@@ -588,6 +595,7 @@ public class UpdateTrackingDetails {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(resultPendingIntent)
                 .setAutoCancel(true)
+                .addAction(R.drawable.ic_check, "MARK READ", markReadPendingIntent)
                 .build();
 
         notificationManager.notify(packageId, notification);

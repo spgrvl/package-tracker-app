@@ -72,6 +72,8 @@
         <activity
             android:name=".SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
+
+        <receiver android:name=".NotificationReceiver" />
     </application>
 
 </manifest>
