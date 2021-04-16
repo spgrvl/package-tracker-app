@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class UpdateTrackingDetails {
     public static final String PREF_NOTIF = "pref_notif";
     public static final String PREF_LANGUAGE = "pref_language";
     public static final String eltaTrackingRegex = "^[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}$";
-    public static final String speedexOrCourierCenterTrackingRegex = "^[0-9]{12}$";
+    public static final String speedexOrCourierCenterOrEasyMailTrackingRegex = "^[0-9]{12}$";
     public static final String delatolasTrackingRegex = "^[A-Za-z0-9]{12}$";
     public static final String acsOrGenikiTrackingRegex = "^[0-9]{10}$";
     public static final String cometHellasTrackingRegex = "^[0-9]{8}$";
@@ -405,11 +406,45 @@ public class UpdateTrackingDetails {
         return detailsList;
     }
 
+    private ArrayList<TrackingDetailsModel> trackEasyMail() {
+        String url;
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+
+        try {
+            // Find system's language if there is no language preference set
+            if (languagePref.equals("sys")) {
+                languagePref = String.valueOf(context.getResources().getConfiguration().getLocales().get(0));
+            }
+
+            // Fetch tracking details in app's language
+            if (languagePref.equals("el_GR") || languagePref.equals("el")) {
+                url = "https://trackntrace.easymail.gr/" + tracking;
+            } else {
+                url = "https://trackntrace.easymail.gr/en/" + tracking;
+            }
+
+            Document doc = Jsoup.connect(url).get();
+            Elements table = doc.getElementsByClass("table table-bordered table-hover");
+            Elements rows = table.select("tbody").select("tr");
+
+            for (Element row : rows) {
+                Elements cols = row.select("td");
+                detailsList.add(new TrackingDetailsModel(
+                        cols.get(1).text(),
+                        cols.get(2).text(),
+                        cols.get(0).text().replace("  ", " ")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return detailsList;
+    }
+
     private String detectCarrier() {
         if (Pattern.compile(eltaTrackingRegex).matcher(tracking).find()) {
             return "elta";
-        } else if (Pattern.compile(speedexOrCourierCenterTrackingRegex).matcher(tracking).find()) {
-            return speedexOrCourierCenter();
+        } else if (Pattern.compile(speedexOrCourierCenterOrEasyMailTrackingRegex).matcher(tracking).find()) {
+            return speedexOrCourierCenterOrEasyMail();
         } else if (Pattern.compile(acsOrGenikiTrackingRegex).matcher(tracking).find()) {
             return acsOrGeniki();
         } else if (Pattern.compile(cometHellasTrackingRegex).matcher(tracking).find()) {
@@ -442,26 +477,35 @@ public class UpdateTrackingDetails {
         }
     }
 
-    private String speedexOrCourierCenter() {
-        // determine if tracking belongs to Speedex or Courier Center
-        boolean isCourierCenter = false;
+    private String speedexOrCourierCenterOrEasyMail() {
+        // determine if tracking belongs to Speedex, Courier Center or Easy Mail
+        String carrier = "speedex";
 
         try {
             String url = "https://www.courier.gr/track/result?tracknr=" + tracking;
             Document doc = Jsoup.connect(url).get();
             Elements date = doc.getElementsByClass("td date");
             if (date.size() > 0) {
-                isCourierCenter = true;
+                carrier = "courierCenter";
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if (isCourierCenter) {
-            return "courierCenter";
-        } else {
-            return "speedex";
+        if (!carrier.equals("courierCenter")) {
+            try {
+                String url = "https://trackntrace.easymail.gr/" + tracking;
+                Document doc = Jsoup.connect(url).get();
+                Elements table = doc.getElementsByClass("table table-bordered table-hover");
+                if (!table.isEmpty()) {
+                    carrier = "easyMail";
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+
+        return carrier;
     }
 
     protected boolean getWebsite() {
@@ -491,6 +535,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "delatolas":
                         detailsList = trackDelatolas();
+                        break;
+                    case "easyMail":
+                        detailsList = trackEasyMail();
                         break;
                 }
             }

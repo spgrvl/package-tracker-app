@@ -47,11 +47,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private boolean clipboardPref;
     public static final String PREF_CLIPBOARD = "pref_clipboard";
     public static final String eltaTrackingRegex = "^[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}$";
-    public static final String speedexOrCourierCenterTrackingRegex = "^[0-9]{12}$";
+    public static final String speedexOrCourierCenterOrEasyMailTrackingRegex = "^[0-9]{12}$";
     public static final String delatolasTrackingRegex = "^[A-Za-z0-9]{12}$";
     public static final String acsOrGenikiTrackingRegex = "^[0-9]{10}$";
     public static final String cometHellasTrackingRegex = "^[0-9]{8}$";
-    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)|(%s)", eltaTrackingRegex, speedexOrCourierCenterTrackingRegex, delatolasTrackingRegex, acsOrGenikiTrackingRegex, cometHellasTrackingRegex);
+    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)|(%s)", eltaTrackingRegex, speedexOrCourierCenterOrEasyMailTrackingRegex, delatolasTrackingRegex, acsOrGenikiTrackingRegex, cometHellasTrackingRegex);
     private CustomIndexRvAdapter adapter;
     private FloatingActionButton fab;
     private static final long RV_UPDATE_INTERVAL = 10000;
@@ -285,7 +285,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void handleUriIntent(Uri uri) {
         if (uri != null) {
-            Matcher trackingMatcher = Pattern.compile(trackingNumberRegex).matcher(uri.toString());
+            String trackingNumberRegexUri = trackingNumberRegex.replace("^", "").replace("$", "");
+            Matcher trackingMatcher = Pattern.compile(trackingNumberRegexUri).matcher(uri.toString());
             if (trackingMatcher.find()) {
                 // Open dialog with the tracking number pre-filled
                 openDialog(trackingMatcher.group(0));

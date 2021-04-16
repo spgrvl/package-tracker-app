@@ -13,3 +13,5 @@ It's an app that allows users to track their packages from Greek carriers in one
 * Speedex
 * Comet Hellas
 * Courier Center
+* Delatolas Courier
+* Easy Mail

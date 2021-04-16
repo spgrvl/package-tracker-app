@@ -60,6 +60,9 @@
                 <data
                     android:host="docuclass.delatolas.com"
                     android:scheme="https" />
+                <data
+                    android:host="trackntrace.easymail.gr"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
         <activity

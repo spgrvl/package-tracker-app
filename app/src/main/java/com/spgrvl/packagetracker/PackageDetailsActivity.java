@@ -159,6 +159,9 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                     case "delatolas":
                         url = "https://docuclass.delatolas.com/tnt_temp.php?id=" + tracking;
                         break;
+                    case "easyMail":
+                        url = "https://trackntrace.easymail.gr/" + tracking;
+                        break;
                 }
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 this.startActivity(intent);
