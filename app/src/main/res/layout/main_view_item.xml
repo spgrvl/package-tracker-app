@@ -26,7 +26,7 @@
             android:ellipsize="end"
             android:gravity="center_horizontal"
             android:maxLines="1"
-            android:text="Tracking"
+            android:text="@string/tracking_number"
             android:textSize="16sp" />
 
         <TextView
@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:text="Updated" />
+            android:text="@string/updated_at" />
 
         <TextView
             android:id="@+id/lastUpdateTv"
@@ -43,7 +43,7 @@
             android:ellipsize="end"
             android:gravity="center_horizontal"
             android:maxLines="1"
-            android:text="LastUpdate" />
+            android:text="@string/last_update" />
 
     </LinearLayout>
 

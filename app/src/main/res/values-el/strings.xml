@@ -82,6 +82,17 @@
     <string name="easyMail">Easy Mail</string>
     <string name="unknown_carrier">Αγνωστος παροχος</string>
     <string name="copy_tracking_number">Αντιγραφή αριθμού αποστολής</string>
+    <string name="completed">Ολοκληρωμένα</string>
+    <string name="mark_read">ΔΙΑΒΑΣΤΗΚΕ</string>
+    <string name="mark_active">Επισήμανση ως ενεργό</string>
+    <string name="mark_completed">Επισήμανση ως ολοκληρωμένο</string>
+    <string name="carrier">Πάροχος</string>
+    <string name="tracking_number">Αριθμός αποστολής</string>
+    <string name="updated_at">Ενημερώθηκε στις</string>
+    <string name="last_update">Τελευταία ενημέρωση</string>
+    <string name="status">Κατάσταση</string>
+    <string name="place">Τοποθεσία</string>
+    <string name="timestamp">Χρονική σήμανση</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>

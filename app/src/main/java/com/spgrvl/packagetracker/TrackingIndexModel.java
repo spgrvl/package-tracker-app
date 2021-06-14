@@ -7,14 +7,16 @@ public class TrackingIndexModel {
     private String updated;
     private String lastUpdate;
     private String customName;
+    private boolean completed;
     private boolean isSelected;
 
     // constructors
-    public TrackingIndexModel(String tracking, String updated, String lastUpdate, String customName) {
+    public TrackingIndexModel(String tracking, String updated, String lastUpdate, String customName, boolean completed) {
         this.tracking = tracking;
         this.updated = updated;
         this.lastUpdate = lastUpdate;
         this.customName = customName;
+        this.completed = completed;
     }
 
     // toString
@@ -26,6 +28,7 @@ public class TrackingIndexModel {
                 ", updated='" + updated + '\'' +
                 ", lastUpdate='" + lastUpdate + '\'' +
                 ", customName='" + customName + '\'' +
+                ", completed='" + completed + '\'' +
                 ", isSelected='" + isSelected + '\'' +
                 '}';
     }
@@ -61,6 +64,14 @@ public class TrackingIndexModel {
 
     public void setCustomName(String customName) {
         this.customName = customName;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 
     public boolean isSelected() {

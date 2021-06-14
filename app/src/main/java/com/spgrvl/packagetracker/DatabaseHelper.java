@@ -16,7 +16,7 @@ import static java.lang.Integer.parseInt;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int VERSION = 4;
+    public static final int VERSION = 5;
 
     public static final String DATABASE_NAME = "tracking.db";
     public static final String INDEX_TABLE = "Tracking_Index";
@@ -26,6 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String CUSTOM_NAME_COL = "CustomName";
     public static final String UNREAD_COL = "Unread";
     public static final String CARRIER_COL = "Carrier";
+    public static final String COMPLETED_COL = "Completed";
     public static final String STATUS_COL = "Status";
     public static final String PLACE_COL = "Place";
     public static final String DATETIME_COL = "Datetime";
@@ -36,7 +37,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE IF NOT EXISTS " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT, " + UNREAD_COL + " BOOLEAN NOT NULL, " + CARRIER_COL + " TEXT CHECK ( " + UNREAD_COL + " IN (0,1)))";
+        String createTable = "CREATE TABLE IF NOT EXISTS " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT, " + UNREAD_COL + " BOOLEAN NOT NULL, " + CARRIER_COL + " TEXT, " + COMPLETED_COL + " BOOLEAN NOT NULL, CHECK ( " + UNREAD_COL + " IN (0,1) AND " + COMPLETED_COL + " IN (0,1)))";
         db.execSQL(createTable);
     }
 
@@ -64,6 +65,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + INDEX_TABLE + " ADD COLUMN " + CARRIER_COL + " TEXT");
         }
 
+        // check if COMPLETED_COL exists and if not add it
+        int completedColumnIndex = cursor.getColumnIndex(COMPLETED_COL);
+        if (completedColumnIndex < 0) {
+            db.execSQL("ALTER TABLE " + INDEX_TABLE + " ADD COLUMN " + COMPLETED_COL + " BOOLEAN NOT NULL DEFAULT 0 CHECK ( " + COMPLETED_COL + " IN (0,1))");
+        }
+
         // close cursor when done.
         cursor.close();
     }
@@ -83,6 +90,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(LAST_UPDATE_COL, "Status: None");
             contentValues.put(CUSTOM_NAME_COL, CustomName);
             contentValues.put(UNREAD_COL, false);
+            contentValues.put(COMPLETED_COL, false);
             long result = db.insert(INDEX_TABLE, null, contentValues);
 
             db.close();
@@ -154,8 +162,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String updated = cursor.getString(1);
                 String lastUpdate = cursor.getString(2);
                 String customName = cursor.getString(3);
+                boolean completed = cursor.getString(6).equals("1");
 
-                TrackingIndexModel newTracking = new TrackingIndexModel(tracking, updated, lastUpdate, customName);
+                TrackingIndexModel newTracking = new TrackingIndexModel(tracking, updated, lastUpdate, customName, completed);
                 returnList.add(newTracking);
 
             } while (cursor.moveToNext());
@@ -167,20 +176,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return returnList;
     }
 
-    public ArrayList<String> getTrackingNumbers() {
+    public ArrayList<String> getTrackingNumbers(Boolean getCompleted) {
         ArrayList<String> tracking_numbers = new ArrayList<>();
 
         // get data from DB
         SQLiteDatabase db = this.getReadableDatabase();
-        String queryString = "SELECT " + TRACKING_COL + " FROM " + INDEX_TABLE;
+        String queryString = "SELECT * FROM " + INDEX_TABLE;
 
         Cursor cursor = db.rawQuery(queryString, null);
 
         if (cursor.moveToFirst()) {
             // loop through the cursor and create new tracking objects. Add them in the return list.
             do {
-                String tracking = cursor.getString(0);
-                tracking_numbers.add(tracking);
+                boolean isCompleted = cursor.getString(6).equals("1");
+                if (getCompleted) {
+                    if (isCompleted) {
+                        String tracking = cursor.getString(0);
+                        tracking_numbers.add(tracking);
+                    }
+                } else {
+                    if (!isCompleted) {
+                        String tracking = cursor.getString(0);
+                        tracking_numbers.add(tracking);
+                    }
+                }
             } while (cursor.moveToNext());
         }
 
@@ -207,6 +226,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         indexEntry.add(cursor.getString(4)); // CustomName
         indexEntry.add(cursor.getString(5)); // Unread
         indexEntry.add(cursor.getString(6)); // Carrier
+        indexEntry.add(cursor.getString(7)); // Completed
 
         // close cursor and db when done.
         cursor.close();
@@ -308,6 +328,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(UNREAD_COL, isUnread);
+
+        db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[]{tracking});
+
+        db.close();
+    }
+
+    public void setCompleted(String tracking, Boolean isCompleted) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COMPLETED_COL, isCompleted);
 
         db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[]{tracking});
 

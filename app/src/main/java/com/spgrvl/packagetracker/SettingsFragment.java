@@ -114,7 +114,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
 
         // write csv file
-        File bakFile = new File(getActivity().getExternalFilesDir(FOLDER_NAME), (FILE_NAME));
+        File bakFile = new File(requireActivity().getExternalFilesDir(FOLDER_NAME), (FILE_NAME));
         FileOutputStream fos;
         try {
             fos = new FileOutputStream(bakFile);

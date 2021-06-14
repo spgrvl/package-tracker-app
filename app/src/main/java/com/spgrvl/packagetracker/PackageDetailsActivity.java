@@ -33,6 +33,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     final DatabaseHelper databaseHelper = new DatabaseHelper(PackageDetailsActivity.this);
     ArrayList<String> indexEntry;
     private String customName = null;
+    private boolean completed = false;
     private TextView carrierTv;
 
     @Override
@@ -51,15 +52,14 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         swipeRefreshLayout = findViewById(R.id.swipeRefreshDetails);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        // Get the intent sent from MainActivity
+        // Get the intent sent from parent activity
         Intent intent = getIntent();
-
-        // Parameter in Intent, sent from MainActivity
         this.tracking = intent.getStringExtra("tracking");
 
-        // Fetch custom name from DB
+        // Fetch custom name and completed status from DB
         indexEntry = databaseHelper.getIndexEntry(tracking);
         customName = indexEntry.get(4);
+        completed = indexEntry.get(7).equals("1");
 
         // Set title and subtitle in action bar
         if (customName != null) {
@@ -75,8 +75,10 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
 
         showDetailsOnRecyclerView();
 
-        // Update details
-        updateDetails(false);
+        // Update details if not completed
+        if (!completed) {
+            updateDetails(false);
+        }
 
         // Mark item as read in index table
         databaseHelper.setUnreadStatus(tracking, false);
@@ -118,6 +120,16 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (completed) {
+            menu.findItem(R.id.completed_button).setTitle(R.string.mark_active);
+        } else {
+            menu.findItem(R.id.completed_button).setTitle(R.string.mark_completed);
+        }
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.refresh_button) {
@@ -125,6 +137,8 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             updateDetails(true);
         } else if (itemId == android.R.id.home) {
             finish();
+        } else if (itemId == R.id.completed_button) {
+            handleCompleted();
         } else if (itemId == R.id.edit_button) {
             openDialog();
         } else if (itemId == R.id.delete_button) {
@@ -190,6 +204,12 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                 })
                 .setNegativeButton(R.string.no, null)
                 .show();
+    }
+
+    private void handleCompleted() {
+        databaseHelper.setCompleted(tracking, !completed);
+        completed = !completed;
+        invalidateOptionsMenu();
     }
 
     private void openDialog() {

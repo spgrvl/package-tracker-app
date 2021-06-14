@@ -4,42 +4,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PackageDetailsActivity">
-
-    <TextView
-        android:id="@+id/carrierTv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?carrierTvColor"
-        android:gravity="center"
-        android:padding="4dp"
-        android:text="@string/carrier"
-        android:textAllCaps="true"
-        android:textStyle="bold" />
+    tools:context=".CompletedActivity">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshDetails"
+        android:id="@+id/swipeRefreshCompleted"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/carrierTv"
         android:layout_centerInParent="true">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/trackingDetailsRv"
+            android:id="@+id/trackingNumbersRv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"
-            app:layoutManager="LinearLayoutManager" />
+            app:layoutManager="LinearLayoutManager"
+            app:reverseLayout="true"
+            app:stackFromEnd="true" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <TextView
-        android:id="@+id/empty_details"
+    <LinearLayout
+        android:id="@+id/empty_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="@string/no_status_information"
-        android:textSize="18sp"
-        android:visibility="gone" />
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_packages"
+            android:textSize="22sp" />
+
+    </LinearLayout>
 
 </RelativeLayout>

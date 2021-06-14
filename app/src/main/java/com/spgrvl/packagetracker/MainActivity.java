@@ -113,12 +113,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void showTrackingOnRecyclerView() {
-        List<TrackingIndexModel> allTracking = databaseHelper.getAllTracking();
-        if (allTracking.size() == 0) {
+        ArrayList<String> trackingNumbers = databaseHelper.getTrackingNumbers(false);
+        if (trackingNumbers.size() == 0) {
             findViewById(R.id.empty_layout).setVisibility(View.VISIBLE);
         } else {
             findViewById(R.id.empty_layout).setVisibility(View.GONE);
         }
+        List<TrackingIndexModel> allTracking = databaseHelper.getAllTracking();
         adapter = new CustomIndexRvAdapter(MainActivity.this, allTracking);
         trackingNumbersRv.setAdapter(adapter);
     }
@@ -198,6 +199,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         if (item.getItemId() == R.id.refresh_button) {
             swipeRefreshLayout.setRefreshing(true);
             updateIndex();
+        } else if (item.getItemId() == R.id.completed_button) {
+            startActivity(new Intent(this, CompletedActivity.class));
         } else if (item.getItemId() == R.id.settings_button) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (item.getItemId() == android.R.id.home) {
@@ -296,7 +299,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void submitTracking(String trackingNumber, String customName) {
-        ArrayList<String> tracking_numbers = databaseHelper.getTrackingNumbers();
+        ArrayList<String> tracking_numbers = databaseHelper.getTrackingNumbers(false);
+        ArrayList<String> completed_tracking_numbers = databaseHelper.getTrackingNumbers(true);
+        tracking_numbers.addAll(completed_tracking_numbers);
 
         // remove spaces from start and end of input
         trackingNumber = trackingNumber.trim();
@@ -337,11 +342,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         openDialog(list[position]);
     }
 
-    public void startSelection(int index) {
+    public void startSelection(int index, String tracking) {
         if (!isInSelectionMode) {
             isInSelectionMode = true;
             fab.setVisibility(View.GONE);
-            selectionList.add(databaseHelper.getAllTracking().get(index).getTracking());
+            selectionList.add(tracking);
             counter++;
             updateToolbarText();
             position = index;
@@ -369,14 +374,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         adapter.notifyDataSetChanged();
     }
 
-    public void selectItem(View v, int index) {
+    public void selectItem(View v, String tracking) {
         if (((CheckBox) v).isChecked()) {
             ((CheckBox) v).setChecked(false);
-            selectionList.remove(databaseHelper.getAllTracking().get(index).getTracking());
+            selectionList.remove(tracking);
             counter--;
         } else {
             ((CheckBox) v).setChecked(true);
-            selectionList.add(databaseHelper.getAllTracking().get(index).getTracking());
+            selectionList.add(tracking);
             counter++;
         }
         updateToolbarText();

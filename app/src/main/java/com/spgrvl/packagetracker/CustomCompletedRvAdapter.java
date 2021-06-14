@@ -16,25 +16,25 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdapter.ViewHolder> {
+public class CustomCompletedRvAdapter extends RecyclerView.Adapter<CustomCompletedRvAdapter.ViewHolder> {
 
     private final List<TrackingIndexModel> listData;
     private final LayoutInflater layoutInflater;
     private final Context context;
-    private final MainActivity mainActivity;
+    private final CompletedActivity completedActivity;
     private final DatabaseHelper databaseHelper;
 
-    public CustomIndexRvAdapter(Context context, List<TrackingIndexModel> listData) {
+    public CustomCompletedRvAdapter(Context context, List<TrackingIndexModel> listData) {
         this.listData = listData;
         this.context = context;
         layoutInflater = LayoutInflater.from(context);
-        this.mainActivity = (MainActivity) context;
+        this.completedActivity = (CompletedActivity) context;
         databaseHelper = new DatabaseHelper(context);
 
         // find and remove unwanted items
         List<TrackingIndexModel> listRemove = new ArrayList<>();
         for (TrackingIndexModel t : this.listData) {
-            if (t.isCompleted()) {
+            if (!t.isCompleted()) {
                 listRemove.add(t);
             }
         }
@@ -78,16 +78,16 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
 
         // Called when user clicks RecyclerView items
         holder.parentView.setOnClickListener(v -> {
-            if (!mainActivity.isInSelectionMode) {
+            if (!completedActivity.isInSelectionMode) {
                 openTrackingDetails(tracking.getTracking());
             } else {
-                mainActivity.selectItem(holder.checkbox, tracking.getTracking());
+                completedActivity.selectItem(holder.checkbox, tracking.getTracking());
             }
         });
 
         // Called when user long clicks RecyclerView items
         holder.parentView.setOnLongClickListener(v -> {
-            mainActivity.startSelection(position, tracking.getTracking());
+            completedActivity.startSelection(position, tracking.getTracking());
             return true;
         });
 
@@ -98,10 +98,10 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         holder.checkbox.setOnCheckedChangeListener((checkboxView, isChecked) -> tracking.setSelected(isChecked));
 
         // detect if in multiple selection mode
-        if (mainActivity.isInSelectionMode) {
-            if (mainActivity.position == position) {
+        if (completedActivity.isInSelectionMode) {
+            if (completedActivity.position == position) {
                 holder.checkbox.setChecked(true);
-                mainActivity.position = -1;
+                completedActivity.position = -1;
             }
             holder.checkbox.setVisibility(View.VISIBLE);
         } else {
@@ -126,11 +126,11 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         for (TrackingIndexModel t : listData) {
             t.setSelected(true);
             notifyDataSetChanged();
-            if (!mainActivity.selectionList.contains(t.getTracking())) {
-                mainActivity.selectionList.add(t.getTracking());
+            if (!completedActivity.selectionList.contains(t.getTracking())) {
+                completedActivity.selectionList.add(t.getTracking());
             }
-            mainActivity.counter = getItemCount();
-            mainActivity.updateToolbarText();
+            completedActivity.counter = getItemCount();
+            completedActivity.updateToolbarText();
         }
     }
 

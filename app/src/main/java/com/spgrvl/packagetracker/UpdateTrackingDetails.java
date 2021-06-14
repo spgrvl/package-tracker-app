@@ -602,11 +602,11 @@ public class UpdateTrackingDetails {
         return true;
     }
 
-    protected boolean updateAll() {
+    protected boolean updateAll(boolean completed) {
         this.updatingAll = true;
         try {
             DatabaseHelper databaseHelper = new DatabaseHelper(context);
-            ArrayList<String> tracking_numbers = databaseHelper.getTrackingNumbers();
+            ArrayList<String> tracking_numbers = databaseHelper.getTrackingNumbers(completed);
             for (int i = 0; i < tracking_numbers.size(); i++) {
                 tracking = tracking_numbers.get(i);
                 getWebsite();
@@ -616,6 +616,10 @@ public class UpdateTrackingDetails {
             return false;
         }
         return true;
+    }
+
+    protected boolean updateAll() {
+        return updateAll(false);
     }
 
     protected void sendPackageUpdateNotification(String title, String message, int packageId, String tracking) {
@@ -642,7 +646,7 @@ public class UpdateTrackingDetails {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(resultPendingIntent)
                 .setAutoCancel(true)
-                .addAction(R.drawable.ic_check, "MARK READ", markReadPendingIntent)
+                .addAction(R.drawable.ic_check, context.getString(R.string.mark_read), markReadPendingIntent)
                 .build();
 
         notificationManager.notify(packageId, notification);

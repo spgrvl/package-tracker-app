@@ -9,6 +9,12 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/completed_button"
+        android:icon="@drawable/ic_check"
+        android:title="@string/completed"
+        app:showAsAction="collapseActionView" />
+
+    <item
         android:id="@+id/edit_button"
         android:icon="@drawable/ic_edit"
         android:title="@string/edit"

@@ -82,6 +82,17 @@
     <string name="easyMail">Easy Mail</string>
     <string name="unknown_carrier">Unknown carrier</string>
     <string name="copy_tracking_number">Copy Tracking Number</string>
+    <string name="completed">Completed</string>
+    <string name="mark_read">MARK READ</string>
+    <string name="mark_active">Mark as active</string>
+    <string name="mark_completed">Mark as completed</string>
+    <string name="carrier">Carrier</string>
+    <string name="tracking_number">Tracking number</string>
+    <string name="updated_at">Updated at</string>
+    <string name="last_update">Last update</string>
+    <string name="status">Status</string>
+    <string name="place">Place</string>
+    <string name="timestamp">Timestamp</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

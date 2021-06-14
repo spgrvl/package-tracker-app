@@ -67,8 +67,10 @@
         </activity>
         <activity
             android:name=".PackageDetailsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName=".MainActivity" />
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name=".CompletedActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
         <activity
             android:name=".BarcodeScanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
