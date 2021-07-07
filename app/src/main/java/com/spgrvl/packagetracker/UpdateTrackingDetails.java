@@ -53,6 +53,7 @@ public class UpdateTrackingDetails {
     public static final String PREF_NOTIF = "pref_notif";
     public static final String PREF_LANGUAGE = "pref_language";
     public static final String eltaTrackingRegex = "^[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}$";
+    public static final String easyMailTracking2Regex = "^[0-9]{11}$";
     public static final String speedexOrCourierCenterOrEasyMailTrackingRegex = "^[0-9]{12}$";
     public static final String delatolasTrackingRegex = "^[A-Za-z0-9]{12}$";
     public static final String acsOrGenikiTrackingRegex = "^[0-9]{10}$";
@@ -443,6 +444,8 @@ public class UpdateTrackingDetails {
     private String detectCarrier() {
         if (Pattern.compile(eltaTrackingRegex).matcher(tracking).find()) {
             return "elta";
+        } else if (Pattern.compile(easyMailTracking2Regex).matcher(tracking).find()) {
+            return "easyMail";
         } else if (Pattern.compile(speedexOrCourierCenterOrEasyMailTrackingRegex).matcher(tracking).find()) {
             return speedexOrCourierCenterOrEasyMail();
         } else if (Pattern.compile(acsOrGenikiTrackingRegex).matcher(tracking).find()) {

@@ -47,11 +47,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private boolean clipboardPref;
     public static final String PREF_CLIPBOARD = "pref_clipboard";
     public static final String eltaTrackingRegex = "^[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}$";
+    public static final String easyMailTracking2Regex = "^[0-9]{11}$";
     public static final String speedexOrCourierCenterOrEasyMailTrackingRegex = "^[0-9]{12}$";
     public static final String delatolasTrackingRegex = "^[A-Za-z0-9]{12}$";
     public static final String acsOrGenikiTrackingRegex = "^[0-9]{10}$";
     public static final String cometHellasTrackingRegex = "^[0-9]{8}$";
-    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)|(%s)", eltaTrackingRegex, speedexOrCourierCenterOrEasyMailTrackingRegex, delatolasTrackingRegex, acsOrGenikiTrackingRegex, cometHellasTrackingRegex);
+    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)|(%s)|(%s)", eltaTrackingRegex, easyMailTracking2Regex, speedexOrCourierCenterOrEasyMailTrackingRegex, delatolasTrackingRegex, acsOrGenikiTrackingRegex, cometHellasTrackingRegex);
     private CustomIndexRvAdapter adapter;
     private FloatingActionButton fab;
     private static final long RV_UPDATE_INTERVAL = 10000;
@@ -251,6 +252,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             if (clipboardManager.hasPrimaryClip()) {
                 ClipData clipData = clipboardManager.getPrimaryClip();
                 ClipData.Item item = clipData.getItemAt(0);
+                if (item.getText() == null) {
+                    startedFlag = false;
+                    return;
+                }
                 String clipText = item.getText().toString();
                 startedFlag = false;
 
