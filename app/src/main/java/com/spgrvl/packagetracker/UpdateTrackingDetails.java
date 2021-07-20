@@ -21,7 +21,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,6 +69,11 @@ public class UpdateTrackingDetails {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         notifPref = sharedPreferences.getBoolean(PREF_NOTIF, true);
         languagePref = sharedPreferences.getString(PREF_LANGUAGE, "sys");
+
+        // Find system's language if there is no language preference set
+        if (languagePref.equals("sys")) {
+            languagePref = String.valueOf(context.getResources().getConfiguration().getLocales().get(0));
+        }
     }
 
     private ArrayList<TrackingDetailsModel> trackElta() {
@@ -79,11 +83,6 @@ public class UpdateTrackingDetails {
         ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
 
         try {
-            // Find system's language if there is no language preference set
-            if (languagePref.equals("sys")) {
-                languagePref = String.valueOf(context.getResources().getConfiguration().getLocales().get(0));
-            }
-
             // Fetch tracking details in app's language
             if (languagePref.equals("el_GR") || languagePref.equals("el")) {
                 url = "https://itemsearch.elta.gr/el-GR/Query/Direct/" + tracking;
@@ -115,11 +114,6 @@ public class UpdateTrackingDetails {
         ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
 
         try {
-            // Find system's language if there is no language preference set
-            if (languagePref.equals("sys")) {
-                languagePref = String.valueOf(context.getResources().getConfiguration().getLocales().get(0));
-            }
-
             // Fetch tracking details in app's language
             if (languagePref.equals("el_GR") || languagePref.equals("el")) {
                 url = "https://www.taxydromiki.com/track/" + tracking;
@@ -191,24 +185,22 @@ public class UpdateTrackingDetails {
     }
 
     private ArrayList<TrackingDetailsModel> trackAcs() {
-        String url;
+        String url, lang;
         ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
 
-        // Find system's language if there is no language preference set
-        if (languagePref.equals("sys")) {
-            languagePref = String.valueOf(context.getResources().getConfiguration().getLocales().get(0));
-        }
+        url = "https://api.acscourier.net/api/parcels/search/" + tracking;
 
         // Fetch tracking details in app's language
         if (languagePref.equals("el_GR") || languagePref.equals("el")) {
-            url = "https://www.acscourier.net/el/track-and-trace?p_p_id=ACSCustomersAreaTrackTrace_WAR_ACSCustomersAreaportlet&p_p_lifecycle=2&p_p_resource_id=trackTraceJson&generalCode=" + tracking;
+            lang = "el";
         } else {
-            url = "https://www.acscourier.net/en/track-and-trace?p_p_id=ACSCustomersAreaTrackTrace_WAR_ACSCustomersAreaportlet&p_p_lifecycle=2&p_p_resource_id=trackTraceJson&generalCode=" + tracking;
+            lang = "en";
         }
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
+                .addHeader("accept-language", lang)
                 .build();
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -225,17 +217,22 @@ public class UpdateTrackingDetails {
                     String myResponse = Objects.requireNonNull(response.body()).string();
                     try {
                         JSONObject jsonResponseObject = new JSONObject(myResponse);
-                        JSONArray jsonResultsArray = jsonResponseObject.getJSONArray("results");
-                        JSONObject jsonResultsObject = jsonResultsArray.getJSONObject(0);
-                        JSONArray jsonCpArray = jsonResultsObject.getJSONArray("controlPoints");
-                        for (int i = 0; i < jsonCpArray.length(); i++) {
-                            JSONObject jsonCpObject = jsonCpArray.getJSONObject(i);
-                            long timestampMillis = jsonCpObject.getLong("date");
-                            DateFormat timestamp = new SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.FRANCE);
-                            Date date = new Date(timestampMillis);
-                            String status = jsonCpObject.getString("description");
-                            String place = jsonCpObject.getString("controlPoint");
-                            detailsList.add(new TrackingDetailsModel(status, place, timestamp.format(date)));
+                        JSONArray jsonItemsArray = jsonResponseObject.getJSONArray("items");
+                        JSONObject jsonResultsObject = jsonItemsArray.getJSONObject(0);
+                        JSONArray jsonShArray = jsonResultsObject.getJSONArray("statusHistory");
+                        for (int i = 0; i < jsonShArray.length(); i++) {
+                            JSONObject jsonShObject = jsonShArray.getJSONObject(i);
+                            String timestampOriginal = jsonShObject.getString("controlPointDate");
+                            SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+                            Date date = inputFormatter.parse(timestampOriginal);
+                            SimpleDateFormat outputFormatter = new SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.ENGLISH);
+                            String status = jsonShObject.getString("description");
+                            String place = jsonShObject.getString("controlPoint");
+                            String info = jsonShObject.getString("info");
+                            if (!info.trim().equals("")) {
+                                status = status + " (" + info + ")";
+                            }
+                            detailsList.add(new TrackingDetailsModel(status, place, outputFormatter.format(date)));
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -345,11 +342,6 @@ public class UpdateTrackingDetails {
         ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
 
         String lang;
-        // Find system's language if there is no language preference set
-        if (languagePref.equals("sys")) {
-            languagePref = String.valueOf(context.getResources().getConfiguration().getLocales().get(0));
-        }
-
         if (languagePref.equals("el_GR") || languagePref.equals("el")) {
             lang = "el";
         } else {
@@ -412,11 +404,6 @@ public class UpdateTrackingDetails {
         ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
 
         try {
-            // Find system's language if there is no language preference set
-            if (languagePref.equals("sys")) {
-                languagePref = String.valueOf(context.getResources().getConfiguration().getLocales().get(0));
-            }
-
             // Fetch tracking details in app's language
             if (languagePref.equals("el_GR") || languagePref.equals("el")) {
                 url = "https://trackntrace.easymail.gr/" + tracking;
