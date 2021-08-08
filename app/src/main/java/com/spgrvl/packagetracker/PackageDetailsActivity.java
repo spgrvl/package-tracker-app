@@ -124,7 +124,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         if (completed) {
             menu.findItem(R.id.completed_button).setTitle(R.string.mark_active);
         } else {
-            menu.findItem(R.id.completed_button).setTitle(R.string.mark_completed);
+            menu.findItem(R.id.completed_button).setTitle(R.string.mark_as_completed);
         }
         return true;
     }

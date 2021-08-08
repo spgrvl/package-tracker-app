@@ -85,7 +85,8 @@
     <string name="completed">Ολοκληρωμένα</string>
     <string name="mark_read">ΔΙΑΒΑΣΤΗΚΕ</string>
     <string name="mark_active">Επισήμανση ως ενεργό</string>
-    <string name="mark_completed">Επισήμανση ως ολοκληρωμένο</string>
+    <string name="mark_as_completed">Επισήμανση ως ολοκληρωμένο</string>
+    <string name="mark_completed">ΟΛΟΚΛΗΡΩΘΗΚΕ</string>
     <string name="carrier">Πάροχος</string>
     <string name="tracking_number">Αριθμός αποστολής</string>
     <string name="updated_at">Ενημερώθηκε στις</string>

@@ -85,7 +85,8 @@
     <string name="completed">Completed</string>
     <string name="mark_read">MARK READ</string>
     <string name="mark_active">Mark as active</string>
-    <string name="mark_completed">Mark as completed</string>
+    <string name="mark_as_completed">Mark as completed</string>
+    <string name="mark_completed">COMPLETED</string>
     <string name="carrier">Carrier</string>
     <string name="tracking_number">Tracking number</string>
     <string name="updated_at">Updated at</string>

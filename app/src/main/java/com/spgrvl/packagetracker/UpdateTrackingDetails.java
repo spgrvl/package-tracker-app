@@ -625,8 +625,17 @@ public class UpdateTrackingDetails {
         Intent markReadIntent = new Intent(context, NotificationReceiver.class);
         markReadIntent.putExtra("tracking", tracking);
         markReadIntent.putExtra("packageId", packageId);
+        markReadIntent.putExtra("action", "mark_as_read");
         PendingIntent markReadPendingIntent =
-                PendingIntent.getBroadcast(context, packageId, markReadIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.getBroadcast(context, 1, markReadIntent, PendingIntent.FLAG_ONE_SHOT);
+
+        // action that occurs when "COMPLETED" button is clicked
+        Intent markCompletedIntent = new Intent(context, NotificationReceiver.class);
+        markCompletedIntent.putExtra("tracking", tracking);
+        markCompletedIntent.putExtra("packageId", packageId);
+        markCompletedIntent.putExtra("action", "mark_as_completed");
+        PendingIntent markCompletedPendingIntent =
+                PendingIntent.getBroadcast(context, 2, markCompletedIntent, PendingIntent.FLAG_ONE_SHOT);
 
         // notification builder
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_PKG_ID)
@@ -636,7 +645,8 @@ public class UpdateTrackingDetails {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(resultPendingIntent)
                 .setAutoCancel(true)
-                .addAction(R.drawable.ic_check, context.getString(R.string.mark_read), markReadPendingIntent)
+                .addAction(R.drawable.ic_eye, context.getString(R.string.mark_read), markReadPendingIntent)
+                .addAction(R.drawable.ic_check, context.getString(R.string.mark_completed), markCompletedPendingIntent)
                 .build();
 
         notificationManager.notify(packageId, notification);

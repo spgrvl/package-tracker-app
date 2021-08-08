@@ -10,7 +10,13 @@ public class NotificationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String tracking = intent.getStringExtra("tracking");
-        markAsRead(tracking, context);
+        String action = intent.getStringExtra("action");
+
+        if (action.equals("mark_as_read")) {
+            markAsRead(tracking, context);
+        } else if (action.equals("mark_as_completed")) {
+            markAsCompleted(tracking, context);
+        }
 
         // Dismiss notification
         int packageId = intent.getIntExtra("packageId", 0);
@@ -20,5 +26,10 @@ public class NotificationReceiver extends BroadcastReceiver {
     private void markAsRead(String tracking, Context context) {
         DatabaseHelper databaseHelper = new DatabaseHelper(context);
         databaseHelper.setUnreadStatus(tracking, false);
+    }
+
+    private void markAsCompleted(String tracking, Context context) {
+        DatabaseHelper databaseHelper = new DatabaseHelper(context);
+        databaseHelper.setCompleted(tracking, true);
     }
 }
