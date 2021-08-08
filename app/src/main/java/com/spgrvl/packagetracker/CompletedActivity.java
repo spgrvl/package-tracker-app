@@ -123,6 +123,7 @@ public class CompletedActivity extends AppCompatActivity implements SwipeRefresh
         if (isInSelectionMode) {
             menu.setGroupVisible(R.id.main_group, false);
             menu.setGroupVisible(R.id.selection_group, true);
+            menu.findItem(R.id.selection_complete_button).setVisible(false);
         } else {
             menu.setGroupVisible(R.id.selection_group, false);
             menu.setGroupVisible(R.id.main_group, true);
@@ -150,6 +151,8 @@ public class CompletedActivity extends AppCompatActivity implements SwipeRefresh
             adapter.selectAll();
         } else if (item.getItemId() == R.id.selection_delete_button && selectionList.size() > 0) {
             delete_packages();
+        } else if (item.getItemId() == R.id.selection_active_button && selectionList.size() > 0) {
+            activate_packages();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -247,6 +250,23 @@ public class CompletedActivity extends AppCompatActivity implements SwipeRefresh
                 })
                 .setNegativeButton(R.string.no, ((dialog, which) -> clearSelectionMode()))
                 .show();
+    }
+
+    private void activate_packages() {
+        String toast_msg;
+        if (selectionList.size() == 1) {
+            toast_msg = getString(R.string.package_active, selectionList.get(0));
+        } else {
+            toast_msg = getString(R.string.packages_active, selectionList.size());
+        }
+
+        for (String tracking : selectionList) {
+            databaseHelper.setCompleted(tracking, false);
+        }
+
+        showTrackingOnRecyclerView();
+        clearSelectionMode();
+        Toast.makeText(this, toast_msg, Toast.LENGTH_SHORT).show();
     }
 
     private boolean isNetworkAvailable() {

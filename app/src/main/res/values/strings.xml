@@ -13,6 +13,10 @@
     <string name="no">No</string>
     <string name="package_deleted">Deleted package %1$s</string>
     <string name="packages_deleted">Deleted %1$d packages</string>
+    <string name="package_completed">Marked package %1$s as completed</string>
+    <string name="packages_completed">Marked %1$d packages as completed</string>
+    <string name="package_active">Marked package %1$s as active</string>
+    <string name="packages_active">Marked %1$d packages as active</string>
     <string name="added_successfully">Added successfully!</string>
     <string name="something_went_wrong">Something went wrong!</string>
     <string name="edited_successfully">Edited successfully!</string>

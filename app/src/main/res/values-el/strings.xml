@@ -14,6 +14,10 @@
     <string name="no">Οχι</string>
     <string name="package_deleted">Διαγράφηκε το πακέτο %1$s</string>
     <string name="packages_deleted">Διαγράφηκαν %1$d πακέτα</string>
+    <string name="package_completed">Το πακέτο %1$s επισημάνθηκε ως ολοκληρωμένο</string>
+    <string name="packages_completed">%1$d πακέτα επισημάνθηκαν ως ολοκληρωμένα</string>
+    <string name="package_active">Το πακέτο %1$s επισημάνθηκε ως ενεργό</string>
+    <string name="packages_active">%1$d πακέτα επισημάνθηκαν ως ενεργά</string>
     <string name="added_successfully">Προστέθηκε επιτυχώς!</string>
     <string name="something_went_wrong">Κάτι πήγε στραβά!</string>
     <string name="edited_successfully">Η επεξεργασία ήταν επιτυχής!</string>
