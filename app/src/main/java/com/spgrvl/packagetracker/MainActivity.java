@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     public void addTrackingDb(String trackingNumber, String customName) {
-        boolean insertData = databaseHelper.addNewTracking(trackingNumber, customName);
+        boolean insertData = databaseHelper.addNewTracking(trackingNumber, customName, false);
 
         if (insertData) {
             Toast.makeText(MainActivity.this, R.string.added_successfully, Toast.LENGTH_LONG).show();

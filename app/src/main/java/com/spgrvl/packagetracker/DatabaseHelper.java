@@ -75,7 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
     }
 
-    public boolean addNewTracking(String Tracking, String CustomName) {
+    public boolean addNewTracking(String Tracking, String CustomName, Boolean Completed) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Create table for details of new Tracking number
@@ -90,7 +90,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(LAST_UPDATE_COL, "Status: None");
             contentValues.put(CUSTOM_NAME_COL, CustomName);
             contentValues.put(UNREAD_COL, false);
-            contentValues.put(COMPLETED_COL, false);
+            contentValues.put(COMPLETED_COL, Completed);
             long result = db.insert(INDEX_TABLE, null, contentValues);
 
             db.close();

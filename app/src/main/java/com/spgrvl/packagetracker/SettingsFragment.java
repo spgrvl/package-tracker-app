@@ -110,6 +110,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             csvContent.append(Objects.toString(recordsList.get(i).getTracking(), "").replace(",", "."));
             csvContent.append(",");
             csvContent.append(Objects.toString(recordsList.get(i).getCustomName(), "").replace(",", "."));
+            csvContent.append(",");
+            csvContent.append(Objects.toString(recordsList.get(i).isCompleted(), ""));
             csvContent.append("\n");
         }
 
@@ -142,10 +144,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 while ((nextLine = csvReader.readNext()) != null) {
                     String tracking = nextLine[0];
                     String customName = nextLine[1];
+                    Boolean completed = Boolean.valueOf(nextLine[2]);
+
                     if (customName.equals("")) {
                         customName = null;
                     }
-                    databaseHelper.addNewTracking(tracking, customName);
+                    databaseHelper.addNewTracking(tracking, customName, completed);
                 }
                 Toast.makeText(getContext(), R.string.backup_restored, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
