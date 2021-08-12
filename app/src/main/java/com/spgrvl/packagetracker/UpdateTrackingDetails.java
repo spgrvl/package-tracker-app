@@ -627,7 +627,7 @@ public class UpdateTrackingDetails {
         markReadIntent.putExtra("packageId", packageId);
         markReadIntent.putExtra("action", "mark_as_read");
         PendingIntent markReadPendingIntent =
-                PendingIntent.getBroadcast(context, 1, markReadIntent, PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent.getBroadcast(context, Integer.parseInt(packageId + "1"), markReadIntent, PendingIntent.FLAG_ONE_SHOT);
 
         // action that occurs when "COMPLETED" button is clicked
         Intent markCompletedIntent = new Intent(context, NotificationReceiver.class);
@@ -635,7 +635,7 @@ public class UpdateTrackingDetails {
         markCompletedIntent.putExtra("packageId", packageId);
         markCompletedIntent.putExtra("action", "mark_as_completed");
         PendingIntent markCompletedPendingIntent =
-                PendingIntent.getBroadcast(context, 2, markCompletedIntent, PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent.getBroadcast(context, Integer.parseInt(packageId + "2"), markCompletedIntent, PendingIntent.FLAG_ONE_SHOT);
 
         // notification builder
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_PKG_ID)
