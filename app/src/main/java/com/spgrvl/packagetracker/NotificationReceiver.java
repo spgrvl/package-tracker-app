@@ -31,5 +31,6 @@ public class NotificationReceiver extends BroadcastReceiver {
     private void markAsCompleted(String tracking, Context context) {
         DatabaseHelper databaseHelper = new DatabaseHelper(context);
         databaseHelper.setCompleted(tracking, true);
+        databaseHelper.setUnreadStatus(tracking, false);
     }
 }
