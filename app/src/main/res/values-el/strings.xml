@@ -98,6 +98,7 @@
     <string name="status">Κατάσταση</string>
     <string name="place">Τοποθεσία</string>
     <string name="timestamp">Χρονική σήμανση</string>
+    <string name="days_since">Ημέρες από</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>

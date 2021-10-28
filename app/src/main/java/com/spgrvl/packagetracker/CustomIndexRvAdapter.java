@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdapter.ViewHolder> {
 
@@ -56,6 +58,14 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             holder.tracking.setText(nameAndTracking);
         } else {
             holder.tracking.setText(tracking.getTracking());
+        }
+
+        if (!tracking.getCreated().equals("")) {
+            long millisSinceCreated = System.currentTimeMillis() - Long.parseLong(tracking.getCreated());
+            String daysSinceCreated = TimeUnit.DAYS.convert(millisSinceCreated, TimeUnit.MILLISECONDS) + " D";
+            holder.daysSince.setText(daysSinceCreated);
+        } else {
+            holder.daysSince.setText("");
         }
 
         if (tracking.getUpdated().equals("Never")) {
@@ -103,9 +113,11 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
                 holder.checkbox.setChecked(true);
                 mainActivity.position = -1;
             }
+            holder.packageIcon.setVisibility(View.GONE);
             holder.checkbox.setVisibility(View.VISIBLE);
         } else {
             holder.checkbox.setVisibility(View.GONE);
+            holder.packageIcon.setVisibility(View.VISIBLE);
             for (TrackingIndexModel t : listData) {
                 t.setSelected(false);
             }
@@ -136,18 +148,22 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView tracking;
+        final TextView daysSince;
         final TextView updated;
         final TextView lastUpdate;
         final CheckBox checkbox;
+        final ImageView packageIcon;
         private final View parentView;
 
         public ViewHolder(@NonNull View view) {
             super(view);
             this.parentView = view;
             this.tracking = view.findViewById(R.id.trackingTv);
+            this.daysSince = view.findViewById(R.id.daysSinceTv);
             this.updated = view.findViewById(R.id.updatedTv);
             this.lastUpdate = view.findViewById(R.id.lastUpdateTv);
             this.checkbox = view.findViewById(R.id.checkbox);
+            this.packageIcon = view.findViewById(R.id.packageIcon);
         }
     }
 
@@ -155,10 +171,12 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         boolean isUnread = databaseHelper.getUnreadStatus(tracking.getTracking());
         if (isUnread) {
             holder.tracking.setTypeface(Typeface.DEFAULT_BOLD);
+            holder.daysSince.setTypeface(Typeface.DEFAULT_BOLD);
             holder.updated.setTypeface(Typeface.DEFAULT_BOLD);
             holder.lastUpdate.setTypeface(Typeface.DEFAULT_BOLD);
         } else {
             holder.tracking.setTypeface(Typeface.DEFAULT);
+            holder.daysSince.setTypeface(Typeface.DEFAULT);
             holder.updated.setTypeface(Typeface.DEFAULT);
             holder.lastUpdate.setTypeface(Typeface.DEFAULT);
         }

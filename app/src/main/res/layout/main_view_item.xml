@@ -5,45 +5,95 @@
     android:foreground="?android:attr/selectableItemBackground"
     android:padding="8dp">
 
-    <CheckBox
-        android:id="@+id/checkbox"
+    <LinearLayout
+        android:id="@+id/iconLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:clickable="false" />
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="18dp"
+            android:button="@drawable/custom_checkbox"
+            android:clickable="false"
+            android:minWidth="0dp"
+            android:scaleX="1.5"
+            android:scaleY="1.5" />
+
+        <ImageView
+            android:id="@+id/packageIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="18dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_package_waiting" />
+
+    </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/tvLayout"
+        android:id="@+id/detailsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/checkbox"
-        android:orientation="vertical">
+        android:layout_toEndOf="@+id/iconLayout"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/trackingTv"
+        <LinearLayout
+            android:id="@+id/mainDetailsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:gravity="center_horizontal"
-            android:maxLines="1"
-            android:text="@string/tracking_number"
-            android:textSize="16sp" />
+            android:layout_weight="0.15"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/updatedTv"
+            <TextView
+                android:id="@+id/trackingTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/tracking_number"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/updatedTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/updated_at" />
+
+            <TextView
+                android:id="@+id/lastUpdateTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/last_update" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/secondaryDetailsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="@string/updated_at" />
+            android:layout_weight="0.85"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/lastUpdateTv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:gravity="center_horizontal"
-            android:maxLines="1"
-            android:text="@string/last_update" />
+            <TextView
+                android:id="@+id/daysSinceTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:maxLines="1"
+                android:text="@string/days_since"
+                android:textSize="16sp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

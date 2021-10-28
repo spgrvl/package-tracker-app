@@ -225,7 +225,7 @@ public class UpdateTrackingDetails {
                             String timestampOriginal = jsonShObject.getString("controlPointDate");
                             SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
                             Date date = inputFormatter.parse(timestampOriginal);
-                            SimpleDateFormat outputFormatter = new SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.ENGLISH);
+                            SimpleDateFormat outputFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
                             String status = jsonShObject.getString("description");
                             String place = jsonShObject.getString("controlPoint");
                             String info = jsonShObject.getString("info");

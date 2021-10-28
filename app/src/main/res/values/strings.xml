@@ -98,6 +98,7 @@
     <string name="status">Status</string>
     <string name="place">Place</string>
     <string name="timestamp">Timestamp</string>
+    <string name="days_since">Days since</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

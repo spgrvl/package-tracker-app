@@ -112,6 +112,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             csvContent.append(Objects.toString(recordsList.get(i).getCustomName(), "").replace(",", "."));
             csvContent.append(",");
             csvContent.append(Objects.toString(recordsList.get(i).isCompleted(), ""));
+            csvContent.append(",");
+            csvContent.append(Objects.toString(recordsList.get(i).getCreated(), ""));
             csvContent.append("\n");
         }
 
@@ -145,11 +147,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     String tracking = nextLine[0];
                     String customName = nextLine[1];
                     Boolean completed = Boolean.valueOf(nextLine[2]);
+                    String created = nextLine[3];
 
                     if (customName.equals("")) {
                         customName = null;
                     }
-                    databaseHelper.addNewTracking(tracking, customName, completed);
+                    databaseHelper.addNewTracking(tracking, customName, completed, created);
                 }
                 Toast.makeText(getContext(), R.string.backup_restored, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
