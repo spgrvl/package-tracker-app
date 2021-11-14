@@ -7,16 +7,18 @@ public class TrackingIndexModel {
     private String created;
     private String updated;
     private String lastUpdate;
+    private String carrier;
     private String customName;
     private boolean completed;
     private boolean isSelected;
 
     // constructors
-    public TrackingIndexModel(String tracking, String created, String updated, String lastUpdate, String customName, boolean completed) {
+    public TrackingIndexModel(String tracking, String created, String updated, String lastUpdate, String carrier, String customName, boolean completed) {
         this.tracking = tracking;
         this.created = created;
         this.updated = updated;
         this.lastUpdate = lastUpdate;
+        this.carrier = carrier;
         this.customName = customName;
         this.completed = completed;
     }
@@ -30,6 +32,7 @@ public class TrackingIndexModel {
                 ", created='" + created + '\'' +
                 ", updated='" + updated + '\'' +
                 ", lastUpdate='" + lastUpdate + '\'' +
+                ", carrier='" + carrier + '\'' +
                 ", customName='" + customName + '\'' +
                 ", completed='" + completed + '\'' +
                 ", isSelected='" + isSelected + '\'' +
@@ -63,6 +66,14 @@ public class TrackingIndexModel {
 
     public String getLastUpdate() {
         return lastUpdate;
+    }
+
+    public String getCarrier() {
+        return carrier;
+    }
+
+    public void setCarrier(String carrier) {
+        this.carrier = carrier;
     }
 
     public void setLastUpdate(String lastUpdate) {

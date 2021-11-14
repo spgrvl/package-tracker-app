@@ -83,6 +83,13 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             holder.lastUpdate.setText(tracking.getLastUpdate());
         }
 
+        if (tracking.getCarrier() != null) {
+            int resId = context.getResources().getIdentifier(tracking.getCarrier(), "string", context.getPackageName());
+            holder.carrier.setText(context.getResources().getString(resId));
+        } else {
+            holder.carrier.setText(R.string.unknown);
+        }
+
         // change the font style depending on package read status
         applyReadStatus(holder, tracking);
 
@@ -151,6 +158,7 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         final TextView daysSince;
         final TextView updated;
         final TextView lastUpdate;
+        final TextView carrier;
         final CheckBox checkbox;
         final ImageView packageIcon;
         private final View parentView;
@@ -162,6 +170,7 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             this.daysSince = view.findViewById(R.id.daysSinceTv);
             this.updated = view.findViewById(R.id.updatedTv);
             this.lastUpdate = view.findViewById(R.id.lastUpdateTv);
+            this.carrier = view.findViewById(R.id.carrierSmallTv);
             this.checkbox = view.findViewById(R.id.checkbox);
             this.packageIcon = view.findViewById(R.id.packageIcon);
         }
@@ -174,11 +183,13 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             holder.daysSince.setTypeface(Typeface.DEFAULT_BOLD);
             holder.updated.setTypeface(Typeface.DEFAULT_BOLD);
             holder.lastUpdate.setTypeface(Typeface.DEFAULT_BOLD);
+            holder.carrier.setTypeface(Typeface.DEFAULT_BOLD);
         } else {
             holder.tracking.setTypeface(Typeface.DEFAULT);
             holder.daysSince.setTypeface(Typeface.DEFAULT);
             holder.updated.setTypeface(Typeface.DEFAULT);
             holder.lastUpdate.setTypeface(Typeface.DEFAULT);
+            holder.carrier.setTypeface(Typeface.DEFAULT);
         }
     }
 

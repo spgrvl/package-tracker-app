@@ -16,9 +16,9 @@
             android:id="@+id/checkbox"
             android:layout_width="30dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
+            android:layout_marginStart="18dp"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="18dp"
+            android:layout_marginEnd="10dp"
             android:button="@drawable/custom_checkbox"
             android:clickable="false"
             android:minWidth="0dp"
@@ -29,16 +29,15 @@
             android:id="@+id/packageIcon"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginStart="14dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="18dp"
+            android:layout_marginEnd="10dp"
             android:contentDescription="@null"
             android:src="@drawable/ic_package_waiting" />
 
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/detailsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@+id/iconLayout"
@@ -49,7 +48,7 @@
             android:id="@+id/mainDetailsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.15"
+            android:layout_weight="0.2"
             android:orientation="vertical">
 
             <TextView
@@ -61,11 +60,28 @@
                 android:text="@string/tracking_number"
                 android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/updatedTv"
+            <LinearLayout
+                android:id="@+id/updatedLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/updated_at" />
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/refreshIcon"
+                    android:layout_width="14sp"
+                    android:layout_height="14sp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="2dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_refresh" />
+
+                <TextView
+                    android:id="@+id/updatedTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/updated_at" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/lastUpdateTv"
@@ -81,17 +97,61 @@
             android:id="@+id/secondaryDetailsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.85"
+            android:layout_marginStart="1dp"
+            android:layout_weight="0.8"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/daysSinceTv"
+            <LinearLayout
+                android:id="@+id/daysLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="end"
-                android:maxLines="1"
-                android:text="@string/days_since"
-                android:textSize="16sp" />
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/daysDivider"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="1dp"
+                    android:background="?android:attr/listDivider" />
+
+                <TextView
+                    android:id="@+id/daysSinceTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="@string/days_since"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1" />
+
+            <LinearLayout
+                android:id="@+id/carrierLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/carrierDivider"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="1dp"
+                    android:background="?android:attr/listDivider" />
+
+                <TextView
+                    android:id="@+id/carrierSmallTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="@string/carrier" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

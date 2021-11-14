@@ -85,6 +85,7 @@
     <string name="delatolas">Delatolas</string>
     <string name="easyMail">Easy Mail</string>
     <string name="unknown_carrier">Unknown carrier</string>
+    <string name="unknown">Unknown</string>
     <string name="copy_tracking_number">Copy Tracking Number</string>
     <string name="completed">Completed</string>
     <string name="mark_read">MARK READ</string>

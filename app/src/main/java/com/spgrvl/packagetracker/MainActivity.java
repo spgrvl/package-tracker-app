@@ -28,6 +28,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -47,12 +48,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private boolean clipboardPref;
     public static final String PREF_CLIPBOARD = "pref_clipboard";
     public static final String eltaTrackingRegex = "^[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}$";
+    public static final String speedexTrackingRegex = "^[0-9]{12}$";
+    public static final String courierCenterTrackingRegex = "^[0-9]{12}$";
+    public static final String easyMailTracking1Regex = "^[0-9]{12}$";
     public static final String easyMailTracking2Regex = "^[0-9]{11}$";
-    public static final String speedexOrCourierCenterOrEasyMailTrackingRegex = "^[0-9]{12}$";
+    public static final String easyMailTrackingRegex = String.format("(%s)|(%s)", easyMailTracking1Regex, easyMailTracking2Regex);
     public static final String delatolasTrackingRegex = "^[A-Za-z0-9]{12}$";
-    public static final String acsOrGenikiTrackingRegex = "^[0-9]{10}$";
+    public static final String acsTrackingRegex = "^[0-9]{10}$";
+    public static final String genikiTrackingRegex = "^[0-9]{10}$";
     public static final String cometHellasTrackingRegex = "^[0-9]{8}$";
-    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)|(%s)|(%s)", eltaTrackingRegex, easyMailTracking2Regex, speedexOrCourierCenterOrEasyMailTrackingRegex, delatolasTrackingRegex, acsOrGenikiTrackingRegex, cometHellasTrackingRegex);
+    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)|(%s)|(%s)|(%s)|(%s)",
+            eltaTrackingRegex, speedexTrackingRegex, courierCenterTrackingRegex,
+            easyMailTrackingRegex, delatolasTrackingRegex, acsTrackingRegex,
+            genikiTrackingRegex, cometHellasTrackingRegex);
+    public static final String domainRegex = "^(?:https?:\\/\\/)?(?:[^@\\n]+@)?(?:www\\.)?([^:\\/\\n\\?\\=]+)";
+    private final HashMap<String, String> trackingNumberRegexMap = new HashMap<>();
     private CustomIndexRvAdapter adapter;
     private FloatingActionButton fab;
     private static final long RV_UPDATE_INTERVAL = 10000;
@@ -289,6 +299,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             openChoiceDialog(barcodesArray);
         }
 
+        // Add pairs of couriers and their regex
+        trackingNumberRegexMap.put("elta.gr", eltaTrackingRegex);
+        trackingNumberRegexMap.put("elta-courier.gr", eltaTrackingRegex);
+        trackingNumberRegexMap.put("acscourier.net", acsTrackingRegex);
+        trackingNumberRegexMap.put("acssp.gr", acsTrackingRegex);
+        trackingNumberRegexMap.put("speedex.gr", speedexTrackingRegex);
+        trackingNumberRegexMap.put("comethellas.gr", cometHellasTrackingRegex);
+        trackingNumberRegexMap.put("taxydromiki.com", genikiTrackingRegex);
+        trackingNumberRegexMap.put("courier.gr", courierCenterTrackingRegex);
+        trackingNumberRegexMap.put("delatolas.com", delatolasTrackingRegex);
+        trackingNumberRegexMap.put("easymail.gr", easyMailTrackingRegex);
+
         // handle uri intents when app is already open
         Uri uri = intent.getData();
         handleUriIntent(uri);
@@ -296,11 +318,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void handleUriIntent(Uri uri) {
         if (uri != null) {
-            String trackingNumberRegexUri = trackingNumberRegex.replace("^", "").replace("$", "");
-            Matcher trackingMatcher = Pattern.compile(trackingNumberRegexUri).matcher(uri.toString());
-            if (trackingMatcher.find()) {
-                // Open dialog with the tracking number pre-filled
-                openDialog(trackingMatcher.group(0));
+            Matcher domainMatcher = Pattern.compile(domainRegex).matcher(uri.toString());
+            if (domainMatcher.find()) {
+                String domain = domainMatcher.group();
+                for (String s : trackingNumberRegexMap.keySet()) {
+                    if (domain.contains(s)) {
+                        String trackingNumberRegexUri = Objects.requireNonNull(trackingNumberRegexMap.get(s)).replace("^", "").replace("$", "");
+                        Matcher trackingMatcher = Pattern.compile(trackingNumberRegexUri).matcher(uri.toString());
+                        if (trackingMatcher.find()) {
+                            // Open dialog with the tracking number pre-filled
+                            openDialog(trackingMatcher.group(0));
+                        }
+                    }
+                }
             }
         }
     }

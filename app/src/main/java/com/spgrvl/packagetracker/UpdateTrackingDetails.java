@@ -164,7 +164,9 @@ public class UpdateTrackingDetails {
             cardTitle = doc.getElementsByClass("card-title");
             cardSubtitleClass = doc.getElementsByClass("card-subtitle text-muted mb-0 pt-1");
 
-            for (int i = 0; i < cardTitle.size() - 1; i++) {
+            int deliveredCards = doc.getElementsByClass("card-subtitle text-muted mb-0 pt-1 delivered-subtitle").size();
+
+            for (int i = 0; i < cardTitle.size() - deliveredCards; i++) {
                 String cardSubtitle = cardSubtitleClass.get(i).child(0).text();
                 detailsList.add(new TrackingDetailsModel(cardTitle.get(i).text(),
                         cardSubtitle.split(", ")[0],

@@ -85,6 +85,7 @@
     <string name="delatolas">Delatolas</string>
     <string name="easyMail">Easy Mail</string>
     <string name="unknown_carrier">Αγνωστος παροχος</string>
+    <string name="unknown">Άγνωστο</string>
     <string name="copy_tracking_number">Αντιγραφή αριθμού αποστολής</string>
     <string name="completed">Ολοκληρωμένα</string>
     <string name="mark_read">ΔΙΑΒΑΣΤΗΚΕ</string>

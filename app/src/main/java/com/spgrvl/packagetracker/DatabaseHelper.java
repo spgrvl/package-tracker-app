@@ -174,10 +174,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String updated = cursor.getString(1);
                 String lastUpdate = cursor.getString(2);
                 String customName = cursor.getString(3);
+                String carrier = cursor.getString(5);
                 boolean completed = cursor.getString(6).equals("1");
                 String created = cursor.getString(7);
 
-                TrackingIndexModel newTracking = new TrackingIndexModel(tracking, created, updated, lastUpdate, customName, completed);
+                TrackingIndexModel newTracking = new TrackingIndexModel(tracking, created, updated, lastUpdate, carrier, customName, completed);
                 returnList.add(newTracking);
 
             } while (cursor.moveToNext());
