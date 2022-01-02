@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -282,7 +283,11 @@ public class UpdateTrackingDetails {
                         JSONArray jsonArray = jsonResponseObject.getJSONArray("data");
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            String datetime = jsonObject.getString("datetime");
+                            String timestampOriginal = jsonObject.getString("datetime");
+                            SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'", Locale.ENGLISH);
+                            inputFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+                            Date date = inputFormatter.parse(timestampOriginal);
+                            SimpleDateFormat outputFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
                             String deliveryName = jsonObject.getString("DeliveryName");
                             String extraData = jsonObject.getString("extraData");
                             String statusAndPlace = jsonObject.getString("status")
@@ -302,7 +307,7 @@ public class UpdateTrackingDetails {
                             if (!extraData.equals("null")) {
                                 status = status + " [" + extraData + "]";
                             }
-                            detailsList.add(new TrackingDetailsModel(status, place, datetime));
+                            detailsList.add(new TrackingDetailsModel(status, place, outputFormatter.format(date)));
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
