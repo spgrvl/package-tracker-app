@@ -84,8 +84,12 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         }
 
         if (tracking.getCarrier() != null) {
-            int resId = context.getResources().getIdentifier(tracking.getCarrier(), "string", context.getPackageName());
-            holder.carrier.setText(context.getResources().getString(resId));
+            try {
+                int resId = context.getResources().getIdentifier(tracking.getCarrier(), "string", context.getPackageName());
+                holder.carrier.setText(context.getResources().getString(resId));
+            } catch (Exception e) {
+                holder.carrier.setText(R.string.unknown);
+            }
         } else {
             holder.carrier.setText(R.string.unknown);
         }

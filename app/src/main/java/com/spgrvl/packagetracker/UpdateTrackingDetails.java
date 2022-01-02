@@ -278,10 +278,13 @@ public class UpdateTrackingDetails {
                 if (response.isSuccessful()) {
                     String myResponse = Objects.requireNonNull(response.body()).string();
                     try {
-                        JSONArray jsonArray = new JSONArray(myResponse);
+                        JSONObject jsonResponseObject = new JSONObject(myResponse);
+                        JSONArray jsonArray = jsonResponseObject.getJSONArray("data");
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject = jsonArray.getJSONObject(i);
                             String datetime = jsonObject.getString("datetime");
+                            String deliveryName = jsonObject.getString("DeliveryName");
+                            String extraData = jsonObject.getString("extraData");
                             String statusAndPlace = jsonObject.getString("status")
                                     .replace("<i>", "\n")
                                     .replace("</i>", "");
@@ -292,6 +295,12 @@ public class UpdateTrackingDetails {
                                         .split("]")[0]
                                         .trim()
                                         .replaceAll(" +", " ");
+                            }
+                            if (!deliveryName.equals("null")) {
+                                status = status + " (" + deliveryName + ")";
+                            }
+                            if (!extraData.equals("null")) {
+                                status = status + " [" + extraData + "]";
                             }
                             detailsList.add(new TrackingDetailsModel(status, place, datetime));
                         }
