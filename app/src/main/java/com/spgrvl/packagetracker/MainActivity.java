@@ -84,6 +84,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         setContentView(R.layout.activity_main);
 
+        // Add pairs of couriers and their regex
+        trackingNumberRegexMap.put("elta.gr", eltaTrackingRegex);
+        trackingNumberRegexMap.put("elta-courier.gr", eltaTrackingRegex);
+        trackingNumberRegexMap.put("acscourier.net", acsTrackingRegex);
+        trackingNumberRegexMap.put("acssp.gr", acsTrackingRegex);
+        trackingNumberRegexMap.put("speedex.gr", speedexTrackingRegex);
+        trackingNumberRegexMap.put("comethellas.gr", cometHellasTrackingRegex);
+        trackingNumberRegexMap.put("taxydromiki.com", genikiTrackingRegex);
+        trackingNumberRegexMap.put("courier.gr", courierCenterTrackingRegex);
+        trackingNumberRegexMap.put("delatolas.com", delatolasTrackingRegex);
+        trackingNumberRegexMap.put("easymail.gr", easyMailTrackingRegex);
+
         // Prompt to add package when supported urls are opened with app
         Uri uri = getIntent().getData();
         handleUriIntent(uri);
@@ -298,18 +310,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             // show barcodes in choice dialog
             openChoiceDialog(barcodesArray);
         }
-
-        // Add pairs of couriers and their regex
-        trackingNumberRegexMap.put("elta.gr", eltaTrackingRegex);
-        trackingNumberRegexMap.put("elta-courier.gr", eltaTrackingRegex);
-        trackingNumberRegexMap.put("acscourier.net", acsTrackingRegex);
-        trackingNumberRegexMap.put("acssp.gr", acsTrackingRegex);
-        trackingNumberRegexMap.put("speedex.gr", speedexTrackingRegex);
-        trackingNumberRegexMap.put("comethellas.gr", cometHellasTrackingRegex);
-        trackingNumberRegexMap.put("taxydromiki.com", genikiTrackingRegex);
-        trackingNumberRegexMap.put("courier.gr", courierCenterTrackingRegex);
-        trackingNumberRegexMap.put("delatolas.com", delatolasTrackingRegex);
-        trackingNumberRegexMap.put("easymail.gr", easyMailTrackingRegex);
 
         // handle uri intents when app is already open
         Uri uri = intent.getData();
