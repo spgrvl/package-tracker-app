@@ -89,8 +89,10 @@
     <string name="copy_tracking_number">Αντιγραφή αριθμού αποστολής</string>
     <string name="completed">Ολοκληρωμένα</string>
     <string name="mark_read">ΔΙΑΒΑΣΤΗΚΕ</string>
+    <string name="marked_as_read">Η ενημέρωση επισημάνθηκε ως διαβασμένη!</string>
     <string name="mark_active">Επισήμανση ως ενεργό</string>
     <string name="mark_as_completed">Επισήμανση ως ολοκληρωμένο</string>
+    <string name="marked_as_completed">Το πακέτο επισημάνθηκε ως ολοκληρωμένο!</string>
     <string name="mark_completed">ΟΛΟΚΛΗΡΩΘΗΚΕ</string>
     <string name="carrier">Πάροχος</string>
     <string name="tracking_number">Αριθμός αποστολής</string>
@@ -100,6 +102,7 @@
     <string name="place">Τοποθεσία</string>
     <string name="timestamp">Χρονική σήμανση</string>
     <string name="days_since">Ημέρες από</string>
+    <string name="not_found">Σφάλμα: Το πακέτο δεν βρέθηκε!</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>

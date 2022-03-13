@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.database.CursorIndexOutOfBoundsException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -57,7 +58,13 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         this.tracking = intent.getStringExtra("tracking");
 
         // Fetch custom name and completed status from DB
-        indexEntry = databaseHelper.getIndexEntry(tracking);
+        try {
+            indexEntry = databaseHelper.getIndexEntry(tracking);
+        } catch (CursorIndexOutOfBoundsException e) {
+            this.startActivity(new Intent(this, MainActivity.class));
+            Toast.makeText(this, R.string.not_found, Toast.LENGTH_SHORT).show();
+            finish();
+        }
         customName = indexEntry.get(4);
         completed = indexEntry.get(7).equals("1");
 

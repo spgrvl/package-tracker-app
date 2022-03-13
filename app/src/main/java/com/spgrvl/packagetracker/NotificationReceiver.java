@@ -3,6 +3,7 @@ package com.spgrvl.packagetracker;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationManagerCompat;
 
@@ -26,11 +27,13 @@ public class NotificationReceiver extends BroadcastReceiver {
     private void markAsRead(String tracking, Context context) {
         DatabaseHelper databaseHelper = new DatabaseHelper(context);
         databaseHelper.setUnreadStatus(tracking, false);
+        Toast.makeText(context, R.string.marked_as_read, Toast.LENGTH_SHORT).show();
     }
 
     private void markAsCompleted(String tracking, Context context) {
         DatabaseHelper databaseHelper = new DatabaseHelper(context);
         databaseHelper.setCompleted(tracking, true);
         databaseHelper.setUnreadStatus(tracking, false);
+        Toast.makeText(context, R.string.marked_as_completed, Toast.LENGTH_SHORT).show();
     }
 }

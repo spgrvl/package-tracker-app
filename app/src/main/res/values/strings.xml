@@ -89,8 +89,10 @@
     <string name="copy_tracking_number">Copy Tracking Number</string>
     <string name="completed">Completed</string>
     <string name="mark_read">MARK READ</string>
+    <string name="marked_as_read">Update marked as read!</string>
     <string name="mark_active">Mark as active</string>
     <string name="mark_as_completed">Mark as completed</string>
+    <string name="marked_as_completed">Package marked as completed!</string>
     <string name="mark_completed">COMPLETED</string>
     <string name="carrier">Carrier</string>
     <string name="tracking_number">Tracking number</string>
@@ -100,6 +102,7 @@
     <string name="place">Place</string>
     <string name="timestamp">Timestamp</string>
     <string name="days_since">Days since</string>
+    <string name="not_found">Error: Package not found!</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

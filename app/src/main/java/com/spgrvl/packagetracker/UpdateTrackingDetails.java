@@ -635,7 +635,7 @@ public class UpdateTrackingDetails {
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addNextIntentWithParentStack(resultIntent);
         PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(packageId, PendingIntent.FLAG_UPDATE_CURRENT);
+                stackBuilder.getPendingIntent(packageId, PendingIntent.FLAG_IMMUTABLE);
 
         // action that occurs when "MARK READ" button is clicked
         Intent markReadIntent = new Intent(context, NotificationReceiver.class);
