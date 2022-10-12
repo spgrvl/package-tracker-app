@@ -191,8 +191,6 @@ public class UpdateTrackingDetails {
         String url, lang;
         ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
 
-        url = "https://api.acscourier.net/api/parcels/search/" + tracking;
-
         // Fetch tracking details in app's language
         if (languagePref.equals("el_GR") || languagePref.equals("el")) {
             lang = "el";
@@ -200,10 +198,11 @@ public class UpdateTrackingDetails {
             lang = "en";
         }
 
+        url = "https://webapp.acscourier.net/api/v1/track/" + tracking + "?lang=" + lang;
+
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
-                .addHeader("accept-language", lang)
                 .build();
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -220,22 +219,18 @@ public class UpdateTrackingDetails {
                     String myResponse = Objects.requireNonNull(response.body()).string();
                     try {
                         JSONObject jsonResponseObject = new JSONObject(myResponse);
-                        JSONArray jsonItemsArray = jsonResponseObject.getJSONArray("items");
-                        JSONObject jsonResultsObject = jsonItemsArray.getJSONObject(0);
-                        JSONArray jsonShArray = jsonResultsObject.getJSONArray("statusHistory");
-                        for (int i = 0; i < jsonShArray.length(); i++) {
-                            JSONObject jsonShObject = jsonShArray.getJSONObject(i);
-                            String timestampOriginal = jsonShObject.getString("controlPointDate");
-                            SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
-                            Date date = inputFormatter.parse(timestampOriginal);
-                            SimpleDateFormat outputFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
-                            String status = jsonShObject.getString("description");
-                            String place = jsonShObject.getString("controlPoint");
-                            String info = jsonShObject.getString("info");
-                            if (!info.trim().equals("")) {
-                                status = status + " (" + info + ")";
+                        JSONArray jsonArray = jsonResponseObject.getJSONArray("details");
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                            if (jsonObject.getInt("flag_sort") == 1) {
+                                String timestampOriginal = jsonObject.getString("Ημερομηνία_ώρα");
+                                SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+                                Date date = inputFormatter.parse(timestampOriginal);
+                                SimpleDateFormat outputFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
+                                String status = jsonObject.getString("Περιγραφή");
+                                String place = jsonObject.getString("Σημείο_ελέγχου");
+                                detailsList.add(new TrackingDetailsModel(status, place, outputFormatter.format(date)));
                             }
-                            detailsList.add(new TrackingDetailsModel(status, place, outputFormatter.format(date)));
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -250,7 +245,6 @@ public class UpdateTrackingDetails {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Collections.reverse(detailsList);
         return detailsList;
     }
 
