@@ -78,6 +78,73 @@ public class UpdateTrackingDetails {
     }
 
     private ArrayList<TrackingDetailsModel> trackElta() {
+        String url;
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+
+        String lang;
+        if (languagePref.equals("el_GR") || languagePref.equals("el")) {
+            lang = "1";
+        } else {
+            lang = "2";
+        }
+
+        url = "https://eltaportal.dev.ibserver.gr/trackApi";
+
+        OkHttpClient client = new OkHttpClient();
+
+        RequestBody formBody = new FormBody.Builder()
+                .add("code[]", tracking)
+                .add("in_lang", lang)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(formBody)
+                .build();
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                e.printStackTrace();
+                countDownLatch.countDown();
+            }
+
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String myResponse = Objects.requireNonNull(response.body()).string();
+                    try {
+                        JSONArray jsonResponseArray = new JSONArray(myResponse);
+                        JSONObject jsonResponseObject = jsonResponseArray.getJSONObject(0);
+                        int updatesCounter = jsonResponseObject.getJSONObject("response").getInt("out_counter");
+                        JSONArray jsonArray = jsonResponseObject.getJSONObject("response").getJSONArray("out_status");
+                        for (int i = 0; i < updatesCounter; i++) {
+                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                            String timestampOriginal = jsonObject.getString("out_date") + jsonObject.getString("out_time");
+                            SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyyMMddHHmm", Locale.ENGLISH);
+                            Date date = inputFormatter.parse(timestampOriginal);
+                            SimpleDateFormat outputFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
+                            String status = jsonObject.getString("out_status_name");
+                            String place = jsonObject.getString("out_station");
+                            detailsList.add(new TrackingDetailsModel(status, place, outputFormatter.format(date)));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                countDownLatch.countDown();
+            }
+        });
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return detailsList;
+    }
+
+    private ArrayList<TrackingDetailsModel> trackEltaBackup() {
         Document doc;
         String url;
         Elements dateTime, status, place;
@@ -517,6 +584,9 @@ public class UpdateTrackingDetails {
                 switch (carrier) {
                     case "elta":
                         detailsList = trackElta();
+                        if (detailsList.isEmpty()) {
+                            detailsList = trackEltaBackup();
+                        }
                         break;
                     case "speedex":
                         detailsList = trackSpeedex();
