@@ -158,7 +158,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                 String url = null;
                 switch (carrier) {
                     case "elta":
-                        url = "https://itemsearch.elta.gr/el-GR/Query/Direct/" + tracking;
+                        url = "https://elta.gr/track?code=" + tracking;
                         break;
                     case "speedex":
                         url = "http://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
