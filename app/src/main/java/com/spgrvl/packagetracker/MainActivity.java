@@ -1,13 +1,16 @@
 package com.spgrvl.packagetracker;
 
+import android.Manifest;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,8 +20,11 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -46,7 +52,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     static boolean startedFlag;
     public boolean isInSelectionMode = false;
     private boolean clipboardPref;
+    private boolean notifPref;
     public static final String PREF_CLIPBOARD = "pref_clipboard";
+    public static final String PREF_NOTIF = "pref_notif";
     public static final String eltaTrackingRegex = "^[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}$";
     public static final String speedexTrackingRegex = "^[0-9]{12}$";
     public static final String courierCenterTrackingRegex = "^[0-9]{12}$";
@@ -68,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private static final long RV_UPDATE_INTERVAL = 10000;
     private Handler rvHandler;
     private Runnable rvRunnable;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +88,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         this.setTitle(R.string.app_name);
 
         // Read User preferences regarding clipboard access
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         clipboardPref = sharedPreferences.getBoolean(PREF_CLIPBOARD, false);
 
         setContentView(R.layout.activity_main);
+
+        // Check for notifications permission and request if needed
+        notifPref = sharedPreferences.getBoolean(PREF_NOTIF, true);
+        if (notifPref) {
+            checkNotificationPermission();
+        }
 
         // Add pairs of couriers and their regex
         trackingNumberRegexMap.put("elta.gr", eltaTrackingRegex);
@@ -470,5 +485,29 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+    }
+
+    private void checkNotificationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                // This is only possible in API level >= 33 (TIRAMISU)
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            } else {
+                notificationPermissionDenied();
+            }
+        }
+    }
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+        if (!isGranted) {
+            notificationPermissionDenied();
+        }
+    });
+
+    private void notificationPermissionDenied() {
+        SharedPreferences.Editor notifPrefEditor = sharedPreferences.edit();
+        notifPrefEditor.putBoolean(PREF_NOTIF, false);
+        notifPrefEditor.apply();
+        Toast.makeText(MainActivity.this, R.string.notifications_permission_denied, Toast.LENGTH_SHORT).show();
     }
 }

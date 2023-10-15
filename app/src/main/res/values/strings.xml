@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">Greek Package Tracker</string>
     <string name="camera_hint">Point the camera at a Barcode</string>
-    <string name="camera_permission_denied">In order to scan barcode, app needs camera permission.\nPlease visit app settings in your device to enable it again</string>
+    <string name="camera_permission_denied">Camera permission is missing. \nGo to "App Info" to enable again.</string>
+    <string name="notifications_permission_denied">Notifications permission is missing. \nGo to "Settings" to enable again.</string>
+    <string name="notifications_permission_denied_info">Notifications permission is missing. \nGo to "App Info" to enable again.</string>
     <string name="toast_empty_tracking">Please enter a tracking number</string>
     <string name="new_tracking_hint">Tracking Number</string>
     <string name="new_name_hint">Package Name (optional)</string>

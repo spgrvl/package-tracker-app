@@ -88,7 +88,7 @@ public class UpdateTrackingDetails {
             lang = "2";
         }
 
-        url = "https://eltaportal.dev.ibserver.gr/trackApi";
+        url = "https://www.elta.gr/trackApi";
 
         OkHttpClient client = new OkHttpClient();
 

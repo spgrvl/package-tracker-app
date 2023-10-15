@@ -52,7 +52,7 @@
         android:title="@string/auto_detect_cat"
         app:iconSpaceReserved="false">
         <SwitchPreferenceCompat
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="pref_clipboard"
             android:summary="@string/clipboard_pref_summary"
             android:title="@string/clipboard_pref"

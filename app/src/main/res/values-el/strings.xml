@@ -2,7 +2,9 @@
 <resources>
     <string name="app_name">Ανιχνευτής Πακέτων</string>
     <string name="camera_hint">Στρέψτε την κάμερα σε ένα Barcode</string>
-    <string name="camera_permission_denied">Για τη σάρωση barcode, η εφαρμογή χρειάζεται άδεια για χρήση της κάμερας.\nΕπισκεφτείτε τις ρυθμίσεις εφαρμογής στη συσκευή σας για να την ενεργοποιήσετε ξανά.</string>
+    <string name="camera_permission_denied">Η άδεια της κάμερας λείπει. \nΠηγαίνετε στις "Πληροφορίες εφαρμογής" για να την ενεργοποιήσετε ξανά.</string>
+    <string name="notifications_permission_denied">Η άδεια ειδοποιήσεων λείπει. \nΠηγαίνετε στις "Ρυθμίσεις" για να την ενεργοποιήσετε ξανά.</string>
+    <string name="notifications_permission_denied_info">Η άδεια ειδοποιήσεων λείπει. \nΠηγαίνετε στις "Πληροφορίες εφαρμογής" για να την ενεργοποιήσετε ξανά.</string>
     <string name="toast_empty_tracking">Εισαγάγετε έναν αριθμό αποστολής</string>
     <string name="new_tracking_hint">Αριθμός Αποστολής</string>
     <string name="new_name_hint">Όνομα Πακέτου (προαιρετικό)</string>

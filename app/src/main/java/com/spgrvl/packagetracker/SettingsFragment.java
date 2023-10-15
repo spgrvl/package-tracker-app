@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -47,7 +50,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
         preferenceChangeListener = (sharedPreferences, key) -> {
-            if (key.equals(PREF_NOTIF) || key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_LANGUAGE) || key.equals(PREF_CLIPBOARD) || key.equals(PREF_THEME)) {
+            if (key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_LANGUAGE) || key.equals(PREF_CLIPBOARD) || key.equals(PREF_THEME)) {
                 Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
                 menu.findItem(R.id.restart_button).setVisible(true);
             }
@@ -55,6 +58,26 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 Preference notifIntervalPref = findPreference(key);
                 ListPreference listPref = (ListPreference) notifIntervalPref;
                 Objects.requireNonNull(notifIntervalPref).setSummary(listPref.getEntry());
+            }
+            if (key.equals(PREF_NOTIF)) {
+                boolean isSwitchEnabled = sharedPreferences.getBoolean(key, false);
+                if (isSwitchEnabled) {
+                    // Check for notifications permission
+                    if (ContextCompat.checkSelfPermission(requireActivity(), android.Manifest.permission.POST_NOTIFICATIONS) !=
+                            PackageManager.PERMISSION_GRANTED) {
+                        // Show information if Notification Permission got declined
+                        Toast.makeText(requireActivity(), R.string.notifications_permission_denied_info, Toast.LENGTH_LONG).show();
+                        disableNotifPref(key);
+                        menu.findItem(R.id.restart_button).setVisible(true);
+                        Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
+                        menu.findItem(R.id.restart_button).setVisible(true);
+                    }
+                } else {
+                    Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
+                    menu.findItem(R.id.restart_button).setVisible(true);
+                }
             }
         };
 
@@ -91,6 +114,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     .show();
             return true;
         });
+    }
+
+    private void disableNotifPref(String key) {
+        // disable the notifications preference (visual only) and redirect to app info
+        Preference notifPref = findPreference(key);
+        if (notifPref != null) {
+            notifPref.setEnabled(false);
+        }
+
+        Intent intent = new Intent();
+        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+        intent.setData(uri);
+        getActivity().startActivity(intent);
     }
 
     private boolean isExtStorageRW() {
