@@ -270,6 +270,7 @@ public class UpdateTrackingDetails {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
+                .addHeader("Referer", "https://webapp.acscourier.net/track-shipment/" + tracking)
                 .build();
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
