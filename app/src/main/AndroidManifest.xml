@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -24,46 +28,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="itemsearch.elta.gr"
-                    android:scheme="https" />
-                <data
-                    android:host="www.elta.gr"
-                    android:scheme="https" />
-                <data
-                    android:host="www.elta-courier.gr"
-                    android:scheme="https" />
-                <data
-                    android:host="www.acscourier.net"
-                    android:scheme="https" />
-                <data
-                    android:host="a.acssp.gr"
-                    android:scheme="https" />
-                <data
-                    android:host="www.speedex.gr"
-                    android:scheme="http" />
-                <data
-                    android:host="www.comethellas.gr"
-                    android:scheme="https" />
-                <data
-                    android:host="www.taxydromiki.com"
-                    android:scheme="https" />
-                <data
-                    android:host="www.courier.gr"
-                    android:scheme="https" />
-                <data
-                    android:host="docuclass.delatolas.com"
-                    android:scheme="https" />
-                <data
-                    android:host="*.easymail.gr"
-                    android:scheme="https" />
             </intent-filter>
         </activity>
         <activity

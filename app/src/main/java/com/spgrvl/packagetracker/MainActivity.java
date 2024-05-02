@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -69,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             eltaTrackingRegex, speedexTrackingRegex, courierCenterTrackingRegex,
             easyMailTrackingRegex, delatolasTrackingRegex, acsTrackingRegex,
             genikiTrackingRegex, cometHellasTrackingRegex);
-    public static final String domainRegex = "^(?:https?:\\/\\/)?(?:[^@\\n]+@)?(?:www\\.)?([^:\\/\\n\\?\\=]+)";
     private final HashMap<String, String> trackingNumberRegexMap = new HashMap<>();
     private CustomIndexRvAdapter adapter;
     private FloatingActionButton fab;
@@ -110,10 +108,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         trackingNumberRegexMap.put("courier.gr", courierCenterTrackingRegex);
         trackingNumberRegexMap.put("delatolas.com", delatolasTrackingRegex);
         trackingNumberRegexMap.put("easymail.gr", easyMailTrackingRegex);
-
-        // Prompt to add package when supported urls are opened with app
-        Uri uri = getIntent().getData();
-        handleUriIntent(uri);
 
         // Find Button by ID
         fab = this.findViewById(R.id.fab);
@@ -324,29 +318,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         if (barcodesArray != null) {
             // show barcodes in choice dialog
             openChoiceDialog(barcodesArray);
-        }
-
-        // handle uri intents when app is already open
-        Uri uri = intent.getData();
-        handleUriIntent(uri);
-    }
-
-    private void handleUriIntent(Uri uri) {
-        if (uri != null) {
-            Matcher domainMatcher = Pattern.compile(domainRegex).matcher(uri.toString());
-            if (domainMatcher.find()) {
-                String domain = domainMatcher.group();
-                for (String s : trackingNumberRegexMap.keySet()) {
-                    if (domain.contains(s)) {
-                        String trackingNumberRegexUri = Objects.requireNonNull(trackingNumberRegexMap.get(s)).replace("^", "").replace("$", "");
-                        Matcher trackingMatcher = Pattern.compile(trackingNumberRegexUri).matcher(uri.toString());
-                        if (trackingMatcher.find()) {
-                            // Open dialog with the tracking number pre-filled
-                            openDialog(trackingMatcher.group(0));
-                        }
-                    }
-                }
-            }
         }
     }
 
