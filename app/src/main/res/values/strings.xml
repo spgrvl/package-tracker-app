@@ -85,6 +85,7 @@
     <string name="geniki">Geniki Taxydromiki</string>
     <string name="courierCenter">Courier Center</string>
     <string name="delatolas">Delatolas</string>
+    <string name="boxNow">BoxNow</string>
     <string name="easyMail">Easy Mail</string>
     <string name="unknown_carrier">Unknown carrier</string>
     <string name="unknown">Unknown</string>
@@ -105,6 +106,24 @@
     <string name="timestamp">Timestamp</string>
     <string name="days_since">Days since</string>
     <string name="not_found">Error: Package not found!</string>
+    <string name="boxNow_delivered">Delivered</string>
+    <string name="boxNow_in_transit">Being delivered</string>
+    <string name="boxNow_in_depot">Being delivered</string>
+    <string name="boxNow_accepted_to_locker">Being delivered</string>
+    <string name="boxNow_wait_for_load">Being delivered</string>
+    <string name="boxNow_final_destination">Your Parcel is located at the locker</string>
+    <string name="boxNow_in_final_destination">Your Parcel is located at the locker</string>
+    <string name="boxNow_new">To be delivered by E-shop to BOX NOW</string>
+    <string name="boxNow_returned">Parcel has been returned</string>
+    <string name="boxNow_expired">Expired</string>
+    <string name="boxNow_expired_return">Delivery has expired</string>
+    <string name="boxNow_missing">To be found</string>
+    <string name="boxNow_canceled">Cancelled</string>
+    <string name="boxNow_cancelled">Cancelled</string>
+    <string name="boxNow_cancelled_return">Cancelled</string>
+    <string name="boxNow_lost">To be found</string>
+    <string name="boxNow_depot">BoxNow Depot</string>
+    <string name="boxNow_hub">BoxNow Depot</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 minutes</item>

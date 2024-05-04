@@ -42,6 +42,10 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tracking_details);
 
+        // Set custom language if changed on app preferences
+        Localization localization = new Localization();
+        localization.setLocale(PackageDetailsActivity.this);
+
         // Show back button on action bar
         Objects.requireNonNull(this.getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
@@ -182,6 +186,9 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                         break;
                     case "easyMail":
                         url = "https://trackntrace.easymail.gr/" + tracking;
+                        break;
+                    case "boxNow":
+                        url = "https://boxnow.gr/?track=" + tracking;
                         break;
                 }
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));

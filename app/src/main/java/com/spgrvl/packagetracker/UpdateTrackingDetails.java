@@ -14,6 +14,7 @@ import androidx.preference.PreferenceManager;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -35,6 +36,7 @@ import java.util.regex.Pattern;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -56,8 +58,9 @@ public class UpdateTrackingDetails {
     public static final String easyMailTracking2Regex = "^[0-9]{11}$";
     public static final String speedexOrCourierCenterOrEasyMailTrackingRegex = "^[0-9]{12}$";
     public static final String delatolasTrackingRegex = "^[A-Za-z0-9]{12}$";
-    public static final String acsOrGenikiTrackingRegex = "^[0-9]{10}$";
+    public static final String acsOrGenikiOrBoxNowTrackingRegex = "^[0-9]{10}$";
     public static final String cometHellasTrackingRegex = "^[0-9]{8}$";
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     public UpdateTrackingDetails(String tracking, Context context, Boolean isOnForeground) {
         this.tracking = tracking;
@@ -477,6 +480,85 @@ public class UpdateTrackingDetails {
         return detailsList;
     }
 
+    private ArrayList<TrackingDetailsModel> trackBoxNow() {
+        String url;
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+
+        url = "https://api-production.boxnow.gr/api/v1/parcels:track";
+
+        OkHttpClient client = new OkHttpClient();
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("parcelId", tracking);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        RequestBody jsonBody = RequestBody.create(json.toString(), JSON);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(jsonBody)
+                .build();
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                e.printStackTrace();
+                countDownLatch.countDown();
+            }
+
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String myResponse = Objects.requireNonNull(response.body()).string();
+
+                    try {
+                        JSONObject jsonResponseObject = new JSONObject(myResponse).getJSONArray("data").getJSONObject(0);
+                        JSONArray jsonArray = jsonResponseObject.getJSONArray("events");
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            String status;
+                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                            String timestampOriginal = jsonObject.getString("createTime");
+                            SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
+                            inputFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+                            Date date = inputFormatter.parse(timestampOriginal);
+                            SimpleDateFormat outputFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
+                            String statusType = jsonObject.getString("type");
+                            // Check if the status exists in the localized strings for BoxNow
+                            int stringResourceId = context.getResources().getIdentifier("boxNow_" + statusType.replace("-", "_"), "string", context.getPackageName());
+                            if (stringResourceId != 0) {
+                                status = context.getString(stringResourceId);
+                            } else {
+                                status = statusType;
+                            }
+                            String place = "";
+                            if (jsonObject.has("locationDisplayName")) {
+                                place = jsonObject.getString("locationDisplayName");
+                                // Replace common hardcoded values with localized ones
+                                place = place.replace("DEPOT", context.getString(R.string.boxNow_depot));
+                                place = place.replace("HUB", context.getString(R.string.boxNow_hub));
+                            }
+                            detailsList.add(new TrackingDetailsModel(status, place, outputFormatter.format(date)));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                countDownLatch.countDown();
+            }
+        });
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Collections.reverse(detailsList);
+        return detailsList;
+    }
+
     private ArrayList<TrackingDetailsModel> trackEasyMail() {
         String url;
         ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
@@ -513,8 +595,8 @@ public class UpdateTrackingDetails {
             return "easyMail";
         } else if (Pattern.compile(speedexOrCourierCenterOrEasyMailTrackingRegex).matcher(tracking).find()) {
             return speedexOrCourierCenterOrEasyMail();
-        } else if (Pattern.compile(acsOrGenikiTrackingRegex).matcher(tracking).find()) {
-            return acsOrGeniki();
+        } else if (Pattern.compile(acsOrGenikiOrBoxNowTrackingRegex).matcher(tracking).find()) {
+            return acsOrGenikiOrBoxNow();
         } else if (Pattern.compile(cometHellasTrackingRegex).matcher(tracking).find()) {
             return "cometHellas";
         } else if (Pattern.compile(delatolasTrackingRegex).matcher(tracking).find()) {
@@ -523,31 +605,33 @@ public class UpdateTrackingDetails {
         return null;
     }
 
-    private String acsOrGeniki() {
-        // determine if tracking belongs to ACS or Geniki
-        boolean isGeniki = false;
+    private String acsOrGenikiOrBoxNow() {
+        // determine if tracking belongs to ACS, Geniki or BoxNow
+        String carrier;
+        ArrayList<TrackingDetailsModel> detailsList;
 
-        try {
-            String url = "https://www.taxydromiki.com/track/" + tracking;
-            Document doc = Jsoup.connect(url).get();
-            Elements date = doc.getElementsByClass("checkpoint-date");
-            if (date.size() > 0) {
-                isGeniki = true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (isGeniki) {
-            return "geniki";
+        detailsList = trackAcs();
+        if (!detailsList.isEmpty()) {
+            carrier = "acs";
         } else {
-            return "acs";
+            detailsList = trackBoxNow();
+            if (!detailsList.isEmpty()) {
+                carrier = "boxNow";
+            } else {
+                detailsList = trackGeniki();
+                if (!detailsList.isEmpty()) {
+                    carrier = "geniki";
+                } else {
+                    carrier = null;
+                }
+            }
         }
+        return carrier;
     }
 
     private String speedexOrCourierCenterOrEasyMail() {
         // determine if tracking belongs to Speedex, Courier Center or Easy Mail
-        String carrier = "speedex";
+        String carrier = "";
 
         try {
             String url = "https://www.courier.gr/track/result?tracknr=" + tracking;
@@ -573,7 +657,25 @@ public class UpdateTrackingDetails {
             }
         }
 
-        return carrier;
+        if (!carrier.equals("courierCenter") && !carrier.equals("easyMail")) {
+            try {
+                String url = "http://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
+                Document doc = Jsoup.connect(url).get();
+                Elements deliveredSubtitle = doc.getElementsByClass("card-subtitle text-muted mb-0 pt-1 delivered-subtitle");
+                if (!deliveredSubtitle.isEmpty()) {
+                    carrier = "speedex";
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (!carrier.equals("")) {
+            return carrier;
+        } else {
+            return null;
+        }
+
     }
 
     protected boolean getWebsite() {
@@ -609,6 +711,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "easyMail":
                         detailsList = trackEasyMail();
+                        break;
+                    case "boxNow":
+                        detailsList = trackBoxNow();
                         break;
                 }
             }

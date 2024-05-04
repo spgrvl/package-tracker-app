@@ -85,6 +85,7 @@
     <string name="geniki">Γενικη Ταχυδρομικη</string>
     <string name="courierCenter">Courier Center</string>
     <string name="delatolas">Delatolas</string>
+    <string name="boxNow">BoxNow</string>
     <string name="easyMail">Easy Mail</string>
     <string name="unknown_carrier">Αγνωστος παροχος</string>
     <string name="unknown">Άγνωστο</string>
@@ -105,6 +106,24 @@
     <string name="timestamp">Χρονική σήμανση</string>
     <string name="days_since">Ημέρες από</string>
     <string name="not_found">Σφάλμα: Το πακέτο δεν βρέθηκε!</string>
+    <string name="boxNow_delivered">Παραδόθηκε</string>
+    <string name="boxNow_in_transit">Σε διαδικασία παράδοσης</string>
+    <string name="boxNow_in_depot">Σε διαδικασία παράδοσης</string>
+    <string name="boxNow_accepted_to_locker">Σε διαδικασία παράδοσης</string>
+    <string name="boxNow_wait_for_load">Σε διαδικασία παράδοσης</string>
+    <string name="boxNow_final_destination">Το δέμα σας βρίσκεται στην θυρίδα</string>
+    <string name="boxNow_in_final_destination">Το δέμα σας βρίσκεται στην θυρίδα</string>
+    <string name="boxNow_new">Σε αναμονή παραλαβής από το E-shop</string>
+    <string name="boxNow_returned">Το δέμα έχει επιστραφεί</string>
+    <string name="boxNow_expired">Έχει λήξει</string>
+    <string name="boxNow_expired_return">Η παράδοση έχει λήξει</string>
+    <string name="boxNow_missing">Προς εντοπισμό</string>
+    <string name="boxNow_canceled">Ακυρώθηκε</string>
+    <string name="boxNow_cancelled">Ακυρώθηκε</string>
+    <string name="boxNow_cancelled_return">Ακυρώθηκε</string>
+    <string name="boxNow_lost">Προς εντοπισμό</string>
+    <string name="boxNow_depot">Αποθήκη BoxNow</string>
+    <string name="boxNow_hub">Αποθήκη BoxNow</string>
 
     <string-array name="notif_interval_pref_entries">
         <item>15 λεπτά</item>
