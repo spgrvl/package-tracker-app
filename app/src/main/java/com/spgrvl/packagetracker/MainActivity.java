@@ -33,7 +33,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -51,24 +50,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     static boolean startedFlag;
     public boolean isInSelectionMode = false;
     private boolean clipboardPref;
-    private boolean notifPref;
     public static final String PREF_CLIPBOARD = "pref_clipboard";
     public static final String PREF_NOTIF = "pref_notif";
     public static final String eltaTrackingRegex = "^[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}$";
-    public static final String speedexTrackingRegex = "^[0-9]{12}$";
-    public static final String courierCenterTrackingRegex = "^[0-9]{12}$";
-    public static final String easyMailTracking1Regex = "^[0-9]{12}$";
     public static final String easyMailTracking2Regex = "^[0-9]{11}$";
-    public static final String easyMailTrackingRegex = String.format("(%s)|(%s)", easyMailTracking1Regex, easyMailTracking2Regex);
+    public static final String speedexOrCourierCenterOrEasyMailTrackingRegex = "^[0-9]{12}$";
     public static final String delatolasTrackingRegex = "^[A-Za-z0-9]{12}$";
-    public static final String acsTrackingRegex = "^[0-9]{10}$";
-    public static final String genikiTrackingRegex = "^[0-9]{10}$";
+    public static final String skroutzLastMileTrackingRegex = "^[A-Za-z0-9]{13}$";
+    public static final String acsOrGenikiOrBoxNowTrackingRegex = "^[0-9]{10}$";
     public static final String cometHellasTrackingRegex = "^[0-9]{8}$";
-    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)|(%s)|(%s)|(%s)|(%s)",
-            eltaTrackingRegex, speedexTrackingRegex, courierCenterTrackingRegex,
-            easyMailTrackingRegex, delatolasTrackingRegex, acsTrackingRegex,
-            genikiTrackingRegex, cometHellasTrackingRegex);
-    private final HashMap<String, String> trackingNumberRegexMap = new HashMap<>();
+    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)|(%s)|(%s)|(%s)",
+            eltaTrackingRegex, easyMailTracking2Regex, speedexOrCourierCenterOrEasyMailTrackingRegex,
+            delatolasTrackingRegex, skroutzLastMileTrackingRegex, acsOrGenikiOrBoxNowTrackingRegex,
+            cometHellasTrackingRegex);
     private CustomIndexRvAdapter adapter;
     private FloatingActionButton fab;
     private static final long RV_UPDATE_INTERVAL = 10000;
@@ -92,22 +86,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setContentView(R.layout.activity_main);
 
         // Check for notifications permission and request if needed
-        notifPref = sharedPreferences.getBoolean(PREF_NOTIF, true);
+        boolean notifPref = sharedPreferences.getBoolean(PREF_NOTIF, true);
         if (notifPref) {
             checkNotificationPermission();
         }
-
-        // Add pairs of couriers and their regex
-        trackingNumberRegexMap.put("elta.gr", eltaTrackingRegex);
-        trackingNumberRegexMap.put("elta-courier.gr", eltaTrackingRegex);
-        trackingNumberRegexMap.put("acscourier.net", acsTrackingRegex);
-        trackingNumberRegexMap.put("acssp.gr", acsTrackingRegex);
-        trackingNumberRegexMap.put("speedex.gr", speedexTrackingRegex);
-        trackingNumberRegexMap.put("comethellas.gr", cometHellasTrackingRegex);
-        trackingNumberRegexMap.put("taxydromiki.com", genikiTrackingRegex);
-        trackingNumberRegexMap.put("courier.gr", courierCenterTrackingRegex);
-        trackingNumberRegexMap.put("delatolas.com", delatolasTrackingRegex);
-        trackingNumberRegexMap.put("easymail.gr", easyMailTrackingRegex);
 
         // Find Button by ID
         fab = this.findViewById(R.id.fab);

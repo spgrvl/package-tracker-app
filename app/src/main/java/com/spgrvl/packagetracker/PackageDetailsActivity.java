@@ -184,6 +184,9 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                     case "delatolas":
                         url = "https://docuclass.delatolas.com/tnt_temp.php?id=" + tracking;
                         break;
+                    case "skroutzLastMile":
+                        url = "https://www.skroutzlastmile.gr/#" + tracking;
+                        break;
                     case "easyMail":
                         url = "https://trackntrace.easymail.gr/" + tracking;
                         break;

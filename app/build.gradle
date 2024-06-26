@@ -9,8 +9,8 @@ android {
         applicationId "com.spgrvl.packagetracker"
         minSdkVersion 24
         targetSdkVersion 33
-        versionCode 85
-        versionName "1.30.0"
+        versionCode 86
+        versionName "1.31.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

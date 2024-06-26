@@ -12,6 +12,7 @@ It's an app that allows users to track their packages from Greek carriers in one
 * [Geniki Taxydromiki](https://www.taxydromiki.com/)
 * [Speedex](https://www.speedex.gr/)
 * [BoxNow](https://boxnow.gr/)
+* [Skroutz Last Mile](https://www.skroutzlastmile.gr/)
 * [Comet Hellas](https://www.comethellas.gr/)
 * [Courier Center](https://www.courier.gr/)
 * [Delatolas Courier](https://www.delatolascourier.gr/)

@@ -58,6 +58,7 @@ public class UpdateTrackingDetails {
     public static final String easyMailTracking2Regex = "^[0-9]{11}$";
     public static final String speedexOrCourierCenterOrEasyMailTrackingRegex = "^[0-9]{12}$";
     public static final String delatolasTrackingRegex = "^[A-Za-z0-9]{12}$";
+    public static final String skroutzLastMileTrackingRegex = "^[A-Za-z0-9]{13}$";
     public static final String acsOrGenikiOrBoxNowTrackingRegex = "^[0-9]{10}$";
     public static final String cometHellasTrackingRegex = "^[0-9]{8}$";
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -316,6 +317,71 @@ public class UpdateTrackingDetails {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        return detailsList;
+    }
+
+    private ArrayList<TrackingDetailsModel> trackSkroutzLastMile() {
+        String url, lang;
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+
+        // Fetch tracking details in app's language
+        if (languagePref.equals("el_GR") || languagePref.equals("el")) {
+            lang = "el";
+        } else {
+            lang = "en";
+        }
+
+        url = "https://api.sendx.gr/user/hp/" + tracking;
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                e.printStackTrace();
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String myResponse = Objects.requireNonNull(response.body()).string();
+                    try {
+                        JSONObject jsonResponseObject = new JSONObject(myResponse);
+                        JSONArray jsonArray = jsonResponseObject.getJSONArray("trackingDetails");
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                            String timestampOriginal = jsonObject.getString("createdAt");
+                            SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
+                            inputFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
+                            Date date = inputFormatter.parse(timestampOriginal);
+                            SimpleDateFormat outputFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
+                            String status;
+                            if (lang.equals("en")) {
+                                status = jsonObject.getString("description");
+                            } else {
+                                status = jsonObject.getString("description_gr");
+                            }
+                            detailsList.add(new TrackingDetailsModel(status, "", outputFormatter.format(date)));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                countDownLatch.countDown();
+            }
+        });
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Collections.reverse(detailsList);
         return detailsList;
     }
 
@@ -601,6 +667,8 @@ public class UpdateTrackingDetails {
             return "cometHellas";
         } else if (Pattern.compile(delatolasTrackingRegex).matcher(tracking).find()) {
             return "delatolas";
+        } else if (Pattern.compile(skroutzLastMileTrackingRegex).matcher(tracking).find()) {
+            return "skroutzLastMile";
         }
         return null;
     }
@@ -708,6 +776,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "delatolas":
                         detailsList = trackDelatolas();
+                        break;
+                    case "skroutzLastMile":
+                        detailsList = trackSkroutzLastMile();
                         break;
                     case "easyMail":
                         detailsList = trackEasyMail();
