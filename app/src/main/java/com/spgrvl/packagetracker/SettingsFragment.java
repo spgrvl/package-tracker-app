@@ -42,6 +42,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String FILE_NAME = "packages.bak";
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
     private Menu menu;
+    private boolean shouldShowRestartButton = false;
     DatabaseHelper databaseHelper = null;
 
     @Override
@@ -52,7 +53,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         preferenceChangeListener = (sharedPreferences, key) -> {
             if (key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_LANGUAGE) || key.equals(PREF_CLIPBOARD) || key.equals(PREF_THEME)) {
                 Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
-                menu.findItem(R.id.restart_button).setVisible(true);
+                shouldShowRestartButton = true;
+                if (menu != null) {
+                    menu.findItem(R.id.restart_button).setVisible(true);
+                }
             }
             if (key.equals(PREF_NOTIF_INTERVAL)) {
                 Preference notifIntervalPref = findPreference(key);
@@ -68,15 +72,24 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         // Show information if Notification Permission got declined
                         Toast.makeText(requireActivity(), R.string.notifications_permission_denied_info, Toast.LENGTH_LONG).show();
                         disableNotifPref(key);
-                        menu.findItem(R.id.restart_button).setVisible(true);
+                        shouldShowRestartButton = true;
+                        if (menu != null) {
+                            menu.findItem(R.id.restart_button).setVisible(true);
+                        }
                         Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
-                        menu.findItem(R.id.restart_button).setVisible(true);
+                        shouldShowRestartButton = true;
+                        if (menu != null) {
+                            menu.findItem(R.id.restart_button).setVisible(true);
+                        }
                     }
                 } else {
                     Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
-                    menu.findItem(R.id.restart_button).setVisible(true);
+                    shouldShowRestartButton = true;
+                    if (menu != null) {
+                        menu.findItem(R.id.restart_button).setVisible(true);
+                    }
                 }
             }
         };
@@ -230,12 +243,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         this.menu = menu;
         inflater.inflate(R.menu.settings_action_bar, menu);
-        menu.findItem(R.id.restart_button).setVisible(false);
+        menu.findItem(R.id.restart_button).setVisible(shouldShowRestartButton);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(R.id.restart_button).setVisible(shouldShowRestartButton);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.restart_button) {
+            shouldShowRestartButton = false;
             triggerRebirth(requireContext());
         } else if (item.getItemId() == android.R.id.home) {
             requireActivity().finish();
