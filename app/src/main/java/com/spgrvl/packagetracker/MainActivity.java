@@ -18,8 +18,13 @@ import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.Toast;
+
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -76,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Enable edge-to-edge display
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
         // Set custom language if changed on app preferences
         Localization localization = new Localization();
         localization.setLocale(MainActivity.this);
@@ -86,6 +94,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         clipboardPref = sharedPreferences.getBoolean(PREF_CLIPBOARD, false);
 
         setContentView(R.layout.activity_main);
+
+        // Handle window insets for edge-to-edge display
+        View rootView = findViewById(android.R.id.content);
+        ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
+            // Get the system bars insets
+            androidx.core.graphics.Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            
+            // Apply padding to the root view to avoid content going behind system bars
+            v.setPadding(systemBarsInsets.left, systemBarsInsets.top, systemBarsInsets.right, systemBarsInsets.bottom);
+            
+            return insets;
+        });
 
         // Check for notifications permission and request if needed
         boolean notifPref = sharedPreferences.getBoolean(PREF_NOTIF, true);

@@ -10,7 +10,11 @@
         <item name="colorSecondaryVariant">@color/orange_dark</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
+        <item name="android:navigationBarColor" tools:targetApi="l">@android:color/transparent</item>
+        <!-- Enable edge-to-edge with light status bar (dark text/icons) -->
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o">true</item>
         <!-- Color of Carrier TextView -->
         <item name="carrierTvColor">@color/blue_light</item>
     </style>

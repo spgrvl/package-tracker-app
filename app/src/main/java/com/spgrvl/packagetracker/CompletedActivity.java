@@ -16,6 +16,10 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -44,12 +48,23 @@ public class CompletedActivity extends AppCompatActivity implements SwipeRefresh
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Enable edge-to-edge display
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
         // Set custom language if changed on app preferences
         Localization localization = new Localization();
         localization.setLocale(CompletedActivity.this);
         this.setTitle(R.string.completed);
 
         setContentView(R.layout.activity_completed);
+
+        // Handle window insets for edge-to-edge display
+        View rootView = findViewById(android.R.id.content);
+        ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
+            androidx.core.graphics.Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBarsInsets.left, systemBarsInsets.top, systemBarsInsets.right, systemBarsInsets.bottom);
+            return insets;
+        });
 
         // Find RecyclerView by ID and set divider
         this.trackingNumbersRv = findViewById(R.id.trackingNumbersRv);
