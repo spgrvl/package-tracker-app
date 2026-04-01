@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.view.inputmethod.InputMethodManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
@@ -15,11 +16,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.view.ViewCompat;
@@ -33,11 +36,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.PreferenceManager;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,8 +51,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         AddNewDialog.AddDialogListener, BarcodeSelectionDialog.SingleChoiceListener {
 
     RecyclerView trackingNumbersRv;
+    RecyclerView deliveredPackagesRv;
     final DatabaseHelper databaseHelper = new DatabaseHelper(MainActivity.this);
     private SwipeRefreshLayout swipeRefreshLayout;
+    private SwipeRefreshLayout swipeRefreshDelivered;
+    private EditText searchEditText;
+    private BottomNavigationView bottomNavigation;
+    private CustomIndexRvAdapter deliveredAdapter;
+    private View emptyLayout;
+    private TextView emptyTitleText;
+    private TextView emptySubtitleText;
+    private int activePackageCount = 0;
+    private int deliveredPackageCount = 0;
+    private int currentTabId = R.id.nav_active;
     protected final ArrayList<String> selectionList = new ArrayList<>();
     protected int counter = 0;
     public int position = -1;
@@ -71,7 +84,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             delatolasTrackingRegex, skroutzLastMileTrackingRegex, acsOrGenikiOrBoxNowTrackingRegex,
             cometHellasTrackingRegex);
     private CustomIndexRvAdapter adapter;
-    private FloatingActionButton fab;
     private static final long RV_UPDATE_INTERVAL = 10000;
     private Handler rvHandler;
     private Runnable rvRunnable;
@@ -102,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             androidx.core.graphics.Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             
             // Apply padding to the root view to avoid content going behind system bars
-            v.setPadding(systemBarsInsets.left, systemBarsInsets.top, systemBarsInsets.right, systemBarsInsets.bottom);
+            v.setPadding(systemBarsInsets.left, systemBarsInsets.top, systemBarsInsets.right, 0);
             
             return insets;
         });
@@ -113,19 +125,47 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             checkNotificationPermission();
         }
 
-        // Find Button by ID
-        fab = this.findViewById(R.id.fab);
+        // Find UI elements by ID
+        searchEditText = findViewById(R.id.searchEditText);
+        emptyLayout = findViewById(R.id.empty_layout);
+        emptyTitleText = findViewById(R.id.emptyTitleText);
+        emptySubtitleText = findViewById(R.id.emptySubtitleText);
 
-        // Find RecyclerView by ID and set divider
+        // Find RecyclerViews by ID
         this.trackingNumbersRv = findViewById(R.id.trackingNumbersRv);
-        trackingNumbersRv.addItemDecoration(new DividerItemDecoration(trackingNumbersRv.getContext(), DividerItemDecoration.VERTICAL));
+        this.deliveredPackagesRv = findViewById(R.id.deliveredPackagesRv);
 
-        // Find SwipeRefreshLayout by ID
+        // Find SwipeRefreshLayouts by ID
         swipeRefreshLayout = findViewById(R.id.swipeRefreshMain);
         swipeRefreshLayout.setOnRefreshListener(this);
+        
+        swipeRefreshDelivered = findViewById(R.id.swipeRefreshDelivered);
+        swipeRefreshDelivered.setOnRefreshListener(this);
+        
+        // Find BottomNavigationView by ID
+        bottomNavigation = findViewById(R.id.bottomNavigation);
+        bottomNavigation.setOnItemSelectedListener(this::onNavigationItemSelected);
+        
+        // Handle system window insets for bottom navigation container
+        View bottomNavigationContainer = findViewById(R.id.bottomNavigationContainer);
+        ViewCompat.setOnApplyWindowInsetsListener(bottomNavigationContainer, (v, insets) -> {
+            androidx.core.graphics.Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(0, 0, 0, systemBarsInsets.bottom);
+            return insets;
+        });
+        
+        // Handle content container insets to prevent overlap
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.contentContainer), (v, insets) -> {
+            androidx.core.graphics.Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(0, 0, 0, systemBarsInsets.bottom + dpToPx(80)); // Bottom nav height + system bar
+            return insets;
+        });
 
-        // Called when user clicks fab (floating add button)
-        fab.setOnClickListener(v -> openDialog(null));
+        // Set up search functionality
+        setupSearchFunctionality();
+        
+        // Set up click listener to clear search focus when clicking outside
+        setupSearchFocusHandling();
 
         // Populating the RecyclerView from DB
         showTrackingOnRecyclerView();
@@ -134,7 +174,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         rvHandler = new Handler(Looper.getMainLooper());
         rvRunnable = () -> {
             if (!isInSelectionMode) {
-                adapter.notifyDataSetChanged();
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged();
+                }
+                if (deliveredAdapter != null) {
+                    deliveredAdapter.notifyDataSetChanged();
+                }
             }
             rvHandler.postDelayed(rvRunnable, RV_UPDATE_INTERVAL);
         };
@@ -148,16 +193,70 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         MainActivity.this.startActivity(myIntent);
     }
 
-    private void showTrackingOnRecyclerView() {
-        ArrayList<String> trackingNumbers = databaseHelper.getTrackingNumbers(false);
-        if (trackingNumbers.size() == 0) {
-            findViewById(R.id.empty_layout).setVisibility(View.VISIBLE);
-        } else {
-            findViewById(R.id.empty_layout).setVisibility(View.GONE);
+    private void setupSearchFunctionality() {
+        searchEditText.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterPackages(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
+    }
+
+    private void filterPackages(String query) {
+        if (currentTabId == R.id.nav_active && adapter != null) {
+            // Filter active packages
+            adapter.getFilter().filter(query);
+        } else if (currentTabId == R.id.nav_delivered && deliveredAdapter != null) {
+            // Filter delivered packages
+            deliveredAdapter.getFilter().filter(query);
         }
-        List<TrackingIndexModel> allTracking = databaseHelper.getAllTracking();
-        adapter = new CustomIndexRvAdapter(MainActivity.this, allTracking);
+    }
+
+    private void setupSearchFocusHandling() {
+        // Set up click listener on the root view to clear search focus
+        findViewById(android.R.id.content).setOnClickListener(v -> {
+            if (searchEditText.hasFocus()) {
+                searchEditText.clearFocus();
+                // Hide the keyboard
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(searchEditText.getWindowToken(), 0);
+                }
+            }
+        });
+        
+        // Prevent the search bar itself from clearing focus when clicked
+        searchEditText.setOnClickListener(v -> {
+            // Do nothing - let the search bar keep focus
+        });
+    }
+
+    private void showTrackingOnRecyclerView() {
+        // Show active packages
+        List<TrackingIndexModel> activeTracking = databaseHelper.getAllTracking(false);
+        adapter = new CustomIndexRvAdapter(MainActivity.this, activeTracking);
         trackingNumbersRv.setAdapter(adapter);
+
+        // Show delivered packages
+        List<TrackingIndexModel> deliveredTracking = databaseHelper.getAllTracking(true);
+        deliveredAdapter = new CustomIndexRvAdapter(MainActivity.this, deliveredTracking);
+        deliveredPackagesRv.setAdapter(deliveredAdapter);
+
+        // Force RecyclerViews to measure and layout
+        trackingNumbersRv.requestLayout();
+        trackingNumbersRv.invalidate();
+        deliveredPackagesRv.requestLayout();
+        deliveredPackagesRv.invalidate();
+
+        activePackageCount = activeTracking.size();
+        deliveredPackageCount = deliveredTracking.size();
+        updateEmptyState();
     }
 
     public void addTrackingDb(String trackingNumber, String customName) {
@@ -170,21 +269,30 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
+    private void stopAllSwipeRefresh() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+        if (swipeRefreshDelivered != null) {
+            swipeRefreshDelivered.setRefreshing(false);
+        }
+    }
+
     private void updateIndex() {
         if (isNetworkAvailable()) {
             new Thread(() -> {
                 UpdateTrackingDetails upd = new UpdateTrackingDetails(null, MainActivity.this, true);
                 boolean a = upd.updateAll();
-                if (a) {
-                    runOnUiThread(() -> {
+                runOnUiThread(() -> {
+                    if (a) {
                         showTrackingOnRecyclerView();
-                        swipeRefreshLayout.setRefreshing(false);
-                    });
-                }
+                    }
+                    stopAllSwipeRefresh();
+                });
             }).start();
         } else {
             Toast.makeText(MainActivity.this, R.string.no_internet, Toast.LENGTH_SHORT).show();
-            swipeRefreshLayout.setRefreshing(false);
+            stopAllSwipeRefresh();
         }
     }
 
@@ -219,7 +327,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         if (isInSelectionMode) {
             menu.setGroupVisible(R.id.main_group, false);
             menu.setGroupVisible(R.id.selection_group, true);
-            menu.findItem(R.id.selection_active_button).setVisible(false);
+            boolean isDeliveredTab = isDeliveredTabSelected();
+            menu.findItem(R.id.selection_complete_button).setVisible(!isDeliveredTab);
+            menu.findItem(R.id.selection_active_button).setVisible(isDeliveredTab);
             Objects.requireNonNull(this.getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         } else {
             menu.setGroupVisible(R.id.selection_group, false);
@@ -236,26 +346,98 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         if (item.getItemId() == R.id.refresh_button) {
             swipeRefreshLayout.setRefreshing(true);
             updateIndex();
-        } else if (item.getItemId() == R.id.completed_button) {
-            startActivity(new Intent(this, CompletedActivity.class));
         } else if (item.getItemId() == R.id.settings_button) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (item.getItemId() == android.R.id.home) {
             clearSelectionMode();
         } else if (item.getItemId() == R.id.select_all) {
-            adapter.selectAll();
+            CustomIndexRvAdapter currentAdapter = getCurrentAdapter();
+            if (currentAdapter != null) {
+                currentAdapter.selectAll();
+            }
         } else if (item.getItemId() == R.id.selection_delete_button && selectionList.size() > 0) {
             delete_packages();
         } else if (item.getItemId() == R.id.selection_complete_button && selectionList.size() > 0) {
             complete_packages();
+        } else if (item.getItemId() == R.id.selection_active_button && selectionList.size() > 0) {
+            mark_packages_active();
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     public void onRefresh() {
         clearSelectionMode();
         updateIndex();
+    }
+
+    private boolean onNavigationItemSelected(android.view.MenuItem item) {
+        int itemId = item.getItemId();
+        
+        if (itemId == R.id.nav_active) {
+            if (isInSelectionMode && currentTabId != R.id.nav_active) {
+                clearSelectionMode();
+            }
+            currentTabId = R.id.nav_active;
+            showActiveTab();
+            return true;
+        } else if (itemId == R.id.nav_delivered) {
+            if (isInSelectionMode && currentTabId != R.id.nav_delivered) {
+                clearSelectionMode();
+            }
+            currentTabId = R.id.nav_delivered;
+            showDeliveredTab();
+            return true;
+        } else if (itemId == R.id.nav_add) {
+            openDialog(null);
+            return false;
+        }
+        
+        return false;
+    }
+
+    private void showActiveTab() {
+        // Show active packages content
+        findViewById(R.id.swipeRefreshMain).setVisibility(View.VISIBLE);
+        findViewById(R.id.swipeRefreshDelivered).setVisibility(View.GONE);
+
+        // Clear search field and reset filters
+        searchEditText.setText("");
+        if (adapter != null) {
+            adapter.getFilter().filter("");
+        }
+        updateEmptyState();
+    }
+
+    private void showDeliveredTab() {
+        // Show delivered packages content
+        findViewById(R.id.swipeRefreshMain).setVisibility(View.GONE);
+        findViewById(R.id.swipeRefreshDelivered).setVisibility(View.VISIBLE);
+
+        // Clear search field and reset filters
+        searchEditText.setText("");
+        if (deliveredAdapter != null) {
+            deliveredAdapter.getFilter().filter("");
+        }
+        updateEmptyState();
+    }
+
+    private void updateEmptyState() {
+        boolean showForActive = currentTabId == R.id.nav_active && activePackageCount == 0;
+        boolean showForDelivered = currentTabId == R.id.nav_delivered && deliveredPackageCount == 0;
+
+        if (showForActive) {
+            emptyTitleText.setText(R.string.no_active_packages);
+            emptySubtitleText.setText(R.string.no_packages_instructions);
+            emptyLayout.setVisibility(View.VISIBLE);
+        } else if (showForDelivered) {
+            emptyTitleText.setText(R.string.no_delivered_packages);
+            emptySubtitleText.setText(R.string.no_packages_instructions);
+            emptyLayout.setVisibility(View.VISIBLE);
+        } else {
+            emptyLayout.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -373,12 +555,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void startSelection(int index, String tracking) {
         if (!isInSelectionMode) {
             isInSelectionMode = true;
-            fab.setVisibility(View.GONE);
             selectionList.add(tracking);
             counter++;
             updateToolbarText();
             position = index;
-            adapter.notifyDataSetChanged();
+            CustomIndexRvAdapter currentAdapter = getCurrentAdapter();
+            if (currentAdapter != null) {
+                currentAdapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -395,11 +579,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void clearSelectionMode() {
         isInSelectionMode = false;
-        fab.setVisibility(View.VISIBLE);
         invalidateOptionsMenu();
         counter = 0;
         selectionList.clear();
-        adapter.notifyDataSetChanged();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+        if (deliveredAdapter != null) {
+            deliveredAdapter.notifyDataSetChanged();
+        }
     }
 
     public void selectItem(View v, String tracking) {
@@ -454,6 +642,39 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         showTrackingOnRecyclerView();
         clearSelectionMode();
         Toast.makeText(this, toast_msg, Toast.LENGTH_SHORT).show();
+    }
+
+    private void mark_packages_active() {
+        String toast_msg;
+        if (selectionList.size() == 1) {
+            toast_msg = getString(R.string.package_active, selectionList.get(0));
+        } else {
+            toast_msg = getString(R.string.packages_active, selectionList.size());
+        }
+
+        for (String tracking : selectionList) {
+            databaseHelper.setCompleted(tracking, false);
+        }
+
+        showTrackingOnRecyclerView();
+        clearSelectionMode();
+        Toast.makeText(this, toast_msg, Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean isDeliveredTabSelected() {
+        return currentTabId == R.id.nav_delivered;
+    }
+
+    private CustomIndexRvAdapter getCurrentAdapter() {
+        return isDeliveredTabSelected() ? deliveredAdapter : adapter;
+    }
+
+    private int dpToPx(int dp) {
+        return Math.round(TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp,
+                getResources().getDisplayMetrics()
+        ));
     }
 
     private boolean isNetworkAvailable() {

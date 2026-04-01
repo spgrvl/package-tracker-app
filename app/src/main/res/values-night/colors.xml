@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark theme: same resource names as values/colors.xml so layouts pick these up automatically -->
+    <color name="background_light">#0B0F14</color>
+    <color name="text_primary">#E8EDF3</color>
+    <color name="text_secondary">#9AA5B4</color>
+    <color name="text_tertiary">#6D7A8A</color>
+
+    <!-- Cards: light text on slightly elevated surface -->
+    <color name="card_background">#151C26</color>
+    <color name="card_background_dark">#151C26</color>
+
+    <!-- Main tabbed UI: avoid stark white search bar / bottom nav on dark background -->
+    <color name="surface_search">#1A242F</color>
+    <color name="surface_bottom_nav">#10161D</color>
+
+    <!-- Slightly brighter accent on dark cards for status line -->
+    <color name="accent_blue">#7DD3FC</color>
+    <color name="success_green">#66BB6A</color>
+
+    <color name="list_divider">#33FFFFFF</color>
+
+    <color name="dialog_input_stroke">#40FFFFFF</color>
+</resources>

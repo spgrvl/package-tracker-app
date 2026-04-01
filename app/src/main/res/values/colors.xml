@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Legacy colors -->
     <color name="blue_primary">#2962ff</color>
     <color name="blue_light">#63a4ff</color>
     <color name="blue_dark">#0039cb</color>
@@ -9,4 +10,36 @@
     <color name="black">#FF000000</color>
     <color name="black_01dp">#1D1D1D</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- New design system colors -->
+    <color name="primary_blue">#0D5EAF</color>
+    <color name="accent_blue">#4FC3F7</color>
+    <color name="background_light">#F5F5F5</color>
+    <color name="background_dark">#101922</color>
+    
+    <!-- Text colors -->
+    <color name="text_primary">#333333</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_tertiary">#BDBDBD</color>
+    
+    <!-- Status colors -->
+    <color name="success_green">#4CAF50</color>
+    <color name="warning_orange">#FF9800</color>
+    <color name="error_red">#F44336</color>
+    <color name="info_blue">#2196F3</color>
+    
+    <!-- Card colors -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_background_dark">#1C2A38</color>
+
+    <!-- Main screen surfaces (search field, bottom nav) — overridden in values-night -->
+    <color name="surface_search">#FFFFFF</color>
+    <color name="surface_bottom_nav">#FFFFFF</color>
+
+    <!-- List row divider (used with ?android:attr/listDivider fallback) -->
+    <color name="list_divider">#1F000000</color>
+
+    <!-- Dialog outlined inputs + header subtitle on primary blue -->
+    <color name="dialog_input_stroke">#66000000</color>
+    <color name="header_subtitle_on_primary">#CCFFFFFF</color>
 </resources>

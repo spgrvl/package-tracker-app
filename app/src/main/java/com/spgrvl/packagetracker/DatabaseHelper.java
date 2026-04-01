@@ -158,12 +158,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public List<TrackingIndexModel> getAllTracking() {
+        return getAllTracking(null);
+    }
+
+    public List<TrackingIndexModel> getAllTracking(Boolean completed) {
         List<TrackingIndexModel> returnList = new ArrayList<>();
 
         // get data from DB
-
         SQLiteDatabase db = this.getReadableDatabase();
         String queryString = "SELECT * FROM " + INDEX_TABLE;
+        
+        if (completed != null) {
+            queryString += " WHERE " + COMPLETED_COL + " = " + (completed ? "1" : "0");
+        }
+
+        // Newest packages first (Created stores millis as text; empty/legacy rows sort last)
+        queryString += " ORDER BY CAST(" + CREATED_COL + " AS INTEGER) DESC, " + TRACKING_COL + " COLLATE NOCASE ASC";
 
         Cursor cursor = db.rawQuery(queryString, null);
 
@@ -175,10 +185,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String lastUpdate = cursor.getString(2);
                 String customName = cursor.getString(3);
                 String carrier = cursor.getString(5);
-                boolean completed = cursor.getString(6).equals("1");
+                boolean isCompleted = cursor.getString(6).equals("1");
                 String created = cursor.getString(7);
 
-                TrackingIndexModel newTracking = new TrackingIndexModel(tracking, created, updated, lastUpdate, carrier, customName, completed);
+                TrackingIndexModel newTracking = new TrackingIndexModel(tracking, created, updated, lastUpdate, carrier, customName, isCompleted);
                 returnList.add(newTracking);
 
             } while (cursor.moveToNext());
@@ -187,6 +197,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // close cursor and db when done.
         cursor.close();
         db.close();
+
         return returnList;
     }
 

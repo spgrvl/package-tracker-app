@@ -24,7 +24,7 @@
     <string name="something_went_wrong">Κάτι πήγε στραβά!</string>
     <string name="edited_successfully">Η επεξεργασία ήταν επιτυχής!</string>
     <string name="edit_package">Επεξεργασία πακέτου</string>
-    <string name="cancel">Ακυρο</string>
+    <string name="cancel">Άκυρο</string>
     <string name="refresh">Ανανέωση</string>
     <string name="edit">Επεξεργασία</string>
     <string name="delete">Διαγραφή</string>
@@ -41,7 +41,9 @@
     <string name="never">Ποτέ</string>
     <string name="status_none">Κατάσταση: Καμία</string>
     <string name="new_package">Νέο Πακέτο</string>
-    <string name="scan">Σαρωση</string>
+    <string name="add_package_subtitle">Εισαγάγετε αριθμό αποστολής και προαιρετικό όνομα.</string>
+    <string name="edit_package_subtitle">Ενημερώστε τον αριθμό αποστολής ή το εμφανιζόμενο όνομα.</string>
+    <string name="scan">Σάρωση</string>
     <string name="package_channel">Κανάλι Πακέτων</string>
     <string name="language_pref">Γλώσσα</string>
     <string name="language_pref_summary">Αλλάξτε τη γλώσσα εμφάνισης της εφαρμογής</string>
@@ -61,11 +63,13 @@
     <string name="restore_error">Παρουσιάστηκε σφάλμα κατά την επαναφορά του αντιγράφου ασφαλείας!</string>
     <string name="backup_confirmation_msg">Αυτή η ενέργεια θα αντικαταστήσει τυχόν προηγούμενα αντίγραφα ασφαλείας.</string>
     <string name="restore_confirmation_msg">Τα υπάρχοντα πακέτα δεν θα αντικατασταθούν, θα προστεθούν μόνο όσα δεν υπάρχουν ήδη.</string>
-    <string name="one_item_selected">Επιλέχθηκε 1 στοιχείο</string>
-    <string name="multiple_items_selected">Επιλέχθηκαν %1$d στοιχεία</string>
+    <string name="one_item_selected">1 επιλεγμένο</string>
+    <string name="multiple_items_selected">%1$d επιλεγμένα</string>
     <string name="action_failed_invalid_tracking">Η εκτέλεση αυτής της ενέργειας δεν ήταν δυνατή λόγω μη έγκυρου αριθμού αποστολής</string>
     <string name="no_packages">Δεν υπάρχουν πακέτα</string>
-    <string name="no_packages_instructions">Προσθέστε ένα πακέτο πατώντας το \"+\"</string>
+    <string name="no_packages_instructions">Προσθέστε ένα νέο πακέτο από την καρτέλα "Νέο Πακέτο" στο κάτω μέρος</string>
+    <string name="no_active_packages">Δεν υπάρχουν ενεργά πακέτα</string>
+    <string name="no_delivered_packages">Δεν υπάρχουν ολοκληρωμένα πακέτα ακόμα</string>
     <string name="no_status_information">Δεν υπάρχουν ακόμη διαθέσιμες πληροφορίες κατάστασης</string>
     <string name="select_all">Επιλογή όλων</string>
     <string name="status_to_clipboard">Η κατάσταση αντιγράφηκε στο πρόχειρο</string>
@@ -143,4 +147,11 @@
         <item>Ανοιχτό θέμα</item>
         <item>Σκούρο θέμα</item>
     </string-array>
+    <string name="search_hint">Βρείτε πακέτο με όνομα ή αριθμό αποστολής</string>
+    <string name="active_packages">Ενεργά</string>
+    <string name="delivered_packages">Ολοκληρωμένα</string>
+    <string name="in_transit">Σε μεταφορά</string>
+    <string name="out_for_delivery">Προς παράδοση</string>
+    <string name="delivered">Παραδόθηκε</string>
+    <string name="package_name">Όνομα πακέτου</string>
 </resources>

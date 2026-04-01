@@ -10,16 +10,10 @@
             app:showAsAction="ifRoom" />
 
         <item
-            android:id="@+id/completed_button"
-            android:icon="@drawable/ic_settings"
-            android:title="@string/completed"
-            app:showAsAction="collapseActionView" />
-
-        <item
             android:id="@+id/settings_button"
             android:icon="@drawable/ic_settings"
             android:title="@string/settings"
-            app:showAsAction="collapseActionView" />
+            app:showAsAction="ifRoom" />
     </group>
 
     <group android:id="@+id/selection_group">

@@ -41,6 +41,8 @@
     <string name="never">Never</string>
     <string name="status_none">Status: None</string>
     <string name="new_package">New package</string>
+    <string name="add_package_subtitle">Enter a tracking number and an optional name.</string>
+    <string name="edit_package_subtitle">Update the tracking number or display name.</string>
     <string name="scan">Scan</string>
     <string name="package_channel">Package Channel</string>
     <string name="language_pref">Language</string>
@@ -61,11 +63,13 @@
     <string name="restore_error">There was an error while restoring backup!</string>
     <string name="backup_confirmation_msg">This action will overwrite any previous backups.</string>
     <string name="restore_confirmation_msg">Current packages won\'t be overwritten, only new ones will be added.</string>
-    <string name="one_item_selected">1 item selected</string>
-    <string name="multiple_items_selected">%1$d items selected</string>
+    <string name="one_item_selected">1 selected</string>
+    <string name="multiple_items_selected">%1$d selected</string>
     <string name="action_failed_invalid_tracking">This action could not be performed due to invalid tracking number</string>
     <string name="no_packages">No packages</string>
-    <string name="no_packages_instructions">Add a new package using \"+\"</string>
+    <string name="no_packages_instructions">Add a new package from the "New Package" tab below</string>
+    <string name="no_active_packages">No active packages</string>
+    <string name="no_delivered_packages">No delivered packages yet</string>
     <string name="no_status_information">No status information available yet</string>
     <string name="select_all">Select all</string>
     <string name="status_to_clipboard">Status copied to clipboard</string>
@@ -159,5 +163,24 @@
         <item>sys</item>
         <item>light</item>
         <item>dark</item>
+    </string-array>
+    
+    <!-- New UI strings -->
+    <string name="search_hint">Find package by name or tracking number</string>
+    <string name="active_packages">Active</string>
+    <string name="delivered_packages">Delivered</string>
+    <string name="in_transit">In Transit</string>
+    <string name="out_for_delivery">Out for Delivery</string>
+    <string name="delivered">Delivered</string>
+    <string name="package_name">Package Name</string>
+
+    <!-- Substrings used to classify index last-update text (carrier messages may be EN/EL); not shown in UI -->
+    <string-array name="status_keywords_out_for_delivery" translatable="false">
+        <item>out for delivery</item>
+        <item>on vehicle for delivery</item>
+        <item>προς παράδοση</item>
+        <item>προσ παραδοση</item>
+        <item>έξοδος για παράδοση</item>
+        <item>εξοδος για παραδοση</item>
     </string-array>
 </resources>

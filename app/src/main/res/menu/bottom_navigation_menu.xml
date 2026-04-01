@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_active"
+        android:icon="@drawable/ic_local_shipping"
+        android:title="@string/active_packages" />
+
+    <item
+        android:id="@+id/nav_delivered"
+        android:icon="@drawable/ic_check_circle"
+        android:title="@string/delivered_packages" />
+
+    <item
+        android:id="@+id/nav_add"
+        android:icon="@drawable/ic_add"
+        android:title="@string/new_package" />
+
+</menu>

@@ -1,85 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:foreground="?android:attr/selectableItemBackground"
-    android:padding="8dp">
-
-    <LinearLayout
-        android:id="@+id/iconLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:baselineAligned="false"
-        android:orientation="horizontal">
-
-        <CheckBox
-            android:id="@+id/checkbox"
-            android:layout_width="30dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="18dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
-            android:button="@drawable/custom_checkbox"
-            android:clickable="false"
-            android:minWidth="0dp"
-            android:scaleX="1.5"
-            android:scaleY="1.5" />
-
-        <ImageView
-            android:id="@+id/packageIcon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="10dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_package_waiting" />
-
-    </LinearLayout>
+    android:layout_marginBottom="10dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/card_background"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/iconLayout"
-        android:baselineAligned="false"
-        android:orientation="horizontal">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="14dp">
 
+        <!-- Selection Checkbox (Hidden by default) -->
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="8dp"
+            android:button="@drawable/custom_checkbox"
+            android:clickable="false"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:visibility="gone" />
+
+        <!-- Carrier Logo -->
+        <ImageView
+            android:id="@+id/carrierLogo"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_package_waiting" />
+
+        <!-- Package Details -->
         <LinearLayout
-            android:id="@+id/mainDetailsLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.2"
+            android:layout_weight="1"
             android:orientation="vertical">
 
+            <!-- Package Name -->
             <TextView
-                android:id="@+id/trackingTv"
+                android:id="@+id/packageNameTv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="@string/tracking_number"
-                android:textSize="16sp" />
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
+            <!-- Tracking Number -->
+            <TextView
+                android:id="@+id/trackingTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/tracking_number"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
+            <!-- Last Update Info -->
             <LinearLayout
                 android:id="@+id/updatedLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal"
+                android:visibility="visible">
 
                 <ImageView
                     android:id="@+id/refreshIcon"
-                    android:layout_width="14sp"
-                    android:layout_height="14sp"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="2dp"
+                    android:layout_marginEnd="4dp"
                     android:contentDescription="@null"
-                    android:src="@drawable/ic_refresh" />
+                    android:src="@drawable/ic_refresh"
+                    android:tint="@color/text_secondary" />
 
                 <TextView
                     android:id="@+id/updatedTv"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/updated_at" />
+                    android:text="@string/updated_at"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
 
             </LinearLayout>
 
@@ -87,74 +113,87 @@
                 android:id="@+id/lastUpdateTv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="@string/last_update" />
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                tools:text="Last update: Out for delivery" />
 
         </LinearLayout>
 
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@color/list_divider" />
+
+        <!-- Status Section -->
         <LinearLayout
-            android:id="@+id/secondaryDetailsLayout"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="1dp"
-            android:layout_weight="0.8"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/daysLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <View
-                    android:id="@+id/daysDivider"
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="1dp"
-                    android:background="?android:attr/listDivider" />
-
-                <TextView
-                    android:id="@+id/daysSinceTv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:maxLines="1"
-                    android:text="@string/days_since"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp">
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/daysSinceTv"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="1" />
+                android:gravity="center"
+                android:maxLines="1"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="12 D" />
 
-            <LinearLayout
-                android:id="@+id/carrierLayout"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/carrierSmallTv"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:maxLines="1"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                tools:text="ACS" />
 
-                <View
-                    android:id="@+id/carrierDivider"
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="1dp"
-                    android:background="?android:attr/listDivider" />
+            <!-- Status Text -->
+            <TextView
+                android:id="@+id/statusTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="@string/in_transit"
+                android:textColor="@color/accent_blue"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/carrierSmallTv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:maxLines="1"
-                    android:text="@string/carrier" />
-
-            </LinearLayout>
+            <!-- Status Icon (for delivered packages) -->
+            <ImageView
+                android:id="@+id/statusIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="4dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_check_circle"
+                android:tint="@color/success_green"
+                android:visibility="gone" />
 
         </LinearLayout>
 
     </LinearLayout>
 
-</RelativeLayout>
+    <!-- Accent Border (for active packages) -->
+    <View
+        android:id="@+id/accentBorder"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/accent_blue"
+        android:visibility="visible" />
+
+</com.google.android.material.card.MaterialCardView>
