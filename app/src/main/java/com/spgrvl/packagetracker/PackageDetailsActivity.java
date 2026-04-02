@@ -295,16 +295,12 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             newCustomName = newCustomName.trim();
         }
 
-        if (newTrackingNumber.isEmpty()) {
-            Toast.makeText(this, R.string.toast_empty_tracking, Toast.LENGTH_LONG).show();
+        // Edit database (table + index) if changed
+        if (newCustomName == null && customName == null && newTrackingNumber.equals(tracking) ||
+                (newCustomName != null && newCustomName.equals(customName) && newTrackingNumber.equals(tracking))) {
+            Toast.makeText(PackageDetailsActivity.this, R.string.no_information_changed, Toast.LENGTH_SHORT).show();
         } else {
-            // Edit database (table + index) if changed
-            if (newCustomName == null && customName == null && newTrackingNumber.equals(tracking) ||
-                    (newCustomName != null && newCustomName.equals(customName) && newTrackingNumber.equals(tracking))) {
-                Toast.makeText(PackageDetailsActivity.this, R.string.no_information_changed, Toast.LENGTH_SHORT).show();
-            } else {
-                editTrackingDb(trackingNumber, newTrackingNumber, newCustomName);
-            }
+            editTrackingDb(trackingNumber, newTrackingNumber, newCustomName);
         }
     }
 

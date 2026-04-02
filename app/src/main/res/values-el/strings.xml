@@ -148,7 +148,7 @@
         <item>Ανοιχτό θέμα</item>
         <item>Σκούρο θέμα</item>
     </string-array>
-    <string name="search_hint">Βρείτε πακέτο με όνομα ή αριθμό αποστολής</string>
+    <string name="search_hint">Αναζήτηση πακέτων…</string>
     <string name="active_packages">Ενεργά</string>
     <string name="delivered_packages">Ολοκληρωμένα</string>
     <string name="in_transit">Σε μεταφορά</string>

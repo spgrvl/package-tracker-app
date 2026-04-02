@@ -519,9 +519,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             customName = customName.trim();
         }
 
-        if (trackingNumber.isEmpty()) {
-            Toast.makeText(this, R.string.toast_empty_tracking, Toast.LENGTH_LONG).show();
-        } else if (tracking_numbers.contains(trackingNumber)) {
+        if (tracking_numbers.contains(trackingNumber)) {
             Toast.makeText(this, R.string.toast_tracking_exists, Toast.LENGTH_LONG).show();
             openTrackingDetails(trackingNumber);
         } else {

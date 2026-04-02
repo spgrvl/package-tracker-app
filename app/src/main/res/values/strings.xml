@@ -167,7 +167,7 @@
     </string-array>
     
     <!-- New UI strings -->
-    <string name="search_hint">Find package by name or tracking number</string>
+    <string name="search_hint">Search packages…</string>
     <string name="active_packages">Active</string>
     <string name="delivered_packages">Delivered</string>
     <string name="in_transit">In Transit</string>

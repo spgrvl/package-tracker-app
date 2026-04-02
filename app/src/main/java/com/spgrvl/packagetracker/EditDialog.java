@@ -5,6 +5,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +20,7 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 
@@ -42,6 +45,7 @@ public class EditDialog extends AppCompatDialogFragment {
         ((TextView) view.findViewById(R.id.dialog_title)).setText(R.string.edit_package);
         ((TextView) view.findViewById(R.id.dialog_subtitle)).setText(R.string.edit_package_subtitle);
 
+        TextInputLayout trackingInputLayout = view.findViewById(R.id.textInputLayout_tracking);
         editTextTracking = view.findViewById(R.id.editText_tracking);
         editTextCustomName = view.findViewById(R.id.editText_customName);
         view.findViewById(R.id.button_scan).setVisibility(View.GONE);
@@ -52,6 +56,19 @@ public class EditDialog extends AppCompatDialogFragment {
         editTextCustomName.setText(dbCustomName != null ? dbCustomName : "");
         editTextTracking.setText(tracking);
 
+        editTextTracking.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (trackingInputLayout.getError() != null) {
+                    trackingInputLayout.setError(null);
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
         MaterialButton buttonOk = view.findViewById(R.id.button_ok);
         MaterialButton buttonCancel = view.findViewById(R.id.button_cancel);
 
@@ -60,7 +77,19 @@ public class EditDialog extends AppCompatDialogFragment {
 
         buttonCancel.setOnClickListener(v -> dismiss());
         buttonOk.setOnClickListener(v -> {
-            String newTracking = editTextTracking.getText().toString();
+            String newTracking = editTextTracking.getText().toString().trim();
+            if (newTracking.isEmpty()) {
+                trackingInputLayout.setError(getString(R.string.toast_empty_tracking));
+                return;
+            }
+            if (!newTracking.equals(tracking)) {
+                ArrayList<String> existing = databaseHelper.getTrackingNumbers(false);
+                existing.addAll(databaseHelper.getTrackingNumbers(true));
+                if (existing.contains(newTracking)) {
+                    trackingInputLayout.setError(getString(R.string.toast_tracking_exists));
+                    return;
+                }
+            }
             String newCustomName = editTextCustomName.getText().toString();
             if (newCustomName.isEmpty()) {
                 newCustomName = null;
