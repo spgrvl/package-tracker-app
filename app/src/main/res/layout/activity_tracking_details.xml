@@ -17,12 +17,27 @@
         android:textAllCaps="true"
         android:textStyle="bold" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/completedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="12dp"
+        android:text="@string/mark_as_completed"
+        android:textAllCaps="false"
+        app:cornerRadius="8dp"
+        app:icon="@drawable/ic_check"
+        app:iconGravity="textStart" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshDetails"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/carrierTv"
-        android:layout_centerInParent="true">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/completedButton"
+        android:layout_below="@id/carrierTv">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/trackingDetailsRv"
@@ -37,6 +52,8 @@
         android:id="@+id/empty_details"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@id/completedButton"
+        android:layout_below="@id/carrierTv"
         android:gravity="center"
         android:text="@string/no_status_information"
         android:textSize="18sp"

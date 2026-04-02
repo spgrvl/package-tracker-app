@@ -12,11 +12,14 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.content.res.ColorStateList;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.button.MaterialButton;
 
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -43,6 +46,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     private String customName = null;
     private boolean completed = false;
     private TextView carrierTv;
+    private MaterialButton completedButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +107,10 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         this.carrierTv = findViewById(R.id.carrierTv);
         carrierTv.setText(getCarrier(true));
 
+        completedButton = findViewById(R.id.completedButton);
+        completedButton.setOnClickListener(v -> handleCompleted());
+        updateCompletedButton();
+
         showDetailsOnRecyclerView();
 
         // Update details if not completed
@@ -150,16 +158,6 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        if (completed) {
-            menu.findItem(R.id.completed_button).setTitle(R.string.mark_active);
-        } else {
-            menu.findItem(R.id.completed_button).setTitle(R.string.mark_as_completed);
-        }
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.refresh_button) {
@@ -167,8 +165,6 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             updateDetails(true);
         } else if (itemId == android.R.id.home) {
             finish();
-        } else if (itemId == R.id.completed_button) {
-            handleCompleted();
         } else if (itemId == R.id.edit_button) {
             openDialog();
         } else if (itemId == R.id.delete_button) {
@@ -245,7 +241,21 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     private void handleCompleted() {
         databaseHelper.setCompleted(tracking, !completed);
         completed = !completed;
-        invalidateOptionsMenu();
+        updateCompletedButton();
+    }
+
+    private void updateCompletedButton() {
+        if (completed) {
+            completedButton.setText(R.string.mark_active);
+            completedButton.setIconResource(R.drawable.ic_back);
+            completedButton.setBackgroundTintList(ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.primary_blue)));
+        } else {
+            completedButton.setText(R.string.mark_as_completed);
+            completedButton.setIconResource(R.drawable.ic_check);
+            completedButton.setBackgroundTintList(ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.success_green)));
+        }
     }
 
     private void openDialog() {
