@@ -1,5 +1,6 @@
 package com.spgrvl.packagetracker;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -7,13 +8,14 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -23,11 +25,13 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.opencsv.CSVReader;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
@@ -38,9 +42,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String PREF_THEME = "pref_theme";
     public static final String BACKUP_BUTTON = "backup_button";
     public static final String RESTORE_BUTTON = "restore_button";
-    public static final String FOLDER_NAME = "Backup";
-    public static final String FILE_NAME = "packages.bak";
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
+    private ActivityResultLauncher<Intent> backupLauncher;
+    private ActivityResultLauncher<Intent> restoreLauncher;
     private Menu menu;
     private boolean shouldShowRestartButton = false;
     DatabaseHelper databaseHelper = null;
@@ -49,6 +53,28 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setHasOptionsMenu(true);
         setPreferencesFromResource(R.xml.preferences, rootKey);
+
+        backupLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        if (uri != null) {
+                            writeBackupToUri(uri);
+                        }
+                    }
+                });
+
+        restoreLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        if (uri != null) {
+                            readBackupFromUri(uri);
+                        }
+                    }
+                });
 
         preferenceChangeListener = (sharedPreferences, key) -> {
             if (key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_LANGUAGE) || key.equals(PREF_CLIPBOARD) || key.equals(PREF_THEME)) {
@@ -96,18 +122,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         Preference backup_button = findPreference(BACKUP_BUTTON);
         Objects.requireNonNull(backup_button).setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(requireActivity())
-                    .setTitle(R.string.sure_confirmation)
-                    .setMessage(R.string.backup_confirmation_msg)
-                    .setPositiveButton(R.string.yes, (dialog, which) -> {
-                        if (isExtStorageRW()) {
-                            exportCSV();
-                        } else {
-                            Toast.makeText(getContext(), R.string.backup_error, Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .setNegativeButton(R.string.no, null)
-                    .show();
+            exportCSV();
             return true;
         });
 
@@ -116,13 +131,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             new AlertDialog.Builder(requireActivity())
                     .setTitle(R.string.sure_confirmation)
                     .setMessage(R.string.restore_confirmation_msg)
-                    .setPositiveButton(R.string.yes, (dialog, which) -> {
-                        if (isExtStorageRW()) {
-                            importCSV();
-                        } else {
-                            Toast.makeText(getContext(), R.string.restore_error, Toast.LENGTH_SHORT).show();
-                        }
-                    })
+                    .setPositiveButton(R.string.yes, (dialog, which) -> importCSV())
                     .setNegativeButton(R.string.no, null)
                     .show();
             return true;
@@ -143,17 +152,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         getActivity().startActivity(intent);
     }
 
-    private boolean isExtStorageRW() {
-        // check if storage is available for RW operations
-        String extStorageState = Environment.getExternalStorageState();
-        return extStorageState.equals(Environment.MEDIA_MOUNTED);
+    private void exportCSV() {
+        String date = new SimpleDateFormat("yyyyMMdd", Locale.US).format(new Date());
+        String fileName = "greek_package_tracker_" + date + ".bak";
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/octet-stream");
+        intent.putExtra(Intent.EXTRA_TITLE, fileName);
+        backupLauncher.launch(intent);
     }
 
-    private void exportCSV() {
-        // complete filepath
-        String filePathAndName = requireActivity().getExternalFilesDir(FOLDER_NAME) + "/" + FILE_NAME;
-
-        // get records from index table
+    private void writeBackupToUri(Uri uri) {
         List<TrackingIndexModel> recordsList = databaseHelper.getAllTracking();
         StringBuilder csvContent = new StringBuilder();
         for (int i = 0; i < recordsList.size(); i++) {
@@ -167,13 +176,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             csvContent.append("\n");
         }
 
-        // write csv file
-        File bakFile = new File(requireActivity().getExternalFilesDir(FOLDER_NAME), (FILE_NAME));
-        FileOutputStream fos;
-        try {
-            fos = new FileOutputStream(bakFile);
-            fos.write(csvContent.toString().getBytes());
-            Toast.makeText(getContext(), getString(R.string.backup_exported_to) + filePathAndName, Toast.LENGTH_LONG).show();
+        try (OutputStream os = requireActivity().getContentResolver().openOutputStream(uri)) {
+            if (os != null) {
+                os.write(csvContent.toString().getBytes());
+                Toast.makeText(getContext(), R.string.backup_exported_to, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), R.string.backup_error, Toast.LENGTH_SHORT).show();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(getContext(), R.string.backup_error, Toast.LENGTH_SHORT).show();
@@ -181,37 +190,33 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void importCSV() {
-        // use same path and file name as backup
-        String filePathAndName = requireActivity().getExternalFilesDir(FOLDER_NAME) + "/" + FILE_NAME;
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        restoreLauncher.launch(intent);
+    }
 
-        File csvFile = new File(filePathAndName);
+    private void readBackupFromUri(Uri uri) {
+        try (InputStreamReader isr = new InputStreamReader(
+                requireActivity().getContentResolver().openInputStream(uri));
+             CSVReader csvReader = new CSVReader(isr)) {
 
-        // check if exists
-        if (csvFile.exists()) {
-            // backup exists
-            try {
-                CSVReader csvReader = new CSVReader(new FileReader(csvFile.getAbsolutePath()));
+            String[] nextLine;
+            while ((nextLine = csvReader.readNext()) != null) {
+                String tracking = nextLine[0];
+                String customName = nextLine[1];
+                Boolean completed = Boolean.valueOf(nextLine[2]);
+                String created = nextLine[3];
 
-                String[] nextLine;
-                while ((nextLine = csvReader.readNext()) != null) {
-                    String tracking = nextLine[0];
-                    String customName = nextLine[1];
-                    Boolean completed = Boolean.valueOf(nextLine[2]);
-                    String created = nextLine[3];
-
-                    if (customName.equals("")) {
-                        customName = null;
-                    }
-                    databaseHelper.addNewTracking(tracking, customName, completed, created);
+                if (customName.equals("")) {
+                    customName = null;
                 }
-                Toast.makeText(getContext(), R.string.backup_restored, Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(getContext(), R.string.restore_error, Toast.LENGTH_SHORT).show();
+                databaseHelper.addNewTracking(tracking, customName, completed, created);
             }
-        } else {
-            // backup does not exist
-            Toast.makeText(getContext(), R.string.no_backup_found, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.backup_restored, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), R.string.restore_error, Toast.LENGTH_SHORT).show();
         }
     }
 

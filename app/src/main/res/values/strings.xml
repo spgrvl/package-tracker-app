@@ -56,7 +56,7 @@
     <string name="restore_pref">Restore</string>
     <string name="backup_pref_summary">Backup your packages</string>
     <string name="restore_pref_summary">Restore your packages</string>
-    <string name="backup_exported_to">Backup exported to:\n\n</string>
+    <string name="backup_exported_to">Backup created successfully!</string>
     <string name="backup_error">There was an error while taking backup!</string>
     <string name="no_backup_found">No backup found!</string>
     <string name="backup_restored">Backup restored!</string>

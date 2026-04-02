@@ -56,7 +56,7 @@
     <string name="restore_pref">Επαναφορά Αντιγράφου Ασφαλείας</string>
     <string name="backup_pref_summary">Δημιουργήστε ένα αντίγραφo ασφαλείας των πακέτων σας</string>
     <string name="restore_pref_summary">Επαναφέρετε ένα αντίγραφo ασφαλείας των πακέτων σας</string>
-    <string name="backup_exported_to">Το αντίγραφο ασφαλείας αποθηκεύτηκε σε:\n\n</string>
+    <string name="backup_exported_to">Το αντίγραφο ασφαλείας δημιουργήθηκε επιτυχώς!</string>
     <string name="backup_error">Παρουσιάστηκε σφάλμα κατά τη δημιουργία αντιγράφων ασφαλείας!</string>
     <string name="no_backup_found">Δεν βρέθηκε αντίγραφο ασφαλείας!</string>
     <string name="backup_restored">Η επαναφορά του αντιγράφου ασφαλείας ήταν επιτυχής!</string>
