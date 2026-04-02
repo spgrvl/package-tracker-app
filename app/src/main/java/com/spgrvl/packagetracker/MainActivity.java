@@ -433,7 +433,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             emptyLayout.setVisibility(View.VISIBLE);
         } else if (showForDelivered) {
             emptyTitleText.setText(R.string.no_delivered_packages);
-            emptySubtitleText.setText(R.string.no_packages_instructions);
+            emptySubtitleText.setText(R.string.no_delivered_instructions);
             emptyLayout.setVisibility(View.VISIBLE);
         } else {
             emptyLayout.setVisibility(View.GONE);

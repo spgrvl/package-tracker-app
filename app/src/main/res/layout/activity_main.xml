@@ -122,6 +122,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:gravity="center"
             android:text="@string/no_packages"
             android:textColor="@color/text_secondary"
             android:textSize="18sp" />
@@ -130,7 +131,8 @@
             android:id="@+id/emptySubtitleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
             android:text="@string/no_packages_instructions"
             android:textColor="@color/text_secondary"
             android:textSize="16sp" />
