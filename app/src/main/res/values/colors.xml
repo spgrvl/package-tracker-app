@@ -30,7 +30,11 @@
     
     <!-- Card colors -->
     <color name="card_background">#FFFFFF</color>
+    <color name="card_background_unread">#F0F0F0</color>
     <color name="card_background_dark">#1C2A38</color>
+    
+    <!-- Unread indicator dot -->
+    <color name="unread_dot">#FF9800</color>
 
     <!-- Main screen surfaces (search field, bottom nav) — overridden in values-night -->
     <color name="surface_search">#FFFFFF</color>

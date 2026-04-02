@@ -8,7 +8,11 @@
 
     <!-- Cards: light text on slightly elevated surface -->
     <color name="card_background">#151C26</color>
+    <color name="card_background_unread">#1E2A36</color>
     <color name="card_background_dark">#151C26</color>
+    
+    <!-- Unread indicator dot -->
+    <color name="unread_dot">#FFB74D</color>
 
     <!-- Main tabbed UI: avoid stark white search bar / bottom nav on dark background -->
     <color name="surface_search">#1A242F</color>

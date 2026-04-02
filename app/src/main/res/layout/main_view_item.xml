@@ -56,17 +56,34 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <!-- Package Name -->
-            <TextView
-                android:id="@+id/packageNameTv"
+            <!-- Package Name with unread dot -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@string/tracking_number"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/unreadDot"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/unread_dot"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/packageNameTv"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="@string/tracking_number"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
             <!-- Tracking Number -->
             <TextView

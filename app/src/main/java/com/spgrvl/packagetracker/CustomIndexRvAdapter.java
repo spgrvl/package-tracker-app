@@ -17,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.card.MaterialCardView;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -199,6 +201,7 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         final ImageView carrierLogo;
         final ImageView statusIcon;
         final View accentBorder;
+        final View unreadDot;
         final View updatedLayout;
         private final View parentView;
 
@@ -216,6 +219,7 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             this.carrierLogo = view.findViewById(R.id.carrierLogo);
             this.statusIcon = view.findViewById(R.id.statusIcon);
             this.accentBorder = view.findViewById(R.id.accentBorder);
+            this.unreadDot = view.findViewById(R.id.unreadDot);
             this.updatedLayout = view.findViewById(R.id.updatedLayout);
         }
     }
@@ -287,6 +291,8 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
 
     private void applyReadStatus(ViewHolder holder, TrackingIndexModel tracking) {
         boolean isUnread = databaseHelper.getUnreadStatus(tracking.getTracking());
+        MaterialCardView card = (MaterialCardView) holder.itemView;
+
         if (isUnread) {
             holder.packageName.setTypeface(Typeface.DEFAULT_BOLD);
             holder.tracking.setTypeface(Typeface.DEFAULT_BOLD);
@@ -295,6 +301,9 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             holder.status.setTypeface(Typeface.DEFAULT_BOLD);
             holder.updated.setTypeface(Typeface.DEFAULT_BOLD);
             holder.lastUpdate.setTypeface(Typeface.DEFAULT_BOLD);
+
+            holder.unreadDot.setVisibility(View.VISIBLE);
+            card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.card_background_unread));
         } else {
             holder.packageName.setTypeface(Typeface.DEFAULT);
             holder.tracking.setTypeface(Typeface.DEFAULT);
@@ -303,6 +312,9 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             holder.status.setTypeface(Typeface.DEFAULT);
             holder.updated.setTypeface(Typeface.DEFAULT);
             holder.lastUpdate.setTypeface(Typeface.DEFAULT);
+
+            holder.unreadDot.setVisibility(View.GONE);
+            card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.card_background));
         }
     }
 
