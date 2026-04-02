@@ -62,6 +62,7 @@
     <string name="general_pref_cat">General</string>
     <string name="geniki">Geniki Taxydromiki</string>
     <string name="in_transit">In Transit</string>
+    <string name="pending">Pending</string>
     <string name="language_pref">Language</string>
     <string name="language_pref_summary">Change app\'s display language</string>
     <string name="last_update">Last update</string>
@@ -162,12 +163,30 @@
         <item>120</item>
         <item>360</item>
     </string-array>
+    <string-array name="status_keywords_delivered" translatable="false">
+        <item>delivered</item>
+        <item>received by</item>
+        <item>delivery to consignee</item>
+        <item>παραδόθηκε</item>
+        <item>παραδοθηκε</item>
+        <item>παραδοση -</item>
+        <item>παραδοση σε skroutz point</item>
+        <item>παραδοση στον αποστολεα</item>
+        <item>παραδοση αποστολης απο smart point</item>
+    </string-array>
     <string-array name="status_keywords_out_for_delivery" translatable="false">
         <item>out for delivery</item>
+        <item>with courier for delivery</item>
         <item>on vehicle for delivery</item>
+        <item>is located at the locker</item>
+        <item>βρίσκεται στην θυρίδα</item>
+        <item>was assigned to courier</item>
+        <item>κατανομη σε courier</item>
         <item>προς παράδοση</item>
         <item>προσ παραδοση</item>
-        <item>έξοδος για παράδοση</item>
+        <item>σε δρομολόγιο παράδοσης</item>
+        <item>πλησιάζει στο χώρο παράδοσης</item>
+        <item>εξοδος για παράδοση</item>
         <item>εξοδος για παραδοση</item>
     </string-array>
     <string-array name="theme_pref_entries">

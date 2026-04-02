@@ -62,33 +62,38 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         holder.tracking.setText(tracking.getTracking());
         holder.tracking.setVisibility(View.GONE);
         
-        // Set status based on completion (delivered: green text + green left stripe; active: blue stripe)
-        int accentBlue = ContextCompat.getColor(context, R.color.accent_blue);
-        int deliveredGreen = ContextCompat.getColor(context, R.color.success_green);
+        // Set status text, color, and left accent bar per delivery stage
+        int colorDelivered = ContextCompat.getColor(context, R.color.success_green);
+        int colorOutForDelivery = ContextCompat.getColor(context, R.color.status_out_for_delivery);
+        int colorInTransit = ContextCompat.getColor(context, R.color.accent_blue);
+        int colorPending = ContextCompat.getColor(context, R.color.status_pending);
+
+        int statusColor;
         if (tracking.isCompleted()) {
             holder.status.setText(R.string.delivered);
-            holder.status.setTextColor(deliveredGreen);
-            holder.statusIcon.setVisibility(View.GONE);
-            holder.accentBorder.setVisibility(View.VISIBLE);
-            holder.accentBorder.setBackgroundColor(deliveredGreen);
+            statusColor = colorDelivered;
             holder.carrierLogo.setImageResource(R.drawable.ic_package_completed);
+        } else if (isDeliveredStatusText(tracking.getLastUpdate())) {
+            holder.status.setText(R.string.delivered);
+            statusColor = colorDelivered;
+            holder.carrierLogo.setImageResource(R.drawable.ic_package_waiting);
+        } else if (isOutForDeliveryStatus(tracking.getLastUpdate())) {
+            holder.status.setText(R.string.out_for_delivery);
+            statusColor = colorOutForDelivery;
+            holder.carrierLogo.setImageResource(R.drawable.ic_package_waiting);
+        } else if (isPendingStatus(tracking.getLastUpdate())) {
+            holder.status.setText(R.string.pending);
+            statusColor = colorPending;
+            holder.carrierLogo.setImageResource(R.drawable.ic_package_waiting);
         } else {
-            if (isDeliveredStatusText(tracking.getLastUpdate())) {
-                // Display-only delivered state: stays in Active tab unless completed flag is set elsewhere.
-                holder.status.setText(R.string.delivered);
-                holder.status.setTextColor(deliveredGreen);
-            } else if (isOutForDeliveryStatus(tracking.getLastUpdate())) {
-                holder.status.setText(R.string.out_for_delivery);
-                holder.status.setTextColor(accentBlue);
-            } else {
-                holder.status.setText(R.string.in_transit);
-                holder.status.setTextColor(accentBlue);
-            }
-            holder.statusIcon.setVisibility(View.GONE);
-            holder.accentBorder.setVisibility(View.VISIBLE);
-            holder.accentBorder.setBackgroundColor(accentBlue);
+            holder.status.setText(R.string.in_transit);
+            statusColor = colorInTransit;
             holder.carrierLogo.setImageResource(R.drawable.ic_package_waiting);
         }
+        holder.status.setTextColor(statusColor);
+        holder.statusIcon.setVisibility(View.GONE);
+        holder.accentBorder.setVisibility(View.VISIBLE);
+        holder.accentBorder.setBackgroundColor(statusColor);
 
         // Set updated time
         holder.updatedLayout.setVisibility(View.VISIBLE);
@@ -228,7 +233,7 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
      * Matches carrier last-status text against known phrases (English/Greek) so list status
      * does not depend on a single hardcoded English substring.
      */
-    private boolean isOutForDeliveryStatus(String lastUpdate) {
+    private boolean matchesStatusKeywords(String lastUpdate, int keywordsArrayRes) {
         if (lastUpdate == null || lastUpdate.trim().isEmpty()) {
             return false;
         }
@@ -236,7 +241,7 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         if (normalized.startsWith("status:")) {
             normalized = normalized.substring("status:".length()).trim();
         }
-        String[] keywords = context.getResources().getStringArray(R.array.status_keywords_out_for_delivery);
+        String[] keywords = context.getResources().getStringArray(keywordsArrayRes);
         for (String kw : keywords) {
             if (kw != null && !kw.isEmpty() && normalized.contains(kw.toLowerCase(Locale.ROOT))) {
                 return true;
@@ -246,16 +251,15 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
     }
 
     private boolean isDeliveredStatusText(String lastUpdate) {
-        if (lastUpdate == null || lastUpdate.trim().isEmpty()) {
-            return false;
-        }
-        String normalized = lastUpdate.toLowerCase(Locale.ROOT);
-        if (normalized.startsWith("status:")) {
-            normalized = normalized.substring("status:".length()).trim();
-        }
-        return normalized.contains("delivered")
-                || normalized.contains("παραδόθηκε")
-                || normalized.contains("παραδοθηκε");
+        return matchesStatusKeywords(lastUpdate, R.array.status_keywords_delivered);
+    }
+
+    private boolean isOutForDeliveryStatus(String lastUpdate) {
+        return matchesStatusKeywords(lastUpdate, R.array.status_keywords_out_for_delivery);
+    }
+
+    private boolean isPendingStatus(String lastUpdate) {
+        return lastUpdate == null || lastUpdate.trim().isEmpty() || lastUpdate.equals("Status: None");
     }
 
     private String getDaysSinceText(String created) {

@@ -27,6 +27,8 @@
     <color name="warning_orange">#FF9800</color>
     <color name="error_red">#F44336</color>
     <color name="info_blue">#2196F3</color>
+    <color name="status_pending">#9E9E9E</color>
+    <color name="status_out_for_delivery">#FB8C00</color>
     
     <!-- Card colors -->
     <color name="card_background">#FFFFFF</color>

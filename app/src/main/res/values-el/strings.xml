@@ -63,6 +63,7 @@
     <string name="general_pref_cat">Γενικές</string>
     <string name="geniki">Γενικη Ταχυδρομικη</string>
     <string name="in_transit">Σε μεταφορά</string>
+    <string name="pending">Εκκρεμεί</string>
     <string name="language_pref">Γλώσσα</string>
     <string name="language_pref_summary">Αλλάξτε τη γλώσσα εμφάνισης της εφαρμογής</string>
     <string name="last_update">Τελευταία ενημέρωση</string>
