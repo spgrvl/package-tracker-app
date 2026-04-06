@@ -95,6 +95,14 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         holder.accentBorder.setVisibility(View.VISIBLE);
         holder.accentBorder.setBackgroundColor(statusColor);
 
+        int carrierLogoRes = getCarrierLogoResId(tracking.getCarrier());
+        if (carrierLogoRes != 0) {
+            holder.carrierLogo.setImageResource(carrierLogoRes);
+            holder.carrierLogo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        } else {
+            holder.carrierLogo.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        }
+
         // Set updated time
         holder.updatedLayout.setVisibility(View.VISIBLE);
         if (tracking.getUpdated().equals("Never")) {
@@ -284,6 +292,23 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             }
         }
         return carrierName;
+    }
+
+    private int getCarrierLogoResId(String carrier) {
+        if (carrier == null) return 0;
+        switch (carrier) {
+            case "acs":             return R.drawable.ic_carrier_acs;
+            case "boxNow":          return R.drawable.ic_carrier_boxnow;
+            case "cometHellas":     return R.drawable.ic_carrier_comet_hellas;
+            case "courierCenter":   return R.drawable.ic_carrier_courier_center;
+            case "delatolas":       return R.drawable.ic_carrier_delatolas;
+            case "easyMail":        return R.drawable.ic_carrier_easy_mail;
+            case "elta":            return R.drawable.ic_carrier_elta;
+            case "geniki":          return R.drawable.ic_carrier_geniki;
+            case "skroutzLastMile": return R.drawable.ic_carrier_skroutz_last_mile;
+            case "speedex":         return R.drawable.ic_carrier_speedex;
+            default:                return 0;
+        }
     }
 
     private String getLastUpdateText(String lastUpdate) {
