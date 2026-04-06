@@ -277,7 +277,8 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         try {
             long millisSinceCreated = System.currentTimeMillis() - Long.parseLong(created);
             long days = TimeUnit.DAYS.convert(millisSinceCreated, TimeUnit.MILLISECONDS);
-            return days + " D";
+            int n = days > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) days;
+            return context.getResources().getQuantityString(R.plurals.days_count, n, n);
         } catch (NumberFormatException e) {
             return "";
         }

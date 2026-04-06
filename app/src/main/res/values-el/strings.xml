@@ -47,6 +47,10 @@
     <string name="completed">Ολοκληρωμένα</string>
     <string name="copy_tracking_number">Αντιγραφή αριθμού αποστολής</string>
     <string name="courierCenter">Courier Center</string>
+    <plurals name="days_count">
+        <item quantity="one">%d ημέρα</item>
+        <item quantity="other">%d ημέρες</item>
+    </plurals>
     <string name="days_since">Ημέρες από</string>
     <string name="delatolas">Delatolas</string>
     <string name="delete">Διαγραφή</string>

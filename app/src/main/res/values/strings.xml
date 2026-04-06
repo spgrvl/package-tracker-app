@@ -46,6 +46,10 @@
     <string name="completed">Completed</string>
     <string name="copy_tracking_number">Copy Tracking Number</string>
     <string name="courierCenter">Courier Center</string>
+    <plurals name="days_count">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
     <string name="days_since">Days since</string>
     <string name="delatolas">Delatolas</string>
     <string name="delete">Delete</string>

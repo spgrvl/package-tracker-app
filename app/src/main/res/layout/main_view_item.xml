@@ -164,7 +164,7 @@
                 android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                tools:text="12 D" />
+                tools:text="12 days" />
 
             <TextView
                 android:id="@+id/carrierSmallTv"
