@@ -5,6 +5,10 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.CursorIndexOutOfBoundsException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.InsetDrawable;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -19,6 +23,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 
 import androidx.core.view.ViewCompat;
@@ -47,6 +52,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     private boolean completed = false;
     private TextView carrierTv;
     private MaterialButton completedButton;
+    private MaterialToolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +75,10 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         Localization localization = new Localization();
         localization.setLocale(PackageDetailsActivity.this);
 
-        // Show back button on action bar
-        Objects.requireNonNull(this.getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        // Set up toolbar as action bar
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         // Find RecyclerView by ID and set divider
         this.trackingDetailsRv = findViewById(R.id.trackingDetailsRv);
@@ -107,6 +115,8 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         this.carrierTv = findViewById(R.id.carrierTv);
         carrierTv.setText(getCarrier(true));
 
+        updateActionBarLogo();
+
         completedButton = findViewById(R.id.completedButton);
         completedButton.setOnClickListener(v -> handleCompleted());
         updateCompletedButton();
@@ -141,6 +151,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                     runOnUiThread(() -> {
                         showDetailsOnRecyclerView();
                         carrierTv.setText(getCarrier(true));
+                        updateActionBarLogo();
                         swipeRefreshLayout.setRefreshing(false);
                     });
                 }
@@ -261,6 +272,49 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     private void openDialog() {
         EditDialog editDialog = new EditDialog(tracking);
         editDialog.show(getSupportFragmentManager(), "Edit Tracking Dialog");
+    }
+
+    private void updateActionBarLogo() {
+        String carrier = getCarrier(false);
+        int logoResId = getCarrierLogoResId(carrier);
+        if (logoResId != 0) {
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), logoResId);
+            if (bitmap != null) {
+                float density = getResources().getDisplayMetrics().density;
+                int maxHeight = (int) (32 * density);
+                int maxWidth = (int) (40 * density);
+
+                float scale = Math.min(
+                        (float) maxHeight / bitmap.getHeight(),
+                        (float) maxWidth / bitmap.getWidth());
+                int targetWidth = (int) (bitmap.getWidth() * scale);
+                int targetHeight = (int) (bitmap.getHeight() * scale);
+
+                Bitmap scaled = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
+                BitmapDrawable logoDrawable = new BitmapDrawable(getResources(), scaled);
+                int rightInset = (int) (8 * density);
+                toolbar.setLogo(new InsetDrawable(logoDrawable, 0, 0, rightInset, 0));
+            }
+        } else {
+            toolbar.setLogo(null);
+        }
+    }
+
+    private int getCarrierLogoResId(String carrier) {
+        if (carrier == null) return 0;
+        switch (carrier) {
+            case "acs":             return R.drawable.ic_carrier_acs;
+            case "boxNow":          return R.drawable.ic_carrier_boxnow;
+            case "cometHellas":     return R.drawable.ic_carrier_comet_hellas;
+            case "courierCenter":   return R.drawable.ic_carrier_courier_center;
+            case "delatolas":       return R.drawable.ic_carrier_delatolas;
+            case "easyMail":        return R.drawable.ic_carrier_easy_mail;
+            case "elta":            return R.drawable.ic_carrier_elta;
+            case "geniki":          return R.drawable.ic_carrier_geniki;
+            case "skroutzLastMile": return R.drawable.ic_carrier_skroutz_last_mile;
+            case "speedex":         return R.drawable.ic_carrier_speedex;
+            default:                return 0;
+        }
     }
 
     private String getCarrier(boolean presentable) {

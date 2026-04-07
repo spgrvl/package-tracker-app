@@ -33,7 +33,8 @@
         <activity
             android:name=".PackageDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.PackageTracker.NoActionBar" />
         <activity
             android:name=".BarcodeScanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />

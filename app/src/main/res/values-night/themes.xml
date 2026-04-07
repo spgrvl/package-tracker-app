@@ -24,7 +24,12 @@
         <!-- Enable edge-to-edge -->
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o">false</item>
-        <!-- Color of Carrier TextView -->
-        <item name="carrierTvColor">@color/blue_light</item>
+        <!-- Carrier banner -->
+        <item name="carrierTvColor">@color/surface_search</item>
+    </style>
+
+    <style name="Theme.PackageTracker.NoActionBar" parent="Theme.PackageTracker">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 </resources>
