@@ -7,6 +7,9 @@
     <color name="orange_primary">#ff5722</color>
     <color name="orange_light">#ff8a50</color>
     <color name="orange_dark">#c41c00</color>
+    <color name="package_orange_top">#F2A93B</color>
+    <color name="package_orange_left">#D6922E</color>
+    <color name="package_orange_right">#C98327</color>
     <color name="black">#FF000000</color>
     <color name="black_01dp">#1D1D1D</color>
     <color name="white">#FFFFFFFF</color>
