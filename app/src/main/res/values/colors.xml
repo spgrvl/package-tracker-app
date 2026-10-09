@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Legacy colors -->
-    <color name="blue_primary">#2962ff</color>
-    <color name="blue_light">#63a4ff</color>
-    <color name="blue_dark">#0039cb</color>
-    <color name="orange_primary">#ff5722</color>
-    <color name="orange_light">#ff8a50</color>
-    <color name="orange_dark">#c41c00</color>
+    <!-- Base colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Package box illustration (ic_package_* icons) -->
     <color name="package_orange_top">#F2A93B</color>
     <color name="package_orange_left">#D6922E</color>
     <color name="package_orange_right">#C98327</color>
-    <color name="black">#FF000000</color>
-    <color name="black_01dp">#1D1D1D</color>
-    <color name="white">#FFFFFFFF</color>
-    
+
+    <!-- Carrier banner on details screen (light mode) -->
+    <color name="blue_light">#63a4ff</color>
+
     <!-- New design system colors -->
     <color name="primary_blue">#0D5EAF</color>
     <color name="accent_blue">#4FC3F7</color>

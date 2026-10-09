@@ -13,12 +13,12 @@
         android:fillColor="@color/package_orange_right"
         android:pathData="M21.5,7v10.8l-9.5,4.8V11.8z" />
     <path
-        android:fillColor="@android:color/holo_orange_dark"
+        android:fillColor="@color/warning_orange"
         android:pathData="M18.5,14.8m-4.2,0a4.2,4.2 0,1 1,8.4 0a4.2,4.2 0,1 1,-8.4 0" />
     <path
-        android:fillColor="@android:color/white"
+        android:fillColor="@color/white"
         android:pathData="M18.5,11.8c-0.4,0 -0.7,0.3 -0.7,0.7v2.6c0,0.4 0.3,0.7 0.7,0.7s0.7,-0.3 0.7,-0.7v-2.6c0,-0.4 -0.3,-0.7 -0.7,-0.7z" />
     <path
-        android:fillColor="@android:color/white"
+        android:fillColor="@color/white"
         android:pathData="M18.5,16.8m-0.7,0a0.7,0.7 0,1 1,1.4 0a0.7,0.7 0,1 1,-1.4 0" />
 </vector>
