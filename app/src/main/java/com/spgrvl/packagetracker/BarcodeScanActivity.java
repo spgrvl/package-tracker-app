@@ -48,13 +48,15 @@ public class BarcodeScanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_barcode_scan);
 
         // Handle window insets for edge-to-edge display
-        View rootView = findViewById(android.R.id.content);
+        View rootView = findViewById(R.id.scanner_root);
         ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
             androidx.core.graphics.Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBarsInsets.left, systemBarsInsets.top, systemBarsInsets.right, systemBarsInsets.bottom);
             return insets;
         });
         
+        findViewById(R.id.close_button).setOnClickListener(v -> finish());
+
         toneGen = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
         surfaceView = findViewById(R.id.surface_view);
         initialiseDetectorsAndSources();

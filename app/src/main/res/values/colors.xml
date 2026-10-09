@@ -51,6 +51,9 @@
     <color name="carrier_banner_background">#E3EEF9</color>
     <color name="carrier_banner_text">@color/primary_blue</color>
 
+    <!-- Barcode scanner overlays (hint pill, close button) on camera preview -->
+    <color name="scanner_scrim">#99000000</color>
+
     <!-- Details timeline connector line -->
     <color name="timeline_line">#E0E0E0</color>
 </resources>
