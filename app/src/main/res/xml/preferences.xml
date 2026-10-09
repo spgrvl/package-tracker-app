@@ -74,4 +74,14 @@
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="@string/about_cat"
+        app:iconSpaceReserved="false">
+        <Preference
+            android:key="version_info"
+            android:selectable="false"
+            android:title="@string/version_pref"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

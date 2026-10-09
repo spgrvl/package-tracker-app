@@ -42,6 +42,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public static final String PREF_THEME = "pref_theme";
     public static final String BACKUP_BUTTON = "backup_button";
     public static final String RESTORE_BUTTON = "restore_button";
+    public static final String VERSION_INFO = "version_info";
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
     private ActivityResultLauncher<Intent> backupLauncher;
     private ActivityResultLauncher<Intent> restoreLauncher;
@@ -53,6 +54,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setHasOptionsMenu(true);
         setPreferencesFromResource(R.xml.preferences, rootKey);
+
+        // Show app version in the About section
+        Objects.requireNonNull((Preference) findPreference(VERSION_INFO)).setSummary(getAppVersion());
 
         backupLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -274,6 +278,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             requireActivity().finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private String getAppVersion() {
+        try {
+            return requireContext().getPackageManager()
+                    .getPackageInfo(requireContext().getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            return getString(R.string.unknown);
+        }
     }
 
     public static void triggerRebirth(Context context) {
