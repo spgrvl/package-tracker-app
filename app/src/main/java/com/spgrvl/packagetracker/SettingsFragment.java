@@ -81,7 +81,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 // Applies immediately; open activities are recreated in the new language
                 Localization.applyLanguagePreference(requireContext());
             }
-            if (key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_CLIPBOARD) || key.equals(PREF_THEME)) {
+            if (key.equals(PREF_THEME)) {
+                // Applies immediately; open activities are recreated in the new theme
+                App.applyThemePreference(requireContext());
+            }
+            if (key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_CLIPBOARD)) {
                 Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
                 shouldShowRestartButton = true;
                 if (menu != null) {

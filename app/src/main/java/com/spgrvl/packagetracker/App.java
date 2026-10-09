@@ -40,18 +40,7 @@ public class App extends Application {
         notifIntervalPref = sharedPreferences.getString(PREF_NOTIF_INTERVAL, "15");
 
         // Set app's theme based on user's preference
-        String themePref = sharedPreferences.getString(PREF_THEME, "sys");
-        switch (themePref) {
-            case "sys":
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                break;
-            case "light":
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                break;
-            case "dark":
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                break;
-        }
+        applyThemePreference(this);
 
         // Create notification channels
         createNotificationChannels();
@@ -62,6 +51,25 @@ public class App extends Application {
         } else {
             // Cancel ongoing update worker
             WorkManager.getInstance(this).cancelUniqueWork("updateWorker");
+        }
+    }
+
+    /**
+     * Applies the stored theme preference. Call from onCreate and whenever the preference
+     * changes; open activities are recreated in the new theme.
+     */
+    public static void applyThemePreference(Context context) {
+        String themePref = PreferenceManager.getDefaultSharedPreferences(context).getString(PREF_THEME, "sys");
+        switch (themePref) {
+            case "sys":
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                break;
+            case "light":
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+            case "dark":
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
         }
     }
 
