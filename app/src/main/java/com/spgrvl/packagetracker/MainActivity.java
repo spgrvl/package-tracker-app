@@ -96,9 +96,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         // Enable edge-to-edge display
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
-        // Set custom language if changed on app preferences
-        Localization localization = new Localization();
-        localization.setLocale(MainActivity.this);
         this.setTitle(R.string.app_name);
 
         // Read User preferences regarding clipboard access

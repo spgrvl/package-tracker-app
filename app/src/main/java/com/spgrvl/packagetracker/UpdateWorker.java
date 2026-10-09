@@ -14,11 +14,10 @@ public class UpdateWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        // Set custom language if changed on app preferences
-        Localization localization = new Localization();
-        localization.setLocale(UpdateWorker.this.getApplicationContext());
+        // Use the in-app language for statuses and notifications
+        Context context = Localization.getLocalizedContext(getApplicationContext());
 
-        UpdateTrackingDetails upd = new UpdateTrackingDetails(null, getApplicationContext(), false);
+        UpdateTrackingDetails upd = new UpdateTrackingDetails(null, context, false);
         upd.updateAll();
         return Result.success();
     }

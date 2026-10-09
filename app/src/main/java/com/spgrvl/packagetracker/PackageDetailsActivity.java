@@ -70,10 +70,6 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             return insets;
         });
 
-        // Set custom language if changed on app preferences
-        Localization localization = new Localization();
-        localization.setLocale(PackageDetailsActivity.this);
-
         // Set up toolbar as action bar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

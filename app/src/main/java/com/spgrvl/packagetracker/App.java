@@ -3,6 +3,7 @@ package com.spgrvl.packagetracker;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 
@@ -29,6 +30,9 @@ public class App extends Application {
 
         // Set default settings on first app launch
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        // Apply in-app language preference
+        Localization.applyLanguagePreference(this);
 
         // Read User preferences
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -63,12 +67,13 @@ public class App extends Application {
 
     private void createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Context localizedContext = Localization.getLocalizedContext(this);
             NotificationChannel channelPkg = new NotificationChannel(
                     CHANNEL_PKG_ID,
-                    getString(R.string.package_channel),
+                    localizedContext.getString(R.string.package_channel),
                     NotificationManager.IMPORTANCE_DEFAULT
             );
-            channelPkg.setDescription(getString(R.string.channelPkg_notification_description));
+            channelPkg.setDescription(localizedContext.getString(R.string.channelPkg_notification_description));
 
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channelPkg);

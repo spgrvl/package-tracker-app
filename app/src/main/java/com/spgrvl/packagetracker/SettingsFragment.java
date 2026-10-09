@@ -77,7 +77,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 });
 
         preferenceChangeListener = (sharedPreferences, key) -> {
-            if (key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_LANGUAGE) || key.equals(PREF_CLIPBOARD) || key.equals(PREF_THEME)) {
+            if (key.equals(PREF_LANGUAGE)) {
+                // Applies immediately; open activities are recreated in the new language
+                Localization.applyLanguagePreference(requireContext());
+            }
+            if (key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_CLIPBOARD) || key.equals(PREF_THEME)) {
                 Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
                 shouldShowRestartButton = true;
                 if (menu != null) {
