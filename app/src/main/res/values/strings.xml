@@ -177,7 +177,6 @@
         <item>παραδοθηκε</item>
         <item>παραδοση -</item>
         <item>παραδοση σε skroutz point</item>
-        <item>παραδοση στον αποστολεα</item>
         <item>παραδοση αποστολης απο smart point</item>
     </string-array>
     <string-array name="status_keywords_out_for_delivery" translatable="false">
@@ -234,6 +233,8 @@
         <item>λάθος διεύθυνση</item>
         <item>λαθος διευθυνση</item>
         <item>ελλιπ</item>
+        <item>παράδοση στον αποστολέα</item>
+        <item>παραδοση στον αποστολεα</item>
     </string-array>
     <string-array name="theme_pref_entries">
         <item>System\'s theme</item>
