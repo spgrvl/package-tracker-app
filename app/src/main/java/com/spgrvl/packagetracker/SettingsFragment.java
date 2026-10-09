@@ -17,12 +17,12 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.opencsv.CSVReader;
 
 import java.io.IOException;
@@ -132,7 +132,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         Preference restore_button = findPreference(RESTORE_BUTTON);
         Objects.requireNonNull(restore_button).setOnPreferenceClickListener(preference -> {
-            new AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setTitle(R.string.sure_confirmation)
                     .setMessage(R.string.restore_confirmation_msg)
                     .setPositiveButton(R.string.yes, (dialog, which) -> importCSV())

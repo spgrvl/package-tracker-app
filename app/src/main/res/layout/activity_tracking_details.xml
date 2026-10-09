@@ -12,6 +12,8 @@
         android:layout_height="?attr/actionBarSize"
         android:layout_alignParentTop="true"
         android:background="@color/primary_blue"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.DayNight"
         app:titleTextAppearance="@style/CustomActionBarTitle"
         app:titleTextColor="@color/white"
         app:subtitleTextColor="@color/white"

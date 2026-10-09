@@ -25,12 +25,12 @@ import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -231,7 +231,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     }
 
     private void deleteTracking() {
-        new AlertDialog.Builder(PackageDetailsActivity.this)
+        new MaterialAlertDialogBuilder(PackageDetailsActivity.this)
                 .setTitle(R.string.sure_confirmation)
                 .setMessage(R.string.delete_confirmation)
                 .setPositiveButton(R.string.yes, (dialog, which) -> {

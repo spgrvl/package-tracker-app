@@ -31,7 +31,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -40,6 +39,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -479,7 +479,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 Matcher trackingMatcher = Pattern.compile(trackingNumberRegex).matcher(clipText);
                 if (trackingMatcher.find()) {
                     String tracking = trackingMatcher.group(0);
-                    new AlertDialog.Builder(MainActivity.this)
+                    new MaterialAlertDialogBuilder(MainActivity.this)
                             .setTitle(R.string.ask_add_package)
                             .setMessage(getString(R.string.possible_tracking_id) + tracking)
                             .setPositiveButton(R.string.yes, (dialog, which) -> submitTracking(tracking, null))
@@ -607,7 +607,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             msg = getString(R.string.delete_multiple_confirmation, selectionList.size());
             toast_msg = getString(R.string.packages_deleted, selectionList.size());
         }
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.sure_confirmation)
                 .setMessage(msg)
                 .setPositiveButton(R.string.yes, (dialog, which) -> {

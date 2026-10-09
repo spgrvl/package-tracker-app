@@ -1,12 +1,13 @@
 package com.spgrvl.packagetracker;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class BarcodeSelectionDialog extends DialogFragment {
 
@@ -32,7 +33,7 @@ public class BarcodeSelectionDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
 
         String[] list = requireArguments().getStringArray("barcodes");
 
