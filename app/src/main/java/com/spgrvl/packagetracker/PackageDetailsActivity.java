@@ -32,7 +32,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -82,7 +81,6 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
 
         // Find RecyclerView by ID and set divider
         this.trackingDetailsRv = findViewById(R.id.trackingDetailsRv);
-        trackingDetailsRv.addItemDecoration(new DividerItemDecoration(trackingDetailsRv.getContext(), DividerItemDecoration.VERTICAL));
 
         // Find SwipeRefreshLayout by ID
         swipeRefreshLayout = findViewById(R.id.swipeRefreshDetails);
@@ -139,7 +137,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         } else {
             findViewById(R.id.empty_details).setVisibility(View.GONE);
         }
-        trackingDetailsRv.setAdapter(new CustomDetailsRvAdapter(this, trackingDetails));
+        trackingDetailsRv.setAdapter(new CustomDetailsRvAdapter(this, trackingDetails, completed));
     }
 
     private void updateDetails(boolean manualUpdate) {
@@ -253,6 +251,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         databaseHelper.setCompleted(tracking, !completed);
         completed = !completed;
         updateCompletedButton();
+        showDetailsOnRecyclerView();
     }
 
     private void updateCompletedButton() {

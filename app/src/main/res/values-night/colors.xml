@@ -27,4 +27,7 @@
     <color name="list_divider">#33FFFFFF</color>
 
     <color name="dialog_input_stroke">#40FFFFFF</color>
+
+    <!-- Details timeline connector line -->
+    <color name="timeline_line">#2A3644</color>
 </resources>

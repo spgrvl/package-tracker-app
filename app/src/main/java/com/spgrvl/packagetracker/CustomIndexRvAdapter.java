@@ -21,7 +21,6 @@ import com.google.android.material.card.MaterialCardView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdapter.ViewHolder> implements Filterable {
@@ -63,33 +62,12 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         holder.tracking.setVisibility(View.GONE);
         
         // Set status text, color, and left accent bar per delivery stage
-        int colorDelivered = ContextCompat.getColor(context, R.color.success_green);
-        int colorOutForDelivery = ContextCompat.getColor(context, R.color.status_out_for_delivery);
-        int colorInTransit = ContextCompat.getColor(context, R.color.accent_blue);
-        int colorPending = ContextCompat.getColor(context, R.color.status_pending);
-
-        int statusColor;
-        if (tracking.isCompleted()) {
-            holder.status.setText(R.string.delivered);
-            statusColor = colorDelivered;
-            holder.carrierLogo.setImageResource(R.drawable.ic_package_completed);
-        } else if (isDeliveredStatusText(tracking.getLastUpdate())) {
-            holder.status.setText(R.string.delivered);
-            statusColor = colorDelivered;
-            holder.carrierLogo.setImageResource(R.drawable.ic_package_waiting);
-        } else if (isOutForDeliveryStatus(tracking.getLastUpdate())) {
-            holder.status.setText(R.string.out_for_delivery);
-            statusColor = colorOutForDelivery;
-            holder.carrierLogo.setImageResource(R.drawable.ic_package_waiting);
-        } else if (isPendingStatus(tracking.getLastUpdate())) {
-            holder.status.setText(R.string.pending);
-            statusColor = colorPending;
-            holder.carrierLogo.setImageResource(R.drawable.ic_package_waiting);
-        } else {
-            holder.status.setText(R.string.in_transit);
-            statusColor = colorInTransit;
-            holder.carrierLogo.setImageResource(R.drawable.ic_package_waiting);
-        }
+        PackageStatus packageStatus = PackageStatus.of(context, tracking.isCompleted(), tracking.getLastUpdate());
+        int statusColor = packageStatus.getColor(context);
+        holder.status.setText(packageStatus.labelRes);
+        holder.carrierLogo.setImageResource(tracking.isCompleted()
+                ? R.drawable.ic_package_completed
+                : R.drawable.ic_package_waiting);
         holder.status.setTextColor(statusColor);
         holder.statusIcon.setVisibility(View.GONE);
         holder.accentBorder.setVisibility(View.VISIBLE);
@@ -235,39 +213,6 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             this.unreadDot = view.findViewById(R.id.unreadDot);
             this.updatedLayout = view.findViewById(R.id.updatedLayout);
         }
-    }
-
-    /**
-     * Matches carrier last-status text against known phrases (English/Greek) so list status
-     * does not depend on a single hardcoded English substring.
-     */
-    private boolean matchesStatusKeywords(String lastUpdate, int keywordsArrayRes) {
-        if (lastUpdate == null || lastUpdate.trim().isEmpty()) {
-            return false;
-        }
-        String normalized = lastUpdate.toLowerCase(Locale.ROOT);
-        if (normalized.startsWith("status:")) {
-            normalized = normalized.substring("status:".length()).trim();
-        }
-        String[] keywords = context.getResources().getStringArray(keywordsArrayRes);
-        for (String kw : keywords) {
-            if (kw != null && !kw.isEmpty() && normalized.contains(kw.toLowerCase(Locale.ROOT))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isDeliveredStatusText(String lastUpdate) {
-        return matchesStatusKeywords(lastUpdate, R.array.status_keywords_delivered);
-    }
-
-    private boolean isOutForDeliveryStatus(String lastUpdate) {
-        return matchesStatusKeywords(lastUpdate, R.array.status_keywords_out_for_delivery);
-    }
-
-    private boolean isPendingStatus(String lastUpdate) {
-        return lastUpdate == null || lastUpdate.trim().isEmpty() || lastUpdate.equals("Status: None");
     }
 
     private String getDaysSinceText(String created) {

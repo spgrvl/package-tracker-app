@@ -1,40 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:foreground="?android:attr/selectableItemBackground"
-    android:padding="5dp">
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
 
-    <TextView
-        android:id="@+id/statusTv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingBottom="3dp"
-        android:text="@string/status" />
+    <!-- Timeline column: dot with connector lines above and below it -->
+    <FrameLayout
+        android:layout_width="24dp"
+        android:layout_height="match_parent">
+
+        <View
+            android:id="@+id/lineAbove"
+            android:layout_width="2dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center_horizontal|top"
+            android:background="@color/timeline_line" />
+
+        <View
+            android:id="@+id/dot"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/timeline_dot_hollow" />
+
+        <View
+            android:id="@+id/lineBelow"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="28dp"
+            android:background="@color/timeline_line" />
+
+    </FrameLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/statusTv"
-        android:orientation="horizontal">
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
 
         <TextView
-            android:id="@+id/placeTv"
-            android:layout_width="wrap_content"
+            android:id="@+id/statusTv"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:text="@string/place" />
+            android:textColor="@color/text_primary"
+            android:textSize="15sp"
+            tools:text="Out for delivery" />
 
         <TextView
-            android:id="@+id/datetimeTv"
-            android:layout_width="wrap_content"
+            android:id="@+id/metaTv"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="end"
-            android:text="@string/timestamp" />
+            android:layout_marginTop="2dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            tools:text="Athens hub · 08/10/2026 09:12" />
 
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

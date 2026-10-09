@@ -49,4 +49,7 @@
     <!-- Dialog outlined inputs + header subtitle on primary blue -->
     <color name="dialog_input_stroke">#66000000</color>
     <color name="header_subtitle_on_primary">#CCFFFFFF</color>
+
+    <!-- Details timeline connector line -->
+    <color name="timeline_line">#E0E0E0</color>
 </resources>
