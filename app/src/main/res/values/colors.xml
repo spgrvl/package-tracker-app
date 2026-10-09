@@ -9,9 +9,6 @@
     <color name="package_orange_left">#D6922E</color>
     <color name="package_orange_right">#C98327</color>
 
-    <!-- Carrier banner on details screen (light mode) -->
-    <color name="blue_light">#63a4ff</color>
-
     <!-- New design system colors -->
     <color name="primary_blue">#0D5EAF</color>
     <color name="accent_blue">#4FC3F7</color>
@@ -49,6 +46,10 @@
     <!-- Dialog outlined inputs + header subtitle on primary blue -->
     <color name="dialog_input_stroke">#66000000</color>
     <color name="header_subtitle_on_primary">#CCFFFFFF</color>
+
+    <!-- Carrier banner under the details toolbar -->
+    <color name="carrier_banner_background">#E3EEF9</color>
+    <color name="carrier_banner_text">@color/primary_blue</color>
 
     <!-- Details timeline connector line -->
     <color name="timeline_line">#E0E0E0</color>

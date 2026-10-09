@@ -5,6 +5,8 @@
         <item name="colorPrimary">@color/primary_blue</item>
         <item name="colorPrimaryVariant">@color/primary_blue</item>
         <item name="colorOnPrimary">@color/white</item>
+        <!-- Screen background: match the tabbed main screen -->
+        <item name="android:colorBackground">@color/background_light</item>
         <!-- ActionBar styling -->
         <item name="android:actionBarStyle">@style/CustomActionBar</item>
         <item name="actionBarStyle">@style/CustomActionBar</item>
@@ -18,8 +20,6 @@
         <!-- Enable edge-to-edge with light status bar (dark text/icons) -->
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o">true</item>
-        <!-- Color of Carrier TextView -->
-        <item name="carrierTvColor">@color/blue_light</item>
     </style>
 
     <!-- Custom ActionBar Style (title only; no toolbar logo icon) -->

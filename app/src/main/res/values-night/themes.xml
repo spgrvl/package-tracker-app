@@ -24,8 +24,6 @@
         <!-- Enable edge-to-edge -->
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o">false</item>
-        <!-- Carrier banner -->
-        <item name="carrierTvColor">@color/surface_search</item>
     </style>
 
     <style name="Theme.PackageTracker.NoActionBar" parent="Theme.PackageTracker">

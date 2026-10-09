@@ -29,6 +29,10 @@
 
     <color name="dialog_input_stroke">#40FFFFFF</color>
 
+    <!-- Carrier banner under the details toolbar -->
+    <color name="carrier_banner_background">@color/surface_search</color>
+    <color name="carrier_banner_text">@color/text_secondary</color>
+
     <!-- Details timeline connector line -->
     <color name="timeline_line">#2A3644</color>
 </resources>
