@@ -174,7 +174,6 @@
         <item>received by</item>
         <item>delivery to consignee</item>
         <item>παραδόθηκε</item>
-        <item>παραδοθηκε</item>
         <item>παραδοση -</item>
         <item>παραδοση σε skroutz point</item>
         <item>παραδοση αποστολης απο smart point</item>
@@ -188,11 +187,9 @@
         <item>was assigned to courier</item>
         <item>κατανομη σε courier</item>
         <item>προς παράδοση</item>
-        <item>προσ παραδοση</item>
         <item>σε δρομολόγιο παράδοσης</item>
         <item>πλησιάζει στο χώρο παράδοσης</item>
         <item>εξοδος για παράδοση</item>
-        <item>εξοδος για παραδοση</item>
     </string-array>
     <string-array name="status_keywords_problem" translatable="false">
         <item>canceled</item>
@@ -209,32 +206,19 @@
         <item>could not be delivered</item>
         <item>refused</item>
         <item>ακυρώθηκε</item>
-        <item>ακυρωθηκε</item>
         <item>έχει λήξει</item>
-        <item>εχει ληξει</item>
         <item>επιστράφηκε</item>
-        <item>επιστραφηκε</item>
         <item>έχει επιστραφεί</item>
-        <item>εχει επιστραφει</item>
         <item>επιστροφή</item>
-        <item>επιστροφη</item>
         <item>προς εντοπισμό</item>
-        <item>προς εντοπισμο</item>
-        <item>προσ εντοπισμο</item>
         <item>απώλεια</item>
-        <item>απωλεια</item>
         <item>δεν καταφέραμε</item>
-        <item>δεν καταφεραμε</item>
         <item>ανεπιτυχ</item>
         <item>αδυναμία</item>
-        <item>αδυναμια</item>
         <item>άρνηση</item>
-        <item>αρνηση</item>
         <item>λάθος διεύθυνση</item>
-        <item>λαθος διευθυνση</item>
         <item>ελλιπ</item>
         <item>παράδοση στον αποστολέα</item>
-        <item>παραδοση στον αποστολεα</item>
     </string-array>
     <string-array name="theme_pref_entries">
         <item>System\'s theme</item>

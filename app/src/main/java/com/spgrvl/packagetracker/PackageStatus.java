@@ -7,7 +7,9 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
+import java.text.Normalizer;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * Delivery stage derived from a carrier's status text, shared by the packages list and the
@@ -20,6 +22,8 @@ public enum PackageStatus {
     PENDING(R.string.pending, R.color.status_pending),
     COMPLETED(R.string.status_completed, R.color.status_pending),
     IN_TRANSIT(R.string.in_transit, R.color.accent_blue);
+
+    private static final Pattern COMBINING_MARKS = Pattern.compile("\\p{Mn}+");
 
     @StringRes
     public final int labelRes;
@@ -65,16 +69,25 @@ public enum PackageStatus {
         if (statusText == null || statusText.trim().isEmpty()) {
             return false;
         }
-        String normalized = statusText.toLowerCase(Locale.ROOT);
+        String normalized = normalize(statusText);
         if (normalized.startsWith("status:")) {
             normalized = normalized.substring("status:".length()).trim();
         }
         String[] keywords = context.getResources().getStringArray(keywordsArrayRes);
         for (String kw : keywords) {
-            if (kw != null && !kw.isEmpty() && normalized.contains(kw.toLowerCase(Locale.ROOT))) {
+            if (kw != null && !kw.isEmpty() && normalized.contains(normalize(kw))) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Lowercases and strips accents/diaeresis, and folds final sigma, so "ΠΑΡΑΔΟΘΗΚΕ",
+     * "Παραδόθηκε" and "παραδοθηκε" all compare equal.
+     */
+    private static String normalize(String text) {
+        String decomposed = Normalizer.normalize(text.toLowerCase(Locale.ROOT), Normalizer.Form.NFD);
+        return COMBINING_MARKS.matcher(decomposed).replaceAll("").replace('ς', 'σ');
     }
 }
