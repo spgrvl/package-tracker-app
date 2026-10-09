@@ -14,9 +14,11 @@ import java.util.Locale;
  * details timeline so both show the same label and color.
  */
 public enum PackageStatus {
+    ISSUE(R.string.issue, R.color.error_red),
     DELIVERED(R.string.delivered, R.color.success_green),
     OUT_FOR_DELIVERY(R.string.out_for_delivery, R.color.status_out_for_delivery),
     PENDING(R.string.pending, R.color.status_pending),
+    COMPLETED(R.string.status_completed, R.color.status_pending),
     IN_TRANSIT(R.string.in_transit, R.color.accent_blue);
 
     @StringRes
@@ -35,8 +37,16 @@ public enum PackageStatus {
     }
 
     public static PackageStatus of(Context context, boolean completed, String statusText) {
-        if (completed || matchesKeywords(context, statusText, R.array.status_keywords_delivered)) {
+        // Checked before "delivered" so texts like "not delivered" count as a problem
+        if (matchesKeywords(context, statusText, R.array.status_keywords_problem)) {
+            return ISSUE;
+        }
+        if (matchesKeywords(context, statusText, R.array.status_keywords_delivered)) {
             return DELIVERED;
+        }
+        // Marked as completed by the user without a delivered/problem status from the carrier
+        if (completed) {
+            return COMPLETED;
         }
         if (matchesKeywords(context, statusText, R.array.status_keywords_out_for_delivery)) {
             return OUT_FOR_DELIVERY;

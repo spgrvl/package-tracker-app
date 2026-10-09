@@ -67,6 +67,7 @@
     <string name="general_pref_cat">Γενικές</string>
     <string name="geniki">Γενικη Ταχυδρομικη</string>
     <string name="in_transit">Σε μεταφορά</string>
+    <string name="issue">Πρόβλημα</string>
     <string name="pending">Εκκρεμεί</string>
     <string name="language_pref">Γλώσσα</string>
     <string name="language_pref_summary">Αλλάξτε τη γλώσσα εμφάνισης της εφαρμογής</string>
@@ -128,6 +129,7 @@
     <string name="something_went_wrong">Κάτι πήγε στραβά!</string>
     <string name="speedex">Speedex</string>
     <string name="status">Κατάσταση</string>
+    <string name="status_completed">Ολοκληρώθηκε</string>
     <string name="status_none">Κατάσταση: Καμία</string>
     <string name="status_to_clipboard">Η κατάσταση αντιγράφηκε στο πρόχειρο</string>
     <string name="sure_confirmation">Είστε σίγουρος/η;</string>

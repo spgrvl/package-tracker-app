@@ -2,8 +2,11 @@ package com.spgrvl.packagetracker;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
+import android.text.TextPaint;
 import android.text.format.DateUtils;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +18,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
@@ -28,6 +32,7 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
     private List<TrackingIndexModel> listData;
     private List<TrackingIndexModel> listDataFiltered;
     private final LayoutInflater layoutInflater;
+    private static final float STATUS_TEXT_SIZE_SP = 14;
     private final Context context;
     private final MainActivity mainActivity;
     private final DatabaseHelper databaseHelper;
@@ -65,11 +70,22 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         PackageStatus packageStatus = PackageStatus.of(context, tracking.isCompleted(), tracking.getLastUpdate());
         int statusColor = packageStatus.getColor(context);
         holder.status.setText(packageStatus.labelRes);
-        holder.carrierLogo.setImageResource(tracking.isCompleted()
-                ? R.drawable.ic_package_completed
-                : R.drawable.ic_package_waiting);
+        fitStatusText(holder.status);
+        if (tracking.isCompleted()) {
+            holder.carrierLogo.setImageResource(R.drawable.ic_package_completed);
+        } else if (packageStatus == PackageStatus.ISSUE) {
+            holder.carrierLogo.setImageResource(R.drawable.ic_package_warning);
+        } else {
+            holder.carrierLogo.setImageResource(R.drawable.ic_package_waiting);
+        }
         holder.status.setTextColor(statusColor);
-        holder.statusIcon.setVisibility(View.GONE);
+        if (packageStatus == PackageStatus.ISSUE) {
+            holder.statusIcon.setImageResource(R.drawable.ic_error);
+            ImageViewCompat.setImageTintList(holder.statusIcon, ColorStateList.valueOf(statusColor));
+            holder.statusIcon.setVisibility(View.VISIBLE);
+        } else {
+            holder.statusIcon.setVisibility(View.GONE);
+        }
         holder.accentBorder.setVisibility(View.VISIBLE);
         holder.accentBorder.setBackgroundColor(statusColor);
 
@@ -255,6 +271,30 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             case "speedex":         return R.drawable.ic_carrier_speedex;
             default:                return 0;
         }
+    }
+
+    /**
+     * Shrinks the status label just enough to keep its longest word on one line in the
+     * fixed-width status column (e.g. "Ολοκληρώθηκε" would otherwise break mid-word).
+     */
+    private void fitStatusText(TextView statusTv) {
+        statusTv.setTextSize(TypedValue.COMPLEX_UNIT_SP, STATUS_TEXT_SIZE_SP);
+        // Status column is 90dp wide with 2dp padding on each side
+        float availableWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 86,
+                context.getResources().getDisplayMetrics());
+        String[] words = statusTv.getText().toString().split("\\s+");
+        // Text width doesn't scale exactly linearly with size, so step down until it really fits
+        while (widestWord(statusTv.getPaint(), words) > availableWidth && statusTv.getTextSize() > 1) {
+            statusTv.setTextSize(TypedValue.COMPLEX_UNIT_PX, statusTv.getTextSize() - 1);
+        }
+    }
+
+    private static float widestWord(TextPaint paint, String[] words) {
+        float widest = 0;
+        for (String word : words) {
+            widest = Math.max(widest, paint.measureText(word));
+        }
+        return widest;
     }
 
     private String getLastUpdateText(String lastUpdate) {

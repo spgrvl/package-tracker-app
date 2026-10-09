@@ -20,6 +20,7 @@
 
     <!-- Slightly brighter accent on dark cards for status line -->
     <color name="accent_blue">#7DD3FC</color>
+    <color name="error_red">#EF5350</color>
     <color name="success_green">#66BB6A</color>
     <color name="status_pending">#B0BEC5</color>
     <color name="status_out_for_delivery">#FFB74D</color>

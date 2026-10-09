@@ -66,6 +66,7 @@
     <string name="general_pref_cat">General</string>
     <string name="geniki">Geniki Taxydromiki</string>
     <string name="in_transit">In Transit</string>
+    <string name="issue">Issue</string>
     <string name="pending">Pending</string>
     <string name="language_pref">Language</string>
     <string name="language_pref_summary">Change app\'s display language</string>
@@ -128,6 +129,7 @@
     <string name="something_went_wrong">Something went wrong!</string>
     <string name="speedex">Speedex</string>
     <string name="status">Status</string>
+    <string name="status_completed">Completed</string>
     <string name="status_none">Status: None</string>
     <string name="status_to_clipboard">Status copied to clipboard</string>
     <string name="sure_confirmation">Are you sure?</string>
@@ -192,6 +194,46 @@
         <item>πλησιάζει στο χώρο παράδοσης</item>
         <item>εξοδος για παράδοση</item>
         <item>εξοδος για παραδοση</item>
+    </string-array>
+    <string-array name="status_keywords_problem" translatable="false">
+        <item>canceled</item>
+        <item>cancelled</item>
+        <item>expired</item>
+        <item>returned</item>
+        <item>return to sender</item>
+        <item>to be found</item>
+        <item>lost</item>
+        <item>failed</item>
+        <item>unsuccessful</item>
+        <item>undeliverable</item>
+        <item>not delivered</item>
+        <item>could not be delivered</item>
+        <item>refused</item>
+        <item>ακυρώθηκε</item>
+        <item>ακυρωθηκε</item>
+        <item>έχει λήξει</item>
+        <item>εχει ληξει</item>
+        <item>επιστράφηκε</item>
+        <item>επιστραφηκε</item>
+        <item>έχει επιστραφεί</item>
+        <item>εχει επιστραφει</item>
+        <item>επιστροφή</item>
+        <item>επιστροφη</item>
+        <item>προς εντοπισμό</item>
+        <item>προς εντοπισμο</item>
+        <item>προσ εντοπισμο</item>
+        <item>απώλεια</item>
+        <item>απωλεια</item>
+        <item>δεν καταφέραμε</item>
+        <item>δεν καταφεραμε</item>
+        <item>ανεπιτυχ</item>
+        <item>αδυναμία</item>
+        <item>αδυναμια</item>
+        <item>άρνηση</item>
+        <item>αρνηση</item>
+        <item>λάθος διεύθυνση</item>
+        <item>λαθος διευθυνση</item>
+        <item>ελλιπ</item>
     </string-array>
     <string-array name="theme_pref_entries">
         <item>System\'s theme</item>
