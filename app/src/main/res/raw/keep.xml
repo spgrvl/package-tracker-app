@@ -2,4 +2,4 @@
 <!-- Strings looked up by name with getIdentifier() (carrier names stored in the DB and Box Now
      status codes from its API), which the release resource shrinker can't see as used. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@string/acs,@string/boxNow,@string/cometHellas,@string/courierCenter,@string/delatolas,@string/easyMail,@string/elta,@string/geniki,@string/skroutzLastMile,@string/speedex,@string/boxNow_*" />
+    tools:keep="@string/acs,@string/acsSkroutzLastMile,@string/boxNow,@string/cometHellas,@string/courierCenter,@string/delatolas,@string/easyMail,@string/elta,@string/geniki,@string/skroutzLastMile,@string/speedex,@string/boxNow_*" />

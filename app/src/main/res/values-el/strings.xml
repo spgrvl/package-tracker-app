@@ -2,6 +2,7 @@
 <resources>
     <string name="about_cat">Σχετικά</string>
     <string name="acs">ACS Courier</string>
+    <string name="acsSkroutzLastMile">ACS → Skroutz Last Mile</string>
     <string name="action_failed_invalid_tracking">Η εκτέλεση αυτής της ενέργειας δεν ήταν δυνατή λόγω μη έγκυρου αριθμού αποστολής</string>
     <string name="active_packages">Ενεργά</string>
     <string name="add_package_subtitle">Εισαγάγετε αριθμό αποστολής και προαιρετικό όνομα.</string>

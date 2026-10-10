@@ -852,6 +852,7 @@ public class UpdateTrackingDetails {
                             ArrayList<TrackingDetailsModel> skroutzDetails = trackSkroutzLastMile();
                             if (!skroutzDetails.isEmpty()) {
                                 detailsList = mergeAcsWithSkroutzLastMile(detailsList, skroutzDetails);
+                                carrier = "acsSkroutzLastMile";
                             }
                         }
                         break;

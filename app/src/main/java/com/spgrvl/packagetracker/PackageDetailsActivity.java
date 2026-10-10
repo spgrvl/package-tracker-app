@@ -6,8 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.CursorIndexOutOfBoundsException;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -32,6 +33,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -206,6 +208,8 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                         url = "https://docuclass.delatolas.com/tnt_temp.php?id=" + tracking;
                         break;
                     case "skroutzLastMile":
+                    case "acsSkroutzLastMile":
+                        // Skroutz's page covers the whole route, including the ACS events
                         url = "https://www.skroutzlastmile.gr/#" + tracking;
                         break;
                     case "easyMail":
@@ -274,19 +278,22 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         String carrier = getCarrier(false);
         int logoResId = getCarrierLogoResId(carrier);
         if (logoResId != 0) {
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), logoResId);
-            if (bitmap != null) {
+            // Logos can be PNGs or XML drawables (e.g. the combined ACS + Skroutz one)
+            Drawable logo = ContextCompat.getDrawable(this, logoResId);
+            if (logo != null && logo.getIntrinsicWidth() > 0 && logo.getIntrinsicHeight() > 0) {
                 float density = getResources().getDisplayMetrics().density;
                 int maxHeight = (int) (32 * density);
                 int maxWidth = (int) (40 * density);
 
                 float scale = Math.min(
-                        (float) maxHeight / bitmap.getHeight(),
-                        (float) maxWidth / bitmap.getWidth());
-                int targetWidth = (int) (bitmap.getWidth() * scale);
-                int targetHeight = (int) (bitmap.getHeight() * scale);
+                        (float) maxHeight / logo.getIntrinsicHeight(),
+                        (float) maxWidth / logo.getIntrinsicWidth());
+                int targetWidth = Math.max(1, (int) (logo.getIntrinsicWidth() * scale));
+                int targetHeight = Math.max(1, (int) (logo.getIntrinsicHeight() * scale));
 
-                Bitmap scaled = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
+                Bitmap scaled = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888);
+                logo.setBounds(0, 0, targetWidth, targetHeight);
+                logo.draw(new Canvas(scaled));
                 BitmapDrawable logoDrawable = new BitmapDrawable(getResources(), scaled);
                 int rightInset = (int) (8 * density);
                 toolbar.setLogo(new InsetDrawable(logoDrawable, 0, 0, rightInset, 0));
@@ -300,6 +307,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         if (carrier == null) return 0;
         switch (carrier) {
             case "acs":             return R.drawable.ic_carrier_acs;
+            case "acsSkroutzLastMile": return R.drawable.ic_carrier_acs_skroutz_last_mile;
             case "boxNow":          return R.drawable.ic_carrier_boxnow;
             case "cometHellas":     return R.drawable.ic_carrier_comet_hellas;
             case "courierCenter":   return R.drawable.ic_carrier_courier_center;

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ACS parcels handed to Skroutz Last Mile: both logos placed diagonally, sized to their own
+     aspect ratios (ACS 3.6:1, Skroutz Last Mile 1.6:1) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <size
+                android:width="40dp"
+                android:height="40dp" />
+        </shape>
+    </item>
+    <item
+        android:width="30dp"
+        android:height="8.3dp"
+        android:drawable="@drawable/ic_carrier_acs"
+        android:gravity="top|start"
+        android:top="5dp" />
+    <item
+        android:width="25dp"
+        android:height="15.5dp"
+        android:drawable="@drawable/ic_carrier_skroutz_last_mile"
+        android:bottom="4dp"
+        android:gravity="bottom|end" />
+</layer-list>

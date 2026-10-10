@@ -260,6 +260,7 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         if (carrier == null) return 0;
         switch (carrier) {
             case "acs":             return R.drawable.ic_carrier_acs;
+            case "acsSkroutzLastMile": return R.drawable.ic_carrier_acs_skroutz_last_mile;
             case "boxNow":          return R.drawable.ic_carrier_boxnow;
             case "cometHellas":     return R.drawable.ic_carrier_comet_hellas;
             case "courierCenter":   return R.drawable.ic_carrier_courier_center;

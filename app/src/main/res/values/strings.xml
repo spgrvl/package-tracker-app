@@ -1,6 +1,7 @@
 <resources>
     <string name="about_cat">About</string>
     <string name="acs">ACS Courier</string>
+    <string name="acsSkroutzLastMile">ACS → Skroutz Last Mile</string>
     <string name="action_failed_invalid_tracking">This action could not be performed due to invalid tracking number</string>
     <string name="active_packages">Active</string>
     <string name="add_package_subtitle">Enter a tracking number and an optional name.</string>
