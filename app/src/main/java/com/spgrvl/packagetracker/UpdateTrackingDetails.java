@@ -410,36 +410,39 @@ public class UpdateTrackingDetails {
     }
 
     private ArrayList<TrackingDetailsModel> trackSpeedex() {
-        Document doc;
-        String url, deliveredSubtitle;
-        Elements deliveredTitle, deliveredSubtitleClass, cardTitle, cardSubtitleClass;
-        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
-
         try {
-            // Fetch tracking details
-            url = "https://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
-            doc = Jsoup.connect(url).get();
-
-            cardTitle = doc.getElementsByClass("card-title");
-            cardSubtitleClass = doc.getElementsByClass("card-subtitle text-muted mb-0 pt-1");
-
-            int deliveredCards = doc.getElementsByClass("card-subtitle text-muted mb-0 pt-1 delivered-subtitle").size();
-
-            for (int i = 0; i < cardTitle.size() - deliveredCards; i++) {
-                String cardSubtitle = cardSubtitleClass.get(i).child(0).text();
-                detailsList.add(new TrackingDetailsModel(cardTitle.get(i).text(),
-                        cardSubtitle.split(", ")[0],
-                        cardSubtitle.split(", ")[1].replace(" στις ", " ")));
-            }
-
-            deliveredTitle = doc.getElementsByClass("card-title delivered-title");
-            deliveredSubtitleClass = doc.getElementsByClass("card-subtitle text-muted mb-0 pt-1 delivered-subtitle");
-            deliveredSubtitle = deliveredSubtitleClass.get(0).child(0).text();
-            detailsList.add(new TrackingDetailsModel(deliveredTitle.get(0).text(),
-                    deliveredSubtitle.split(", ")[0],
-                    deliveredSubtitle.split(", ")[1].replace(" στις ", " ")));
+            String url = "https://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
+            return parseSpeedex(Jsoup.connect(url).get());
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * Parses a Speedex tracking page into newest-first details. Each event card has a title and
+     * subtitle lines: the date ("dd/MM/yyyy στις HH:mm"), the place (", CITY" or "ADDRESS, CITY")
+     * and sometimes the branch's phone. The delivered card's title has the status on its first
+     * line and who received the parcel after it. Returns an empty list for unknown numbers.
+     */
+    static ArrayList<TrackingDetailsModel> parseSpeedex(Document doc) {
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+        for (Element title : doc.select(".card-header > .card-title")) {
+            String statusText = title.text();
+            Element status = title.selectFirst("p");
+            if (status != null) {
+                String receivedBy = title.ownText().trim();
+                statusText = receivedBy.isEmpty() ? status.text() : status.text() + " (" + receivedBy + ")";
+            }
+            Elements lines = title.parent().select("> .card-subtitle");
+            String datetime = lines.size() > 0 ? lines.get(0).text().replace(" στις ", " ").trim() : "";
+            String place = lines.size() > 1 ? lines.get(1).text().trim() : "";
+            if (place.startsWith(",")) {
+                place = place.substring(1).trim();
+            }
+            if (!statusText.isEmpty()) {
+                detailsList.add(new TrackingDetailsModel(statusText, place, datetime));
+            }
         }
         Collections.reverse(detailsList);
         return detailsList;
@@ -973,9 +976,7 @@ public class UpdateTrackingDetails {
         if (!carrier.equals("courierCenter") && !carrier.equals("easyMail")) {
             try {
                 String url = "https://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
-                Document doc = Jsoup.connect(url).get();
-                Elements deliveredSubtitle = doc.getElementsByClass("card-subtitle text-muted mb-0 pt-1 delivered-subtitle");
-                if (!deliveredSubtitle.isEmpty()) {
+                if (!parseSpeedex(Jsoup.connect(url).get()).isEmpty()) {
                     carrier = "speedex";
                 }
             } catch (Exception e) {

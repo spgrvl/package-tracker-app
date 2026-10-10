@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -81,6 +82,49 @@ public class UpdateTrackingDetailsTest {
         assertEquals("08/07/2026 02:30", UpdateTrackingDetails.formatGreekLocalTime("2026-07-08T05:30:53.347"));
     }
 
+    // --- Speedex ---
+
+    private static String speedexCard(String title, String... lines) {
+        StringBuilder card = new StringBuilder("<li class=\"timeline-item\"><div class=\"timeline-card card\">"
+                + "<div class=\"card-header\"><h4 class=\"card-title" + (title.contains("<p>") ? " delivered-title" : "")
+                + "\">" + title + "</h4>");
+        for (String line : lines) {
+            card.append("<p class=\"card-subtitle text-muted mb-0 pt-1\"><span class=\"font-small-3\">")
+                    .append(line).append("</span></p>");
+        }
+        return card.append("</div></div></li>").toString();
+    }
+
+    @Test
+    public void speedexEventsAreNewestFirstWithPlaceAndRecipient() {
+        // Structure of the current Speedex page; the recipient name here is made up
+        String html = "<ul>"
+                + speedexCard("ΑΝΑΜΟΝΗ ΑΝΑΘΕΣΗΣ ΑΠΟ ΑΠΟΣΤΟΛΕΑ", "23/07/2026 στις 08:41", ",", "")
+                + speedexCard("ΕΙΣΑΓΩΓΗ ΣΕ Δ/Κ", "23/07/2026 στις 13:12", ", ΚΗΦΙΣΙΑ", "")
+                + speedexCard("ΕΙΣΑΓΩΓΗ ΣΕ ΚΑΤΑΣΤΗΜΑ", "25/07/2026 στις 08:54", "ΠΡΟΕΚΤΑΣΗ ΑΡΓΥΡΟΚΑΣΤΡΟΥ, ΚΩΣ",
+                "2242000000", "<a href=\"https://www.google.com/maps?q=0,0\">View on Google Maps</a>")
+                + speedexCard("<p>Η ΑΠΟΣΤΟΛΗ ΠΑΡΑΔΟΘΗΚΕ</p>ΠΑΡΑΛΗΠΤΗΣ: Ονοματεπώνυμο Παραλήπτη",
+                "28/07/2026 στις 09:23", ", ΚΩΣ", "")
+                + "</ul>";
+
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseSpeedex(org.jsoup.Jsoup.parse(html));
+
+        assertEquals(4, details.size());
+        assertEquals("Η ΑΠΟΣΤΟΛΗ ΠΑΡΑΔΟΘΗΚΕ (ΠΑΡΑΛΗΠΤΗΣ: Ονοματεπώνυμο Παραλήπτη)", details.get(0).getStatus());
+        assertEquals("ΚΩΣ", details.get(0).getPlace());
+        assertEquals("28/07/2026 09:23", details.get(0).getDatetime());
+        assertEquals("ΠΡΟΕΚΤΑΣΗ ΑΡΓΥΡΟΚΑΣΤΡΟΥ, ΚΩΣ", details.get(1).getPlace());
+        assertEquals("ΚΗΦΙΣΙΑ", details.get(2).getPlace());
+        assertEquals("", details.get(3).getPlace());
+        assertEquals("23/07/2026 08:41", details.get(3).getDatetime());
+    }
+
+    @Test
+    public void speedexUnknownNumberGivesNoDetails() {
+        String html = "<section id=\"timeline\"><h3 class=\"page-title\">Track &amp; Trace</h3></section>";
+        assertTrue(UpdateTrackingDetails.parseSpeedex(org.jsoup.Jsoup.parse(html)).isEmpty());
+    }
+
     // --- e-shop.gr ---
 
     private static String eshopRow(String rowClass, String stage, String datetime) {
@@ -97,7 +141,7 @@ public class UpdateTrackingDetailsTest {
                 + eshopRow("statusrowok", "Αποστολή", "26/03/21 13:20")
                 + "<tr><td class=\"statusreport\" colspan=4>Η παραγγελία σας ολοκληρώθηκε. Ευχαριστούμε για την προτίμηση.</td></tr>"
                 + "</table>";
-        java.util.Map<String, String> english = new java.util.HashMap<>();
+        java.util.Map<String, String> english = new HashMap<>();
         english.put("Υποβολή", "Order submitted");
         english.put("Αποστολή", "Shipped");
         english.put("Η παραγγελία σας ολοκληρώθηκε. Ευχαριστούμε για την προτίμηση.", "Your order has been completed.");
@@ -123,7 +167,7 @@ public class UpdateTrackingDetailsTest {
         String html = "<table><tr><td><table><tr><td>" + statusTable + "</td></tr></table></td></tr></table>";
 
         List<TrackingDetailsModel> details = UpdateTrackingDetails.parseEshopStatus(
-                org.jsoup.Jsoup.parse(html), new java.util.HashMap<>());
+                org.jsoup.Jsoup.parse(html), new HashMap<>());
 
         assertEquals(2, details.size());
         assertEquals("Αποστολή", details.get(0).getStatus());
@@ -139,7 +183,7 @@ public class UpdateTrackingDetailsTest {
                 + "</table>";
 
         List<TrackingDetailsModel> details = UpdateTrackingDetails.parseEshopStatus(
-                org.jsoup.Jsoup.parse(html), new java.util.HashMap<>());
+                org.jsoup.Jsoup.parse(html), new HashMap<>());
 
         assertEquals(2, details.size());
         assertEquals("Έλεγχος Ομαλότητας", details.get(0).getStatus());
@@ -148,7 +192,7 @@ public class UpdateTrackingDetailsTest {
     @Test
     public void eshopUnknownOrderGivesNoDetails() {
         assertTrue(UpdateTrackingDetails.parseEshopStatus(
-                org.jsoup.Jsoup.parse("<html><body>no order</body></html>"), new java.util.HashMap<>()).isEmpty());
+                org.jsoup.Jsoup.parse("<html><body>no order</body></html>"), new HashMap<>()).isEmpty());
     }
 
     // --- Clever Point ---
