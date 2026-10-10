@@ -47,7 +47,7 @@ public class UpdateTrackingDetailsTest {
         List<TrackingDetailsModel> details = UpdateTrackingDetails.parseGenikiResponse(json, "123");
 
         assertEquals(4, details.size());
-        assertEquals("ΠΑΡΑΔΟΜΕΝΟ", details.get(0).getStatus());
+        assertEquals("ΠΑΡΑΔΟΜΕΝΟ (TEST RECIPIENT)", details.get(0).getStatus());
         assertEquals("ΠΑΡΑΛΗΠΤΗΣ", details.get(0).getPlace());
         assertEquals("08/09/2026 10:20", details.get(0).getDatetime());
         assertEquals("Καταχώριση στοιχείων παράδοσης", details.get(1).getStatus());
@@ -203,13 +203,13 @@ public class UpdateTrackingDetailsTest {
         String json = "{\"mainData\":{\"shipmentAwb\":\"123\",\"checkInDt\":\"2023-12-06T14:44:45.727219\","
                 + "\"deliveryStationName\":\"STORE - KYPSELI\",\"shipmentStatusNameDesc\":\"Παραδόθηκε\","
                 + "\"consigneeName\":\"TEST RECIPIENT\"},"
-                + "\"podData\":{\"deliveredTo\":\"TEST RECIPIENT\",\"deliveryDateTime\":\"2023-12-06T16:01:01.866457\","
+                + "\"podData\":{\"deliveredTo\":\"ΔΟΚΙ***** ΠΑΡΑ***** \",\"deliveryDateTime\":\"2023-12-06T16:01:01.866457\","
                 + "\"stationName\":\"STORE - KYPSELI\"},\"trackingData\":[]}";
 
         List<TrackingDetailsModel> details = UpdateTrackingDetails.parseCleverPointInfo(json, "Arrived at the Clever Point");
 
         assertEquals(2, details.size());
-        assertEquals("Παραδόθηκε", details.get(0).getStatus());
+        assertEquals("Παραδόθηκε (ΔΟΚΙ***** ΠΑΡΑ*****)", details.get(0).getStatus());
         assertEquals("STORE - KYPSELI", details.get(0).getPlace());
         assertEquals("06/12/2023 16:01", details.get(0).getDatetime());
         assertEquals("Arrived at the Clever Point", details.get(1).getStatus());
@@ -219,7 +219,7 @@ public class UpdateTrackingDetailsTest {
     @Test
     public void cleverPointHistoryIsUsedNewestFirstWithoutDuplicatingTheCollection() throws Exception {
         String json = "{\"mainData\":{\"checkInDt\":\"2026-10-05T10:00:00\",\"shipmentStatusNameDesc\":\"Delivered\"},"
-                + "\"podData\":{\"deliveryDateTime\":\"2026-10-06T18:30:00\",\"stationName\":\"STORE\"},"
+                + "\"podData\":{\"deliveredTo\":\"ΔΟΚΙ***** ΠΑΡΑ*****\",\"deliveryDateTime\":\"2026-10-06T18:30:00\",\"stationName\":\"STORE\"},"
                 + "\"trackingData\":["
                 + "{\"timestamp\":\"2026-10-04T09:15:00\",\"stationName\":null,\"trackingNote\":\"Shipment created\"},"
                 + "{\"timestamp\":\"2026-10-06T18:30:00\",\"stationName\":\"STORE\",\"trackingNote\":\"Delivered\"},"
@@ -228,7 +228,7 @@ public class UpdateTrackingDetailsTest {
         List<TrackingDetailsModel> details = UpdateTrackingDetails.parseCleverPointInfo(json, "unused");
 
         assertEquals(3, details.size());
-        assertEquals("Delivered", details.get(0).getStatus());
+        assertEquals("Delivered (ΔΟΚΙ***** ΠΑΡΑ*****)", details.get(0).getStatus());
         assertEquals("Arrived at point", details.get(1).getStatus());
         assertEquals("Shipment created", details.get(2).getStatus());
         assertEquals("", details.get(2).getPlace());

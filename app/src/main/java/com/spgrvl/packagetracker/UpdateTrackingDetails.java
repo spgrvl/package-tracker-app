@@ -244,6 +244,10 @@ public class UpdateTrackingDetails {
         String deliveryDate = result.optString("DeliveryDate");
         String status = result.optString("Status");
         if (!status.isEmpty() && !deliveryDate.isEmpty() && !deliveryDate.startsWith("0001")) {
+            String consignee = result.isNull("Consignee") ? "" : result.optString("Consignee").trim();
+            if (!consignee.isEmpty()) {
+                status = status + " (" + consignee + ")";
+            }
             detailsList.add(new TrackingDetailsModel(status, result.optString("DeliveredAt"),
                     formatGreekLocalTime(deliveryDate)));
         }
@@ -302,7 +306,7 @@ public class UpdateTrackingDetails {
     /**
      * Parses Clever Point tracking info into newest-first details. Uses its event history when
      * present; older shipments only keep a summary, so events are built from the arrival at the
-     * pickup point and the collection. Recipient details in the response are never read.
+     * pickup point and the collection, which also names who collected the parcel.
      */
     static ArrayList<TrackingDetailsModel> parseCleverPointInfo(String json, String arrivedLabel) throws JSONException {
         JSONObject info = new JSONObject(json);
@@ -330,16 +334,29 @@ public class UpdateTrackingDetails {
         String status = main != null ? optText(main, "shipmentStatusNameDesc") : "";
         if (!deliveredAt.isEmpty() && !status.isEmpty()) {
             String deliveredTime = formatGreekLocalTime(deliveredAt);
-            boolean alreadyListed = false;
-            for (TrackingDetailsModel detail : detailsList) {
-                alreadyListed |= detail.getDatetime().equals(deliveredTime);
+            // Who collected the parcel, partly masked by Clever Point (e.g. "ΓΚΟΥ***** ΣΠΥΡ*****")
+            String deliveredTo = optText(pod, "deliveredTo").trim();
+            int listedAt = -1;
+            for (int i = 0; i < detailsList.size(); i++) {
+                if (detailsList.get(i).getDatetime().equals(deliveredTime)) {
+                    listedAt = i;
+                }
             }
-            if (!alreadyListed) {
-                detailsList.add(new TrackingDetailsModel(status, optText(pod, "stationName"), deliveredTime));
+            if (listedAt < 0) {
+                detailsList.add(new TrackingDetailsModel(withRecipient(status, deliveredTo),
+                        optText(pod, "stationName"), deliveredTime));
+            } else {
+                TrackingDetailsModel listed = detailsList.get(listedAt);
+                detailsList.set(listedAt, new TrackingDetailsModel(withRecipient(listed.getStatus(), deliveredTo),
+                        listed.getPlace(), listed.getDatetime()));
             }
         }
         detailsList.sort((a, b) -> Long.compare(displayTimeMillis(b.getDatetime()), displayTimeMillis(a.getDatetime())));
         return detailsList;
+    }
+
+    private static String withRecipient(String status, String recipient) {
+        return recipient.isEmpty() ? status : status + " (" + recipient + ")";
     }
 
     /** Like optString, but treats JSON null as empty instead of the text "null". */
