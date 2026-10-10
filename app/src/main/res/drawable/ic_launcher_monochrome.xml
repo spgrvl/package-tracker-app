@@ -1,0 +1,39 @@
+<!-- Themed icon (Android 13+): same box as ic_launcher_foreground, with the system tint
+     applied by alpha; each face uses a different opacity so the box keeps its 3D shading. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="392.8"
+    android:viewportHeight="392.8">
+    <group
+        android:pivotX="196"
+        android:pivotY="196"
+        android:scaleX="0.45"
+        android:scaleY="0.45">
+        <!-- Top face -->
+        <path
+            android:fillAlpha="0.75"
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M196.4,0l95.6,49.2l96,48.8l-96,49.2l-95.6,49.2l-95.6,-49.2l-96,-49.2l96,-48.8z" />
+        <!-- Tape flap -->
+        <path
+            android:fillAlpha="0.9"
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M316,179.6l0,-44.4l-48,24.4l0,44.4l26.4,-32.4z" />
+        <!-- Right face -->
+        <path
+            android:fillAlpha="0.55"
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M196.4,196.4l0,196.4l191.6,-98l0,-196.8l-72,37.2l-1.6,0.8l0,43.2l-20,-7.6l-26.4,32.4l0,-44.4z" />
+        <!-- Left face -->
+        <path
+            android:fillAlpha="0.4"
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M196.4,392.8l0,-196.4l-95.6,-49.2l-96,-49.2l0,196.8z" />
+        <!-- Tape across the top -->
+        <path
+            android:fillAlpha="1"
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M76.8,61.2l191.2,98.4l46.4,-23.6l1.6,-0.8l-191.2,-98.4l-24,12.4z" />
+    </group>
+</vector>
