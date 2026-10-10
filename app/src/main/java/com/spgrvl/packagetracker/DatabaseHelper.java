@@ -86,7 +86,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * Quoted name of a package's details table. Tracking numbers come from user input, barcodes
      * and backups, so quotes inside them are escaped instead of breaking the SQL.
      */
-    private static String detailsTable(String tracking) {
+    static String detailsTable(String tracking) {
         return "\"" + tracking.replace("\"", "\"\"") + "\"";
     }
 

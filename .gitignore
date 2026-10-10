@@ -8,6 +8,5 @@ local.properties
 # Intellij
 .idea/
 
-# Test files
-test/
+# Instrumented test files
 androidTest/
