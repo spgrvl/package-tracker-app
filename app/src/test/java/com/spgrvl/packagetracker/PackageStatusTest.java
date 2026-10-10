@@ -113,6 +113,36 @@ public class PackageStatusTest {
     }
 
     @Test
+    public void plaisioStatusesInBothLanguages() {
+        for (String valuesDir : new String[]{"values", "values-el"}) {
+            Map<String, String> plaisio = StringResources.load(valuesDir).stringsWithPrefix("plaisio_");
+            assertEquals(valuesDir, PackageStatus.DELIVERED, active(plaisio.get("plaisio_delivered")));
+            assertEquals(valuesDir, PackageStatus.OUT_FOR_DELIVERY,
+                    active(String.format(plaisio.get("plaisio_ready_for_pickup"), "ΚΑΤΑΣΤΗΜΑ ΠΑΤΡΑΣ - ΚΕΝΤΡΟ", "27/07/2026")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT,
+                    active(String.format(plaisio.get("plaisio_sent_to_store"), "ΚΑΤΑΣΤΗΜΑ ΠΑΤΡΑΣ - ΚΕΝΤΡΟ")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT,
+                    active(String.format(plaisio.get("plaisio_scheduled_delivery"), "22/10/2025")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(plaisio.get("plaisio_invoiced")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(String.format(plaisio.get("plaisio_processing_pickup"),
+                    "18/12/2020", "10:00", "ΚΑΤΑΣΤΗΜΑ ΒΕΝΙΖΕΛΟΥ ΘΕΣΣΑΛΟΝΙΚ")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(String.format(plaisio.get("plaisio_invoiced_pickup"),
+                    "18/12/2020", "10:00", "ΚΑΤΑΣΤΗΜΑ ΒΕΝΙΖΕΛΟΥ ΘΕΣΣΑΛΟΝΙΚ")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT,
+                    active(String.format(plaisio.get("plaisio_invoiced_for_courier"), "BOX NOW")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT,
+                    active(String.format(plaisio.get("plaisio_invoiced_for_agency"), "ΔΙΑΚΙΝΗΣΙΣ ΑΕ")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT,
+                    active(String.format(plaisio.get("plaisio_picked_up_by_courier"), "BOX NOW")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT,
+                    active(String.format(plaisio.get("plaisio_handed_to_courier"), "29/07")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(String.format(plaisio.get("plaisio_courier_delayed"),
+                    "0000000106", "17/03/2021", "ΓΕΝΙΚΗ ΤΑΧΥΔΡΟΜΙΚΗ")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(plaisio.get("plaisio_on_hold")));
+        }
+    }
+
+    @Test
     public void normalizeIgnoresCaseAccentsAndFinalSigma() {
         assertEquals("παραδοθηκε", PackageStatus.normalize("ΠΑΡΑΔΌΘΗΚΕ"));
         assertEquals("προσ παραδοση", PackageStatus.normalize("Προς Παράδοση"));

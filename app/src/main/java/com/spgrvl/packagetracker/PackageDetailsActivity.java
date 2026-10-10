@@ -224,6 +224,9 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                     case "eshop":
                         url = "https://www.e-shop.gr/status?id=" + tracking;
                         break;
+                    case "plaisio":
+                        url = "https://www.plaisio.gr/order-tracking/" + tracking;
+                        break;
                 }
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 this.startActivity(intent);
@@ -322,6 +325,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             case "easyMail":        return R.drawable.ic_carrier_easy_mail;
             case "elta":            return R.drawable.ic_carrier_elta;
             case "eshop":           return R.drawable.ic_carrier_eshop;
+            case "plaisio":         return R.drawable.ic_carrier_plaisio;
             case "geniki":          return R.drawable.ic_carrier_geniki;
             case "skroutzLastMile": return R.drawable.ic_carrier_skroutz_last_mile;
             case "speedex":         return R.drawable.ic_carrier_speedex;

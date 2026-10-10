@@ -125,6 +125,22 @@
     <string name="packages_completed">Marked %1$d packages as completed</string>
     <string name="packages_deleted">Deleted %1$d packages</string>
     <string name="place">Place</string>
+    <string name="plaisio">Plaisio</string>
+    <string name="plaisio_collecting_products">The products of your order are being collected.</string>
+    <string name="plaisio_courier_delayed">Your order with voucher %1$s has passed its estimated delivery date of %2$s with the courier %3$s. There are delays due to the high volume of shipments!</string>
+    <string name="plaisio_delivered">Your order has been delivered.</string>
+    <string name="plaisio_handed_to_courier">Your order is ready and was handed to the courier on %1$s.</string>
+    <string name="plaisio_invoiced">Your order has been invoiced and is being prepared for shipping.</string>
+    <string name="plaisio_invoiced_for_agency">Your order has been invoiced and is being prepared for handover to the transport agency %1$s</string>
+    <string name="plaisio_invoiced_for_courier">Your order has been invoiced and is being prepared for handover to %1$s</string>
+    <string name="plaisio_invoiced_pickup">Your order has been invoiced and will be ready for pickup on %1$s at %2$s from %3$s.</string>
+    <string name="plaisio_on_hold">Your order is on hold.</string>
+    <string name="plaisio_picked_up_by_courier">Your order has been picked up by %1$s</string>
+    <string name="plaisio_processing">Your order was placed successfully and is being processed.</string>
+    <string name="plaisio_processing_pickup">Your order was placed successfully and will be ready for pickup on %1$s at %2$s from %3$s.</string>
+    <string name="plaisio_ready_for_pickup">Your order is ready for pickup at %1$s from %2$s.</string>
+    <string name="plaisio_scheduled_delivery">Your order is scheduled for delivery to you, estimated by %1$s.</string>
+    <string name="plaisio_sent_to_store">Your order is on its way to %1$s for pickup.</string>
     <string name="possible_tracking_id">Possible tracking ID detected:\u0020</string>
     <string name="refresh">Refresh</string>
     <string name="restart">Restart</string>
@@ -188,6 +204,7 @@
         <item>παραδόθηκε</item>
         <item>η παραγγελία σας ολοκληρώθηκε</item>
         <item>your order has been completed</item>
+        <item>η παραγγελία σου έχει ήδη παραδοθεί</item>
         <item>παραδομένο</item>
         <item>παραδοση -</item>
         <item>παραδοση σε skroutz point</item>
@@ -212,6 +229,8 @@
         <item>εξοδος για παράδοση</item>
         <item>arrived at the clever point</item>
         <item>έφτασε στο clever point</item>
+        <item>ready for pickup at</item>
+        <item>σε περιμένει να την παραλάβεις</item>
     </string-array>
     <string-array name="status_keywords_problem" translatable="false">
         <item>canceled</item>

@@ -87,10 +87,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public static final String acsOrGenikiOrBoxNowTrackingRegex = "^[0-9]{10}$";
     public static final String cometHellasTrackingRegex = "^[0-9]{8}$";
     public static final String eshopOrderRegex = UpdateTrackingDetails.eshopOrderRegex;
-    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)|(%s)|(%s)|(%s)|(%s)",
+    public static final String plaisioOrderRegex = UpdateTrackingDetails.plaisioOrderRegex;
+    public static final String trackingNumberRegex = String.format("(%s)|(%s)|(%s)|(%s)|(%s)|(%s)|(%s)|(%s)|(%s)",
             eltaTrackingRegex, easyMailTracking2Regex, speedexOrCourierCenterOrEasyMailTrackingRegex,
             delatolasTrackingRegex, skroutzLastMileTrackingRegex, acsOrGenikiOrBoxNowTrackingRegex,
-            cometHellasTrackingRegex, eshopOrderRegex);
+            cometHellasTrackingRegex, eshopOrderRegex, plaisioOrderRegex);
     private CustomIndexRvAdapter adapter;
     private static final long RV_UPDATE_INTERVAL = 10000;
     private Handler rvHandler;

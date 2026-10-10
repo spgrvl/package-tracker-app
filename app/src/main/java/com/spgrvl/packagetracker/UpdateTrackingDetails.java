@@ -27,12 +27,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +57,8 @@ public class UpdateTrackingDetails {
     private final NotificationManagerCompat notificationManager;
     private final Context context;
     private String tracking;
+    // {courier, tracking number} a Plaisio order was handed to, set by trackPlaisio()
+    private String[] plaisioCourier;
     public static final String PREF_NOTIF = "pref_notif";
     public static final String PREF_LANGUAGE = "pref_language";
     public static final String eltaTrackingRegex = "^[a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2}$";
@@ -66,6 +70,7 @@ public class UpdateTrackingDetails {
     public static final String cometHellasTrackingRegex = "^[0-9]{8}$";
     // e-shop.gr order numbers: 21 digits starting with the order's date and time (yyMMddHHmm)
     public static final String eshopOrderRegex = "^[0-9]{21}$";
+    public static final String plaisioOrderRegex = "^[0-9]{7}$";
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final TimeZone GREEK_TIME_ZONE = TimeZone.getTimeZone("Europe/Athens");
     static final String DISPLAY_DATE_FORMAT = "dd/MM/yyyy HH:mm";
@@ -424,6 +429,187 @@ public class UpdateTrackingDetails {
     private static String translate(Map<String, String> translations, String text) {
         String translated = translations.get(text);
         return translated != null ? translated : text;
+    }
+
+    private ArrayList<TrackingDetailsModel> trackPlaisio() {
+        plaisioCourier = null;
+        Request request = new Request.Builder()
+                .url("https://www.plaisio.gr/api-gw/service/order-tracking/" + tracking)
+                // Sent by plaisio.gr's own tracking page; requests without it are refused
+                .header("X-Plaisio-Csrf-Protection", "1")
+                .build();
+        try (Response response = new OkHttpClient().newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                String json = Objects.requireNonNull(response.body()).string();
+                // The messages are only available in Greek; known ones are translated through
+                // the plaisio_* resources (kept from shrinking in res/raw/keep.xml)
+                Map<Pattern, String> translations = plaisioTranslations(name -> context.getString(
+                        context.getResources().getIdentifier(name, "string", context.getPackageName())));
+                Map<String, String> courierNames = new HashMap<>();
+                courierNames.put("boxNow", context.getString(R.string.boxNow));
+                courierNames.put("geniki", context.getString(R.string.geniki));
+                courierNames.put("speedex", context.getString(R.string.speedex));
+                courierNames.put("easyMail", context.getString(R.string.easyMail));
+                courierNames.put("elta", context.getString(R.string.elta));
+                plaisioCourier = plaisioCourier(json);
+                return parsePlaisioHistory(json, translations, courierNames);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    /** Fetches the events of the courier the Plaisio order was handed to, if the app tracks it. */
+    private ArrayList<TrackingDetailsModel> trackPlaisioCourier() {
+        ArrayList<TrackingDetailsModel> courierDetails = new ArrayList<>();
+        if (plaisioCourier == null) {
+            return courierDetails;
+        }
+        // The carriers' trackers read the tracking field, so point it to the courier's number
+        String orderNumber = tracking;
+        tracking = plaisioCourier[1];
+        try {
+            switch (plaisioCourier[0]) {
+                case "boxNow":
+                    courierDetails = trackBoxNow();
+                    break;
+                case "geniki":
+                    courierDetails = trackGeniki();
+                    break;
+                case "speedex":
+                    courierDetails = trackSpeedex();
+                    break;
+                case "easyMail":
+                    courierDetails = trackEasyMail();
+                    break;
+                case "elta":
+                    courierDetails = trackElta();
+                    if (courierDetails.isEmpty()) {
+                        courierDetails = trackEltaBackup();
+                    }
+                    break;
+            }
+        } finally {
+            tracking = orderNumber;
+        }
+        return courierDetails;
+    }
+
+    // Courier tracking links seen in Plaisio orders, with the tracking number as the first group.
+    // Couriers the app can't track are still recognised so that their number is shown.
+    private static final String[][] PLAISIO_COURIER_LINKS = {
+            {"boxNow", "boxnow\\.gr/.*[?&]track=([A-Za-z0-9]+)"},
+            {"geniki", "taxydromiki\\.com/track/([A-Za-z0-9]+)"},
+            {"speedex", "speedex\\.gr/.*[?&]voucher_code=([A-Za-z0-9]+)"},
+            {"easyMail", "trackntrace\\.easymail\\.gr/([A-Za-z0-9]+)"},
+            {"elta", "elta\\.gr/.*/([A-Za-z]{2}[0-9]{9}[A-Za-z]{2})"},
+            {"ΔΙΑΚΙΝΗΣΙΣ", "diakinisis\\.gr/.*[?&]id=([A-Za-z0-9]+)"},
+            {"Aiolos Courier", "aioloscourier\\.gr/.*[?&]shipping_num=([A-Za-z0-9]+)"},
+    };
+
+    /** Returns {courier, tracking number} from the latest courier link of a Plaisio order, or null. */
+    static String[] plaisioCourier(String json) throws JSONException {
+        JSONArray history = new JSONObject(json).optJSONArray("orderHistory");
+        if (history == null) {
+            return null;
+        }
+        for (int i = history.length() - 1; i >= 0; i--) {
+            String[] courier = courierFromLink(optText(history.getJSONObject(i), "courierTrackingLink"));
+            if (courier != null) {
+                return courier;
+            }
+        }
+        return null;
+    }
+
+    private static String[] courierFromLink(String link) {
+        for (String[] courier : PLAISIO_COURIER_LINKS) {
+            Matcher matcher = Pattern.compile(courier[1]).matcher(link);
+            if (matcher.find()) {
+                return new String[]{courier[0], matcher.group(1)};
+            }
+        }
+        return null;
+    }
+
+    /** Adds the courier's events to a Plaisio order's, newest first; courier events win ties. */
+    static ArrayList<TrackingDetailsModel> mergePlaisioWithCourier(List<TrackingDetailsModel> plaisioDetails,
+                                                                    List<TrackingDetailsModel> courierDetails) {
+        ArrayList<TrackingDetailsModel> merged = new ArrayList<>(courierDetails);
+        merged.addAll(plaisioDetails);
+        // Stable sort keeps each side's own order for events in the same minute
+        merged.sort((a, b) -> Long.compare(displayTimeMillis(b.getDatetime()), displayTimeMillis(a.getDatetime())));
+        return merged;
+    }
+
+    /**
+     * Maps Plaisio's Greek messages to the formats of the named plaisio_* string resources.
+     * Groups in the patterns (store names, dates, couriers) fill the placeholders in order.
+     * Checked in order, so a more specific pattern must come before a general one.
+     */
+    static Map<Pattern, String> plaisioTranslations(Function<String, String> strings) {
+        String[][] messages = {
+                {"Η παραγγελία σου καταχωρήθηκε με επιτυχία και έχει προχωρήσει στο στάδιο της επεξεργασίας\\.", "plaisio_processing"},
+                {"Η παραγγελία σου καταχωρήθηκε με επιτυχία και θα είναι έτοιμη για παραλαβή (\\S+) (\\S+) από το (.+)\\.", "plaisio_processing_pickup"},
+                {"Η παραγγελία σου βρίσκεται στο στάδιο της αναμονής\\.", "plaisio_on_hold"},
+                {"Η παραγγελία σου είναι στο στάδιο της συλλογής των προϊόντων\\.", "plaisio_collecting_products"},
+                {"Η παραγγελία σου έχει τιμολογηθεί και προετοιμάζεται για αποστολή\\.", "plaisio_invoiced"},
+                {"Η παραγγελία σου έχει τιμολογηθεί και θα είναι έτοιμη για παραλαβή (\\S+) (\\S+) από το (.+)\\.", "plaisio_invoiced_pickup"},
+                {"Η παραγγελία σου έχει τιμολογηθεί και προετοιμάζεται για παράδοση στο πρακτορείο μεταφορών (.+)", "plaisio_invoiced_for_agency"},
+                {"Η παραγγελία σου έχει τιμολογηθεί και προετοιμάζεται για παράδοση στην (.+)", "plaisio_invoiced_for_courier"},
+                {"Η παραγγελία σου είναι έτοιμη και την παραδώσαμε στην courier (\\S+)\\.", "plaisio_handed_to_courier"},
+                {"Η παραγγελία σου έχει παραληφθεί από την (.+)", "plaisio_picked_up_by_courier"},
+                {"Η παραγγελία σου έχει ήδη δρομολογηθεί για παράδοση στο χώρο σου με εκτιμώμενη ημερομηνία έως τις (.+)\\.", "plaisio_scheduled_delivery"},
+                {"Η παραγγελία σου με αρ\\.Voucher (\\S+) έχει ξεπεράσει την εκτιμώμενη ημερομηνία παράδοσης έως τις (\\S+) από την Courier (.+)\\. Υπάρχουν καθυστερήσεις λόγω του μεγάλου όγκου αποστολών!", "plaisio_courier_delayed"},
+                {"Η παραγγελία σου δρομολογήθηκε για παραλαβή από το (.+)\\.", "plaisio_sent_to_store"},
+                {"Η παραγγελία σου βρίσκεται στο (.+) και σε περιμένει να την παραλάβεις σήμερα (.+)\\.", "plaisio_ready_for_pickup"},
+                {"Η παραγγελία σου έχει ήδη παραδοθεί\\.", "plaisio_delivered"},
+        };
+        Map<Pattern, String> translations = new LinkedHashMap<>();
+        for (String[] message : messages) {
+            translations.put(Pattern.compile(message[0]), strings.apply(message[1]));
+        }
+        return translations;
+    }
+
+    /**
+     * Parses Plaisio's order history (oldest first, dates already "dd/MM/yyyy HH:mm") into
+     * newest-first details. Messages matching a translation pattern are replaced by its format,
+     * filled with the pattern's groups (store names, dates); others are kept as they are. The
+     * event handing the order to a courier gets the courier and its tracking number as place.
+     */
+    static ArrayList<TrackingDetailsModel> parsePlaisioHistory(String json, Map<Pattern, String> translations,
+                                                               Map<String, String> courierNames) throws JSONException {
+        JSONArray history = new JSONObject(json).optJSONArray("orderHistory");
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+        if (history == null) {
+            return detailsList;
+        }
+        for (int i = 0; i < history.length(); i++) {
+            JSONObject event = history.getJSONObject(i);
+            String status = optText(event, "statusDescription").trim();
+            for (Map.Entry<Pattern, String> translation : translations.entrySet()) {
+                Matcher matcher = translation.getKey().matcher(status);
+                if (matcher.matches()) {
+                    Object[] groups = new Object[matcher.groupCount()];
+                    for (int g = 0; g < groups.length; g++) {
+                        groups[g] = matcher.group(g + 1);
+                    }
+                    status = String.format(translation.getValue(), groups);
+                    break;
+                }
+            }
+            String place = "";
+            String[] courier = courierFromLink(optText(event, "courierTrackingLink"));
+            if (courier != null) {
+                String name = courierNames.get(courier[0]);
+                place = (name != null ? name : courier[0]) + " " + courier[1];
+            }
+            detailsList.add(new TrackingDetailsModel(status, place, optText(event, "transactionDate")));
+        }
+        Collections.reverse(detailsList);
+        return detailsList;
     }
 
     private ArrayList<TrackingDetailsModel> trackSpeedex() {
@@ -918,6 +1104,8 @@ public class UpdateTrackingDetails {
     private String detectCarrierByFormat() {
         if (Pattern.compile(eshopOrderRegex).matcher(tracking).find()) {
             return "eshop";
+        } else if (Pattern.compile(plaisioOrderRegex).matcher(tracking).find()) {
+            return "plaisio";
         } else if (Pattern.compile(eltaTrackingRegex).matcher(tracking).find()) {
             return "elta";
         } else if (Pattern.compile(easyMailTracking2Regex).matcher(tracking).find()) {
@@ -1060,6 +1248,11 @@ public class UpdateTrackingDetails {
                         break;
                     case "eshop":
                         detailsList = trackEshop();
+                        break;
+                    case "plaisio":
+                        detailsList = trackPlaisio();
+                        // Plaisio's own history ends when it hands the order to a courier
+                        detailsList = mergePlaisioWithCourier(detailsList, trackPlaisioCourier());
                         break;
                     case "boxNow":
                         detailsList = trackBoxNow();

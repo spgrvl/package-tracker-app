@@ -1,7 +1,9 @@
 package com.spgrvl.packagetracker;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
@@ -12,7 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 public class UpdateTrackingDetailsTest {
     private TimeZone originalTimeZone;
@@ -237,6 +241,175 @@ public class UpdateTrackingDetailsTest {
     @Test
     public void cleverPointWithoutAnyDataGivesNoDetails() throws Exception {
         assertTrue(UpdateTrackingDetails.parseCleverPointInfo("{\"mainData\":null,\"podData\":null,\"trackingData\":[]}", "x").isEmpty());
+    }
+
+    // --- Plaisio ---
+
+    // A real store-pickup order, as returned by plaisio.gr (orders hold no personal data)
+    private static final String PLAISIO_PICKUP_ORDER = plaisioOrder(
+            plaisioEvent("24/07/2026 19:15", "Η παραγγελία σου καταχωρήθηκε με επιτυχία και έχει προχωρήσει στο στάδιο της επεξεργασίας.", null),
+            plaisioEvent("24/07/2026 19:25", "Η παραγγελία σου είναι στο στάδιο της συλλογής των προϊόντων.", null),
+            plaisioEvent("27/07/2026 06:00", "Η παραγγελία σου δρομολογήθηκε για παραλαβή από το ΚΑΤΑΣΤΗΜΑ ΠΑΤΡΑΣ - ΚΕΝΤΡΟ.", null),
+            plaisioEvent("27/07/2026 06:00", "Η παραγγελία σου βρίσκεται στο ΚΑΤΑΣΤΗΜΑ ΠΑΤΡΑΣ - ΚΕΝΤΡΟ και σε περιμένει να την παραλάβεις σήμερα 27/07/2026.", null),
+            plaisioEvent("10/10/2026 21:30", "Η παραγγελία σου έχει ήδη παραδοθεί.", null));
+
+    // One of each wording seen in a sample of real orders
+    private static final String[] PLAISIO_MESSAGES = {
+            "Η παραγγελία σου καταχωρήθηκε με επιτυχία και έχει προχωρήσει στο στάδιο της επεξεργασίας.",
+            "Η παραγγελία σου καταχωρήθηκε με επιτυχία και θα είναι έτοιμη για παραλαβή 18/12/2020 10:00 από το ΚΑΤΑΣΤΗΜΑ ΒΕΝΙΖΕΛΟΥ ΘΕΣΣΑΛΟΝΙΚ.",
+            "Η παραγγελία σου βρίσκεται στο στάδιο της αναμονής.",
+            "Η παραγγελία σου είναι στο στάδιο της συλλογής των προϊόντων.",
+            "Η παραγγελία σου έχει τιμολογηθεί και προετοιμάζεται για αποστολή.",
+            "Η παραγγελία σου έχει τιμολογηθεί και θα είναι έτοιμη για παραλαβή 18/12/2020 10:00 από το ΚΑΤΑΣΤΗΜΑ ΒΕΝΙΖΕΛΟΥ ΘΕΣΣΑΛΟΝΙΚ.",
+            "Η παραγγελία σου έχει τιμολογηθεί και προετοιμάζεται για παράδοση στο πρακτορείο μεταφορών ΔΙΑΚΙΝΗΣΙΣ ΑΕ",
+            "Η παραγγελία σου έχει τιμολογηθεί και προετοιμάζεται για παράδοση στο πρακτορείο μεταφορών D.L.S. A.E.",
+            "Η παραγγελία σου έχει τιμολογηθεί και προετοιμάζεται για παράδοση στην BOX NOW",
+            "Η παραγγελία σου είναι έτοιμη και την παραδώσαμε στην courier 29/07.",
+            "Η παραγγελία σου έχει παραληφθεί από την BOX NOW",
+            "Η παραγγελία σου έχει ήδη δρομολογηθεί για παράδοση στο χώρο σου με εκτιμώμενη ημερομηνία έως τις 20/02/2020.",
+            "Η παραγγελία σου με αρ.Voucher 0000000106 έχει ξεπεράσει την εκτιμώμενη ημερομηνία παράδοσης έως τις 17/03/2021 από την Courier ΓΕΝΙΚΗ ΤΑΧΥΔΡΟΜΙΚΗ. Υπάρχουν καθυστερήσεις λόγω του μεγάλου όγκου αποστολών!",
+            "Η παραγγελία σου δρομολογήθηκε για παραλαβή από το ΚΑΤΑΣΤΗΜΑ ΣΥΝΤΑΓΜΑΤΟΣ.",
+            "Η παραγγελία σου βρίσκεται στο ΚΑΤΑΣΤΗΜΑ ΣΥΝΤΑΓΜΑΤΟΣ και σε περιμένει να την παραλάβεις σήμερα 30/12/2025.",
+            "Η παραγγελία σου έχει ήδη παραδοθεί.",
+    };
+
+    private static String plaisioOrder(String... events) {
+        return "{\"orderHistory\":[" + String.join(",", events) + "]}";
+    }
+
+    private static String plaisioEvent(String datetime, String description, String courierLink) {
+        return "{\"transactionDate\":\"" + datetime + "\",\"statusDescription\":\"" + description
+                + "\",\"statusCode\":\"X\",\"courierTrackingLink\":"
+                + (courierLink == null ? "null" : "\"" + courierLink + "\"") + "}";
+    }
+
+    private static Map<Pattern, String> plaisioTranslations(String valuesDir) {
+        Map<String, String> strings = StringResources.load(valuesDir).stringsWithPrefix("plaisio_");
+        return UpdateTrackingDetails.plaisioTranslations(name -> {
+            assertTrue("missing " + valuesDir + "/" + name, strings.containsKey(name));
+            return strings.get(name);
+        });
+    }
+
+    private static final Map<String, String> PLAISIO_COURIER_NAMES = new HashMap<>();
+
+    static {
+        PLAISIO_COURIER_NAMES.put("boxNow", "BoxNow");
+        PLAISIO_COURIER_NAMES.put("geniki", "Geniki Taxydromiki");
+    }
+
+    private static List<TrackingDetailsModel> parsePlaisio(String json, String valuesDir) throws Exception {
+        return UpdateTrackingDetails.parsePlaisioHistory(json, plaisioTranslations(valuesDir), PLAISIO_COURIER_NAMES);
+    }
+
+    @Test
+    public void plaisioOrderIsNewestFirstAndTranslatedWithStoreAndDates() throws Exception {
+        List<TrackingDetailsModel> details = parsePlaisio(PLAISIO_PICKUP_ORDER, "values");
+
+        assertEquals(5, details.size());
+        assertEquals("Your order has been delivered.", details.get(0).getStatus());
+        assertEquals("10/10/2026 21:30", details.get(0).getDatetime());
+        assertEquals("Your order is ready for pickup at ΚΑΤΑΣΤΗΜΑ ΠΑΤΡΑΣ - ΚΕΝΤΡΟ from 27/07/2026.",
+                details.get(1).getStatus());
+        assertEquals("Your order is on its way to ΚΑΤΑΣΤΗΜΑ ΠΑΤΡΑΣ - ΚΕΝΤΡΟ for pickup.", details.get(2).getStatus());
+        assertEquals("Your order was placed successfully and is being processed.", details.get(4).getStatus());
+        assertEquals("24/07/2026 19:15", details.get(4).getDatetime());
+    }
+
+    @Test
+    public void plaisioEveryKnownMessageIsTranslatedAndGreekMatchesTheSite() throws Exception {
+        for (String message : PLAISIO_MESSAGES) {
+            String json = plaisioOrder(plaisioEvent("01/01/2026 10:00", message, null));
+            String english = parsePlaisio(json, "values").get(0).getStatus();
+            String greek = parsePlaisio(json, "values-el").get(0).getStatus();
+
+            assertFalse("not translated: " + message, english.startsWith("Η παραγγελία"));
+            // The Greek resources reproduce Plaisio's own wording, placeholders included
+            assertEquals(message, greek);
+        }
+    }
+
+    @Test
+    public void plaisioTranslationsKeepStoresDatesAndCouriers() throws Exception {
+        String json = plaisioOrder(
+                plaisioEvent("01/01/2026 10:00", PLAISIO_MESSAGES[1], null),
+                plaisioEvent("01/01/2026 10:01", PLAISIO_MESSAGES[7], null),
+                plaisioEvent("01/01/2026 10:02", PLAISIO_MESSAGES[12], null));
+        List<TrackingDetailsModel> details = parsePlaisio(json, "values");
+
+        assertEquals("Your order with voucher 0000000106 has passed its estimated delivery date of 17/03/2021 "
+                        + "with the courier ΓΕΝΙΚΗ ΤΑΧΥΔΡΟΜΙΚΗ. There are delays due to the high volume of shipments!",
+                details.get(0).getStatus());
+        assertEquals("Your order has been invoiced and is being prepared for handover to the transport agency D.L.S. A.E.",
+                details.get(1).getStatus());
+        assertEquals("Your order was placed successfully and will be ready for pickup on 18/12/2020 at 10:00 "
+                + "from ΚΑΤΑΣΤΗΜΑ ΒΕΝΙΖΕΛΟΥ ΘΕΣΣΑΛΟΝΙΚ.", details.get(2).getStatus());
+    }
+
+    @Test
+    public void plaisioUnknownMessagesAreKeptAsTheyAre() throws Exception {
+        String json = plaisioOrder(plaisioEvent("22/10/2025 10:00", "Κάποιο νέο μήνυμα", null));
+        assertEquals("Κάποιο νέο μήνυμα", parsePlaisio(json, "values").get(0).getStatus());
+    }
+
+    @Test
+    public void plaisioCourierHandoverShowsTheCourierNumber() throws Exception {
+        String json = plaisioOrder(
+                plaisioEvent("15/11/2024 18:31", PLAISIO_MESSAGES[8], null),
+                plaisioEvent("15/11/2024 18:31", PLAISIO_MESSAGES[10], "https://boxnow.gr/?track=0000000107"));
+
+        assertArrayEquals(new String[]{"boxNow", "0000000107"}, UpdateTrackingDetails.plaisioCourier(json));
+        List<TrackingDetailsModel> details = parsePlaisio(json, "values");
+        assertEquals("BoxNow 0000000107", details.get(0).getPlace());
+        assertEquals("", details.get(1).getPlace());
+    }
+
+    @Test
+    public void plaisioCourierLinksOfEveryKnownCourier() throws Exception {
+        String[][] links = {
+                {"https://www.taxydromiki.com/track/0000000105", "geniki", "0000000105"},
+                {"http://www.speedex.gr/isapohi.asp?voucher_code=000000000101", "speedex", "000000000101"},
+                {"https://itemsearch.elta.gr/Query/Direct/EL123456789GR", "elta", "EL123456789GR"},
+                {"https://trackntrace.easymail.gr/000000000102", "easyMail", "000000000102"},
+                {"https://pod.diakinisis.gr/tnt.php?id=0000000103", "ΔΙΑΚΙΝΗΣΙΣ", "0000000103"},
+                {"https://www.aioloscourier.gr/track-trace/?shipping_num=0000000104", "Aiolos Courier", "0000000104"},
+        };
+        for (String[] link : links) {
+            String json = plaisioOrder(plaisioEvent("01/01/2026 10:00", PLAISIO_MESSAGES[11], link[0]));
+            assertArrayEquals(link[0], new String[]{link[1], link[2]}, UpdateTrackingDetails.plaisioCourier(json));
+        }
+        assertNull(UpdateTrackingDetails.plaisioCourier(PLAISIO_PICKUP_ORDER));
+        assertNull(UpdateTrackingDetails.plaisioCourier(plaisioOrder(
+                plaisioEvent("01/01/2026 10:00", PLAISIO_MESSAGES[11], "https://example.com/unknown"))));
+    }
+
+    @Test
+    public void plaisioIsMergedWithTheCourierNewestFirst() {
+        List<TrackingDetailsModel> plaisio = Arrays.asList(
+                detail("Your order has been picked up by BOX NOW", "BoxNow 0000000107", "15/11/2024 18:31"),
+                detail("Your order has been invoiced and is being prepared for handover to BOX NOW", "", "15/11/2024 18:31"),
+                detail("Your order was placed successfully and is being processed.", "", "15/11/2024 16:00"));
+        List<TrackingDetailsModel> courier = Arrays.asList(
+                detail("Delivered", "Locker", "16/11/2024 12:10"),
+                detail("Accepted", "", "15/11/2024 18:31"));
+
+        List<String> statuses = new ArrayList<>();
+        for (TrackingDetailsModel detail : UpdateTrackingDetails.mergePlaisioWithCourier(plaisio, courier)) {
+            statuses.add(detail.getStatus());
+        }
+        assertEquals(Arrays.asList(
+                "Delivered",
+                "Accepted",
+                "Your order has been picked up by BOX NOW",
+                "Your order has been invoiced and is being prepared for handover to BOX NOW",
+                "Your order was placed successfully and is being processed."), statuses);
+    }
+
+    @Test
+    public void plaisioUnknownOrderGivesNoDetails() throws Exception {
+        String notFound = "{\"type\":\"https://httpstatuses.io/404\",\"title\":\"Not Found\",\"status\":404}";
+        assertTrue(parsePlaisio(notFound, "values").isEmpty());
+        assertNull(UpdateTrackingDetails.plaisioCourier(notFound));
     }
 
     // --- ACS handed over to Skroutz Last Mile ---
