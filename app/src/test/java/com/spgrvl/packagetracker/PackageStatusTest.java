@@ -37,7 +37,6 @@ public class PackageStatusTest {
         assertEquals(PackageStatus.DELIVERED, active("ΠΑΡΑΔΟΣΗ - ΠΑΤΡΑ"));
         assertEquals(PackageStatus.DELIVERED, active("Delivered"));
         assertEquals(PackageStatus.DELIVERED, active("Παράδοση σε Skroutz Point"));
-        // Geniki's delivery summary
         assertEquals(PackageStatus.DELIVERED, active("ΠΑΡΑΔΟΜΕΝΟ"));
     }
 
@@ -47,6 +46,8 @@ public class PackageStatusTest {
         assertEquals(PackageStatus.OUT_FOR_DELIVERY, active("ΠΡΟΣ ΠΑΡΑΔΟΣΗ"));
         assertEquals(PackageStatus.OUT_FOR_DELIVERY, active("Έξοδος για παράδοση"));
         assertEquals(PackageStatus.OUT_FOR_DELIVERY, active("Το δέμα σας βρίσκεται στην θυρίδα"));
+        assertEquals(PackageStatus.OUT_FOR_DELIVERY, active("Το δέμα έφτασε στο Clever Point"));
+        assertEquals(PackageStatus.OUT_FOR_DELIVERY, active("Arrived at the Clever Point"));
     }
 
     @Test

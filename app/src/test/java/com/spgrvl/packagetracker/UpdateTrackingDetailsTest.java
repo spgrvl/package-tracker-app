@@ -81,6 +81,50 @@ public class UpdateTrackingDetailsTest {
         assertEquals("08/07/2026 02:30", UpdateTrackingDetails.formatGreekLocalTime("2026-07-08T05:30:53.347"));
     }
 
+    // --- Clever Point ---
+
+    @Test
+    public void cleverPointSummaryOnlyBecomesArrivalAndCollection() throws Exception {
+        // Older shipments keep no event history, only the summary
+        String json = "{\"mainData\":{\"shipmentAwb\":\"123\",\"checkInDt\":\"2023-12-06T14:44:45.727219\","
+                + "\"deliveryStationName\":\"STORE - KYPSELI\",\"shipmentStatusNameDesc\":\"Παραδόθηκε\","
+                + "\"consigneeName\":\"TEST RECIPIENT\"},"
+                + "\"podData\":{\"deliveredTo\":\"TEST RECIPIENT\",\"deliveryDateTime\":\"2023-12-06T16:01:01.866457\","
+                + "\"stationName\":\"STORE - KYPSELI\"},\"trackingData\":[]}";
+
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseCleverPointInfo(json, "Arrived at the Clever Point");
+
+        assertEquals(2, details.size());
+        assertEquals("Παραδόθηκε", details.get(0).getStatus());
+        assertEquals("STORE - KYPSELI", details.get(0).getPlace());
+        assertEquals("06/12/2023 16:01", details.get(0).getDatetime());
+        assertEquals("Arrived at the Clever Point", details.get(1).getStatus());
+        assertEquals("06/12/2023 14:44", details.get(1).getDatetime());
+    }
+
+    @Test
+    public void cleverPointHistoryIsUsedNewestFirstWithoutDuplicatingTheCollection() throws Exception {
+        String json = "{\"mainData\":{\"checkInDt\":\"2026-10-05T10:00:00\",\"shipmentStatusNameDesc\":\"Delivered\"},"
+                + "\"podData\":{\"deliveryDateTime\":\"2026-10-06T18:30:00\",\"stationName\":\"STORE\"},"
+                + "\"trackingData\":["
+                + "{\"timestamp\":\"2026-10-04T09:15:00\",\"stationName\":null,\"trackingNote\":\"Shipment created\"},"
+                + "{\"timestamp\":\"2026-10-06T18:30:00\",\"stationName\":\"STORE\",\"trackingNote\":\"Delivered\"},"
+                + "{\"timestamp\":\"2026-10-05T10:00:00\",\"stationName\":\"STORE\",\"trackingNote\":\"Arrived at point\"}]}";
+
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseCleverPointInfo(json, "unused");
+
+        assertEquals(3, details.size());
+        assertEquals("Delivered", details.get(0).getStatus());
+        assertEquals("Arrived at point", details.get(1).getStatus());
+        assertEquals("Shipment created", details.get(2).getStatus());
+        assertEquals("", details.get(2).getPlace());
+    }
+
+    @Test
+    public void cleverPointWithoutAnyDataGivesNoDetails() throws Exception {
+        assertTrue(UpdateTrackingDetails.parseCleverPointInfo("{\"mainData\":null,\"podData\":null,\"trackingData\":[]}", "x").isEmpty());
+    }
+
     // --- ACS handed over to Skroutz Last Mile ---
 
     private static List<TrackingDetailsModel> acsHandedToSkroutz() {

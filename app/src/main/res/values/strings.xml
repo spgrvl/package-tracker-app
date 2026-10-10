@@ -42,6 +42,8 @@
     <string name="changes_restart_toast">Changes will apply after app restart</string>
     <string name="channelPkg_notification_description">This notification channel displays information about new package updates</string>
     <string name="choose_barcode">Choose a barcode to add</string>
+    <string name="cleverPoint">Clever Point</string>
+    <string name="cleverPoint_arrived">Arrived at the Clever Point</string>
     <string name="clipboard_pref">Clipboard detection</string>
     <string name="clipboard_pref_summary">Detect tracking number from clipboard and offer to add it</string>
     <string name="cometHellas">Comet Hellas</string>
@@ -199,6 +201,8 @@
         <item>σε δρομολόγιο παράδοσης</item>
         <item>πλησιάζει στο χώρο παράδοσης</item>
         <item>εξοδος για παράδοση</item>
+        <item>arrived at the clever point</item>
+        <item>έφτασε στο clever point</item>
     </string-array>
     <string-array name="status_keywords_problem" translatable="false">
         <item>canceled</item>

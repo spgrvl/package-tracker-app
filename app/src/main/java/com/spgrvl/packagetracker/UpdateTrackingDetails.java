@@ -260,6 +260,89 @@ public class UpdateTrackingDetails {
         }
     }
 
+    private ArrayList<TrackingDetailsModel> trackCleverPoint() {
+        String lang = languagePref.equals("el_GR") || languagePref.equals("el") ? "el" : "en";
+        String base = "https://platform.cleverpoint.gr/apiv2/shop/tracking/";
+        OkHttpClient client = new OkHttpClient();
+        try {
+            String shipmentId;
+            Request findRequest = new Request.Builder()
+                    .url(base + "FindAwbs?awb=" + tracking + "&langCode=" + lang)
+                    .build();
+            try (Response response = client.newCall(findRequest).execute()) {
+                if (!response.isSuccessful()) {
+                    return new ArrayList<>();
+                }
+                JSONArray shipments = new JSONArray(Objects.requireNonNull(response.body()).string());
+                if (shipments.length() == 0) {
+                    return new ArrayList<>();
+                }
+                shipmentId = shipments.getJSONObject(0).getString("shipmentMasterId");
+            }
+
+            Request infoRequest = new Request.Builder()
+                    .url(base + "GetTrackingInfo?shipmentMasterId=" + shipmentId + "&langCode=" + lang)
+                    .build();
+            try (Response response = client.newCall(infoRequest).execute()) {
+                if (response.isSuccessful()) {
+                    return parseCleverPointInfo(Objects.requireNonNull(response.body()).string(),
+                            context.getString(R.string.cleverPoint_arrived));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * Parses Clever Point tracking info into newest-first details. Uses its event history when
+     * present; older shipments only keep a summary, so events are built from the arrival at the
+     * pickup point and the collection. Recipient details in the response are never read.
+     */
+    static ArrayList<TrackingDetailsModel> parseCleverPointInfo(String json, String arrivedLabel) throws JSONException {
+        JSONObject info = new JSONObject(json);
+        JSONObject main = info.optJSONObject("mainData");
+        JSONObject pod = info.optJSONObject("podData");
+        JSONArray history = info.optJSONArray("trackingData");
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+
+        if (history != null) {
+            for (int i = 0; i < history.length(); i++) {
+                JSONObject event = history.getJSONObject(i);
+                detailsList.add(new TrackingDetailsModel(event.optString("trackingNote"),
+                        optText(event, "stationName"), formatGreekLocalTime(event.optString("timestamp"))));
+            }
+        }
+        if (detailsList.isEmpty() && main != null) {
+            String checkIn = optText(main, "checkInDt");
+            if (!checkIn.isEmpty()) {
+                detailsList.add(new TrackingDetailsModel(arrivedLabel, optText(main, "deliveryStationName"),
+                        formatGreekLocalTime(checkIn)));
+            }
+        }
+        // The collection is only in the summary; add it unless the history already ends with it
+        String deliveredAt = pod != null ? optText(pod, "deliveryDateTime") : "";
+        String status = main != null ? optText(main, "shipmentStatusNameDesc") : "";
+        if (!deliveredAt.isEmpty() && !status.isEmpty()) {
+            String deliveredTime = formatGreekLocalTime(deliveredAt);
+            boolean alreadyListed = false;
+            for (TrackingDetailsModel detail : detailsList) {
+                alreadyListed |= detail.getDatetime().equals(deliveredTime);
+            }
+            if (!alreadyListed) {
+                detailsList.add(new TrackingDetailsModel(status, optText(pod, "stationName"), deliveredTime));
+            }
+        }
+        detailsList.sort((a, b) -> Long.compare(displayTimeMillis(b.getDatetime()), displayTimeMillis(a.getDatetime())));
+        return detailsList;
+    }
+
+    /** Like optString, but treats JSON null as empty instead of the text "null". */
+    private static String optText(JSONObject object, String key) {
+        return object.isNull(key) ? "" : object.optString(key);
+    }
+
     private ArrayList<TrackingDetailsModel> trackSpeedex() {
         Document doc;
         String url, deliveredSubtitle;
@@ -737,6 +820,16 @@ public class UpdateTrackingDetails {
     }
 
     private String detectCarrier() {
+        String carrier = detectCarrierByFormat();
+        // Clever Point is a network of pickup points tracking other carriers' numbers, so it has
+        // no number format of its own: ask it about numbers no carrier recognised
+        if (carrier == null && !trackCleverPoint().isEmpty()) {
+            carrier = "cleverPoint";
+        }
+        return carrier;
+    }
+
+    private String detectCarrierByFormat() {
         if (Pattern.compile(eltaTrackingRegex).matcher(tracking).find()) {
             return "elta";
         } else if (Pattern.compile(easyMailTracking2Regex).matcher(tracking).find()) {
@@ -786,8 +879,10 @@ public class UpdateTrackingDetails {
         try {
             String url = "https://www.courier.gr/track/result?tracknr=" + tracking;
             Document doc = Jsoup.connect(url).get();
-            Elements date = doc.getElementsByClass("td date");
-            if (date.size() > 0) {
+            // The page always contains empty date cells, even for unknown numbers, so look for
+            // actual event rows (the same cells trackCourierCenter() reads)
+            Elements events = doc.getElementsByClass("td action");
+            if (events.size() > 0) {
                 carrier = "courierCenter";
             }
         } catch (Exception e) {
@@ -873,6 +968,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "easyMail":
                         detailsList = trackEasyMail();
+                        break;
+                    case "cleverPoint":
+                        detailsList = trackCleverPoint();
                         break;
                     case "boxNow":
                         detailsList = trackBoxNow();

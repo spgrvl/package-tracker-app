@@ -43,6 +43,8 @@
     <string name="changes_restart_toast">Οι αλλαγές θα ισχύσουν μετά την επανεκκίνηση της εφαρμογής</string>
     <string name="channelPkg_notification_description">Αυτό το κανάλι ειδοποιήσεων εμφανίζει πληροφορίες σχετικά με νέες ενημερώσεις πακέτων</string>
     <string name="choose_barcode">Επιλέξτε ένα barcode για προσθήκη</string>
+    <string name="cleverPoint">Clever Point</string>
+    <string name="cleverPoint_arrived">Το δέμα έφτασε στο Clever Point</string>
     <string name="clipboard_pref">Ανίχνευση προχείρου</string>
     <string name="clipboard_pref_summary">Εντοπισμός αριθμού αποστολής από το πρόχειρο της συσκευής</string>
     <string name="cometHellas">Comet Hellas</string>
