@@ -82,12 +82,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
     }
 
+    /**
+     * Quoted name of a package's details table. Tracking numbers come from user input, barcodes
+     * and backups, so quotes inside them are escaped instead of breaking the SQL.
+     */
+    private static String detailsTable(String tracking) {
+        return "\"" + tracking.replace("\"", "\"\"") + "\"";
+    }
+
     public boolean addNewTracking(String Tracking, String CustomName, Boolean Completed, String Created) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Create table for details of new Tracking number
         try {
-            String createTrackingTable = "CREATE TABLE IF NOT EXISTS '" + Tracking + "'(" + STATUS_COL + " TEXT, " + PLACE_COL + " TEXT, " + DATETIME_COL + " TEXT )";
+            String createTrackingTable = "CREATE TABLE IF NOT EXISTS " + detailsTable(Tracking) + "(" + STATUS_COL + " TEXT, " + PLACE_COL + " TEXT, " + DATETIME_COL + " TEXT )";
             db.execSQL(createTrackingTable);
 
             if (Created == null) {
@@ -122,13 +130,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.beginTransaction();
         try {
-            db.execSQL("DELETE FROM '" + tracking + "'");
+            db.execSQL("DELETE FROM " + detailsTable(tracking));
             for (int i = 0; i < detailsList.size(); i++) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(STATUS_COL, detailsList.get(i).getStatus());
                 contentValues.put(PLACE_COL, detailsList.get(i).getPlace());
                 contentValues.put(DATETIME_COL, detailsList.get(i).getDatetime());
-                db.insert("'" + tracking + "'", null, contentValues);
+                db.insert(detailsTable(tracking), null, contentValues);
             }
             db.setTransactionSuccessful();
         } finally {
@@ -240,9 +248,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList<String> indexEntry = new ArrayList<>();
 
         SQLiteDatabase db = this.getReadableDatabase();
-        String queryString = "SELECT rowid, * FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = '" + tracking + "'";
+        String queryString = "SELECT rowid, * FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = ?";
 
-        Cursor cursor = db.rawQuery(queryString, null);
+        Cursor cursor = db.rawQuery(queryString, new String[]{tracking});
         cursor.moveToFirst();
         indexEntry.add(cursor.getString(0)); // RowID
         indexEntry.add(cursor.getString(1)); // TrackingNumber
@@ -266,7 +274,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
             ContentValues contentValues = new ContentValues();
             if (!tracking.equals(newTracking)) {
-                db.execSQL("ALTER TABLE '" + tracking + "' RENAME TO '" + newTracking + "'");
+                db.execSQL("ALTER TABLE " + detailsTable(tracking) + " RENAME TO " + detailsTable(newTracking));
                 contentValues.put(TRACKING_COL, newTracking);
             }
             contentValues.put(CUSTOM_NAME_COL, customName);
@@ -285,7 +293,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // get data from DB
 
         SQLiteDatabase db = this.getReadableDatabase();
-        String queryString = "SELECT * FROM '" + tracking + "'";
+        String queryString = "SELECT * FROM " + detailsTable(tracking);
 
         Cursor cursor = db.rawQuery(queryString, null);
 
@@ -312,7 +320,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // get data from DB
 
         SQLiteDatabase db = this.getReadableDatabase();
-        String queryString = "SELECT COUNT(*) FROM '" + tracking + "'";
+        String queryString = "SELECT COUNT(*) FROM " + detailsTable(tracking);
 
         Cursor cursor = db.rawQuery(queryString, null);
 
@@ -332,9 +340,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // get data from DB
 
         SQLiteDatabase db = this.getReadableDatabase();
-        String queryString = "SELECT " + UNREAD_COL + " FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = '" + tracking + "'";
+        String queryString = "SELECT " + UNREAD_COL + " FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = ?";
 
-        Cursor cursor = db.rawQuery(queryString, null);
+        Cursor cursor = db.rawQuery(queryString, new String[]{tracking});
 
         int isUnread = -1;
         if (cursor.moveToFirst()) {
@@ -375,9 +383,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Delete tracking table
-        db.execSQL("DROP TABLE IF EXISTS '" + tracking + "'");
+        db.execSQL("DROP TABLE IF EXISTS " + detailsTable(tracking));
 
-        db.execSQL("DELETE FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = '" + tracking + "'");
+        db.execSQL("DELETE FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = ?", new Object[]{tracking});
 
         // close db when done.
         db.close();
