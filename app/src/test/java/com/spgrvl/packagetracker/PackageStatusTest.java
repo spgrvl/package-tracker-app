@@ -123,6 +123,10 @@ public class PackageStatusTest {
                     active(String.format(plaisio.get("plaisio_sent_to_store"), "ΚΑΤΑΣΤΗΜΑ ΠΑΤΡΑΣ - ΚΕΝΤΡΟ")));
             assertEquals(valuesDir, PackageStatus.IN_TRANSIT,
                     active(String.format(plaisio.get("plaisio_scheduled_delivery"), "22/10/2025")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(String.format(
+                    plaisio.get("plaisio_scheduled_delivery_window"), "08/10/2026", "10:20", "12:20")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT,
+                    active(String.format(plaisio.get("plaisio_collecting_products_estimate"), "14/10/2026")));
             assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(plaisio.get("plaisio_invoiced")));
             assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(String.format(plaisio.get("plaisio_processing_pickup"),
                     "18/12/2020", "10:00", "ΚΑΤΑΣΤΗΜΑ ΒΕΝΙΖΕΛΟΥ ΘΕΣΣΑΛΟΝΙΚ")));

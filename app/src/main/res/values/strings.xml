@@ -132,6 +132,7 @@
     <string name="plaisioGeniki">Plaisio → Geniki Taxydromiki</string>
     <string name="plaisioSpeedex">Plaisio → Speedex</string>
     <string name="plaisio_collecting_products">The products of your order are being collected.</string>
+    <string name="plaisio_collecting_products_estimate">The products of your order are being collected, with estimated delivery by %1$s.</string>
     <string name="plaisio_courier_delayed">Your order with voucher %1$s has passed its estimated delivery date of %2$s with the courier %3$s. There are delays due to the high volume of shipments!</string>
     <string name="plaisio_delivered">Your order has been delivered.</string>
     <string name="plaisio_handed_to_courier">Your order is ready and was handed to the courier on %1$s.</string>
@@ -145,6 +146,7 @@
     <string name="plaisio_processing_pickup">Your order was placed successfully and will be ready for pickup on %1$s at %2$s from %3$s.</string>
     <string name="plaisio_ready_for_pickup">Your order is ready for pickup at %1$s from %2$s.</string>
     <string name="plaisio_scheduled_delivery">Your order is scheduled for delivery to you, estimated by %1$s.</string>
+    <string name="plaisio_scheduled_delivery_window">Your order is scheduled for delivery to you on %1$s, estimated between %2$s and %3$s.</string>
     <string name="plaisio_sent_to_store">Your order is on its way to %1$s for pickup.</string>
     <string name="possible_tracking_id">Possible tracking ID detected:\u0020</string>
     <string name="refresh">Refresh</string>

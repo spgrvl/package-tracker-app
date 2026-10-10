@@ -132,6 +132,7 @@
     <string name="plaisioGeniki">Πλαίσιο → Γενικη Ταχυδρομικη</string>
     <string name="plaisioSpeedex">Πλαίσιο → Speedex</string>
     <string name="plaisio_collecting_products">Η παραγγελία σου είναι στο στάδιο της συλλογής των προϊόντων.</string>
+    <string name="plaisio_collecting_products_estimate">Η παραγγελία σου είναι στο στάδιο της συλλογής των προϊόντων με εκτιμώμενη ημερομηνία παράδοσης έως τις %1$s.</string>
     <string name="plaisio_courier_delayed">Η παραγγελία σου με αρ.Voucher %1$s έχει ξεπεράσει την εκτιμώμενη ημερομηνία παράδοσης έως τις %2$s από την Courier %3$s. Υπάρχουν καθυστερήσεις λόγω του μεγάλου όγκου αποστολών!</string>
     <string name="plaisio_delivered">Η παραγγελία σου έχει ήδη παραδοθεί.</string>
     <string name="plaisio_handed_to_courier">Η παραγγελία σου είναι έτοιμη και την παραδώσαμε στην courier %1$s.</string>
@@ -145,6 +146,7 @@
     <string name="plaisio_processing_pickup">Η παραγγελία σου καταχωρήθηκε με επιτυχία και θα είναι έτοιμη για παραλαβή %1$s %2$s από το %3$s.</string>
     <string name="plaisio_ready_for_pickup">Η παραγγελία σου βρίσκεται στο %1$s και σε περιμένει να την παραλάβεις σήμερα %2$s.</string>
     <string name="plaisio_scheduled_delivery">Η παραγγελία σου έχει ήδη δρομολογηθεί για παράδοση στο χώρο σου με εκτιμώμενη ημερομηνία έως τις %1$s.</string>
+    <string name="plaisio_scheduled_delivery_window">Η παραγγελία σου έχει ήδη δρομολογηθεί για παράδοση στο χώρο σου στις %1$s με εκτιμώμενη ώρα παράδοσης %2$s - %3$s.</string>
     <string name="plaisio_sent_to_store">Η παραγγελία σου δρομολογήθηκε για παραλαβή από το %1$s.</string>
     <string name="possible_tracking_id">Εντοπίστηκε πιθανός αριθμός αποστολής:\u0020</string>
     <string name="refresh">Ανανέωση</string>
