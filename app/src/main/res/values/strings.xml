@@ -180,6 +180,11 @@
         <item>παραδοση σε skroutz point</item>
         <item>παραδοση αποστολης απο smart point</item>
     </string-array>
+    <!-- Contain "delivered" but mean the parcel is still on its way; checked before status_keywords_delivered -->
+    <string-array name="status_keywords_not_delivered" translatable="false">
+        <item>being delivered</item>
+        <item>to be delivered</item>
+    </string-array>
     <string-array name="status_keywords_out_for_delivery" translatable="false">
         <item>out for delivery</item>
         <item>with courier for delivery</item>
