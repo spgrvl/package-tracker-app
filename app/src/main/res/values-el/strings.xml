@@ -126,6 +126,11 @@
     <string name="packages_deleted">Διαγράφηκαν %1$d πακέτα</string>
     <string name="place">Τοποθεσία</string>
     <string name="plaisio">Πλαίσιο</string>
+    <string name="plaisioBoxNow">Πλαίσιο → BoxNow</string>
+    <string name="plaisioEasyMail">Πλαίσιο → Easy Mail</string>
+    <string name="plaisioElta">Πλαίσιο → Ελτα</string>
+    <string name="plaisioGeniki">Πλαίσιο → Γενικη Ταχυδρομικη</string>
+    <string name="plaisioSpeedex">Πλαίσιο → Speedex</string>
     <string name="plaisio_collecting_products">Η παραγγελία σου είναι στο στάδιο της συλλογής των προϊόντων.</string>
     <string name="plaisio_courier_delayed">Η παραγγελία σου με αρ.Voucher %1$s έχει ξεπεράσει την εκτιμώμενη ημερομηνία παράδοσης έως τις %2$s από την Courier %3$s. Υπάρχουν καθυστερήσεις λόγω του μεγάλου όγκου αποστολών!</string>
     <string name="plaisio_delivered">Η παραγγελία σου έχει ήδη παραδοθεί.</string>

@@ -533,6 +533,11 @@ public class UpdateTrackingDetails {
         return null;
     }
 
+    /** The combined carrier of a Plaisio order handed to a tracked courier, e.g. "plaisioBoxNow". */
+    static String plaisioWithCourier(String courier) {
+        return "plaisio" + Character.toUpperCase(courier.charAt(0)) + courier.substring(1);
+    }
+
     /** Adds the courier's events to a Plaisio order's, newest first; courier events win ties. */
     static ArrayList<TrackingDetailsModel> mergePlaisioWithCourier(List<TrackingDetailsModel> plaisioDetails,
                                                                     List<TrackingDetailsModel> courierDetails) {
@@ -1252,7 +1257,11 @@ public class UpdateTrackingDetails {
                     case "plaisio":
                         detailsList = trackPlaisio();
                         // Plaisio's own history ends when it hands the order to a courier
-                        detailsList = mergePlaisioWithCourier(detailsList, trackPlaisioCourier());
+                        ArrayList<TrackingDetailsModel> courierDetails = trackPlaisioCourier();
+                        if (!courierDetails.isEmpty()) {
+                            detailsList = mergePlaisioWithCourier(detailsList, courierDetails);
+                            carrier = plaisioWithCourier(plaisioCourier[0]);
+                        }
                         break;
                     case "boxNow":
                         detailsList = trackBoxNow();

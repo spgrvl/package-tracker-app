@@ -384,6 +384,18 @@ public class UpdateTrackingDetailsTest {
     }
 
     @Test
+    public void plaisioCombinedWithEveryTrackedCourierIsNamed() {
+        for (String valuesDir : new String[]{"values", "values-el"}) {
+            Map<String, String> strings = StringResources.load(valuesDir).stringsWithPrefix("");
+            for (String courier : new String[]{"boxNow", "geniki", "speedex", "easyMail", "elta"}) {
+                String carrier = UpdateTrackingDetails.plaisioWithCourier(courier);
+                assertEquals(valuesDir + "/" + carrier, strings.get("plaisio") + " → " + strings.get(courier),
+                        strings.get(carrier));
+            }
+        }
+    }
+
+    @Test
     public void plaisioIsMergedWithTheCourierNewestFirst() {
         List<TrackingDetailsModel> plaisio = Arrays.asList(
                 detail("Your order has been picked up by BOX NOW", "BoxNow 0000000107", "15/11/2024 18:31"),

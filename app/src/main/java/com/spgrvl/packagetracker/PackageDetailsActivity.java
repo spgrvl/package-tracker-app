@@ -225,6 +225,12 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                         url = "https://www.e-shop.gr/status?id=" + tracking;
                         break;
                     case "plaisio":
+                    case "plaisioBoxNow":
+                    case "plaisioEasyMail":
+                    case "plaisioElta":
+                    case "plaisioGeniki":
+                    case "plaisioSpeedex":
+                        // Plaisio's page links to the courier's own tracking
                         url = "https://www.plaisio.gr/order-tracking/" + tracking;
                         break;
                 }
@@ -326,6 +332,11 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             case "elta":            return R.drawable.ic_carrier_elta;
             case "eshop":           return R.drawable.ic_carrier_eshop;
             case "plaisio":         return R.drawable.ic_carrier_plaisio;
+            case "plaisioBoxNow":   return R.drawable.ic_carrier_plaisio_boxnow;
+            case "plaisioEasyMail": return R.drawable.ic_carrier_plaisio_easy_mail;
+            case "plaisioElta":     return R.drawable.ic_carrier_plaisio_elta;
+            case "plaisioGeniki":   return R.drawable.ic_carrier_plaisio_geniki;
+            case "plaisioSpeedex":  return R.drawable.ic_carrier_plaisio_speedex;
             case "geniki":          return R.drawable.ic_carrier_geniki;
             case "skroutzLastMile": return R.drawable.ic_carrier_skroutz_last_mile;
             case "speedex":         return R.drawable.ic_carrier_speedex;

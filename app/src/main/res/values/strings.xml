@@ -126,6 +126,11 @@
     <string name="packages_deleted">Deleted %1$d packages</string>
     <string name="place">Place</string>
     <string name="plaisio">Plaisio</string>
+    <string name="plaisioBoxNow">Plaisio → BoxNow</string>
+    <string name="plaisioEasyMail">Plaisio → Easy Mail</string>
+    <string name="plaisioElta">Plaisio → Elta</string>
+    <string name="plaisioGeniki">Plaisio → Geniki Taxydromiki</string>
+    <string name="plaisioSpeedex">Plaisio → Speedex</string>
     <string name="plaisio_collecting_products">The products of your order are being collected.</string>
     <string name="plaisio_courier_delayed">Your order with voucher %1$s has passed its estimated delivery date of %2$s with the courier %3$s. There are delays due to the high volume of shipments!</string>
     <string name="plaisio_delivered">Your order has been delivered.</string>
