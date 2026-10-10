@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -333,12 +334,9 @@ public class UpdateTrackingDetails {
                             JSONObject jsonObject = jsonArray.getJSONObject(i);
                             if (jsonObject.getInt("flag_sort") == 1) {
                                 String timestampOriginal = jsonObject.getString("Ημερομηνία_ώρα");
-                                SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
-                                Date date = inputFormatter.parse(timestampOriginal);
-                                SimpleDateFormat outputFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
                                 String status = jsonObject.getString("Περιγραφή");
                                 String place = jsonObject.getString("Σημείο_ελέγχου");
-                                detailsList.add(new TrackingDetailsModel(status, place, outputFormatter.format(date)));
+                                detailsList.add(new TrackingDetailsModel(status, place, formatGreekLocalTime(timestampOriginal)));
                             }
                         }
                     } catch (Exception e) {
@@ -355,6 +353,53 @@ public class UpdateTrackingDetails {
             e.printStackTrace();
         }
         return detailsList;
+    }
+
+    static boolean isHandedToSkroutzLastMile(List<TrackingDetailsModel> acsDetails) {
+        for (TrackingDetailsModel detail : acsDetails) {
+            if (detail.getStatus().toUpperCase(Locale.ROOT).contains("SLM")
+                    || detail.getPlace().toUpperCase(Locale.ROOT).contains("SLM")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Combines an ACS history with the Skroutz Last Mile one for the same parcel, newest first:
+     * ACS events except its "SLM DELIVERY" handover, then the Skroutz events after the last ACS
+     * event (earlier Skroutz events mirror ACS ones).
+     */
+    static ArrayList<TrackingDetailsModel> mergeAcsWithSkroutzLastMile(List<TrackingDetailsModel> acsDetails,
+                                                                       List<TrackingDetailsModel> skroutzDetails) {
+        ArrayList<TrackingDetailsModel> acsKept = new ArrayList<>();
+        long latestAcsTime = Long.MIN_VALUE;
+        for (TrackingDetailsModel detail : acsDetails) {
+            if (!detail.getStatus().toUpperCase(Locale.ROOT).contains("SLM DELIVERY")) {
+                acsKept.add(detail);
+                latestAcsTime = Math.max(latestAcsTime, displayTimeMillis(detail.getDatetime()));
+            }
+        }
+
+        ArrayList<TrackingDetailsModel> merged = new ArrayList<>();
+        for (TrackingDetailsModel detail : skroutzDetails) {
+            if (displayTimeMillis(detail.getDatetime()) > latestAcsTime) {
+                merged.add(detail);
+            }
+        }
+        merged.addAll(acsKept);
+        // Stable sort keeps the carriers' own order for events in the same minute
+        merged.sort((a, b) -> Long.compare(displayTimeMillis(b.getDatetime()), displayTimeMillis(a.getDatetime())));
+        return merged;
+    }
+
+    private static long displayTimeMillis(String datetime) {
+        try {
+            Date date = new SimpleDateFormat(DISPLAY_DATE_FORMAT, Locale.ENGLISH).parse(datetime);
+            return Objects.requireNonNull(date).getTime();
+        } catch (Exception e) {
+            return Long.MIN_VALUE;
+        }
     }
 
     private ArrayList<TrackingDetailsModel> trackSkroutzLastMile() {
@@ -801,6 +846,14 @@ public class UpdateTrackingDetails {
                         break;
                     case "acs":
                         detailsList = trackAcs();
+                        // ACS hands some parcels to Skroutz Last Mile for the final delivery,
+                        // which tracks them under the same number
+                        if (isHandedToSkroutzLastMile(detailsList)) {
+                            ArrayList<TrackingDetailsModel> skroutzDetails = trackSkroutzLastMile();
+                            if (!skroutzDetails.isEmpty()) {
+                                detailsList = mergeAcsWithSkroutzLastMile(detailsList, skroutzDetails);
+                            }
+                        }
                         break;
                     case "cometHellas":
                         detailsList = trackCometHellas();

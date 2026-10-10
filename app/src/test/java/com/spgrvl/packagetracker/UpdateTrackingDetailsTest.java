@@ -1,12 +1,15 @@
 package com.spgrvl.packagetracker;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -76,5 +79,70 @@ public class UpdateTrackingDetailsTest {
         assertEquals("08/07/2026 05:30", UpdateTrackingDetails.formatGreekLocalTime("2026-07-08T05:30:53.347"));
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         assertEquals("08/07/2026 02:30", UpdateTrackingDetails.formatGreekLocalTime("2026-07-08T05:30:53.347"));
+    }
+
+    // --- ACS handed over to Skroutz Last Mile ---
+
+    private static List<TrackingDetailsModel> acsHandedToSkroutz() {
+        return Arrays.asList(
+                detail("ΠΑΡΑΔΟΣΗ - SLM DELIVERY", "W50 - SLM ΠΑΤΡΑ", "13/07/2026 23:47"),
+                detail("ΑΝΑΧΩΡΗΣΗ ΑΠΟ ΚΕΝΤΡΟ ΔΙΑΛΟΓΗΣ", "HUB ΑΘΗΝΩΝ", "08/07/2026 05:30"),
+                detail("ΚΕΝΤΡΟ ΔΙΑΛΟΓΗΣ", "HUB ΑΘΗΝΩΝ", "08/07/2026 05:30"),
+                detail("ΑΝΑΧΩΡΗΣΗ W50 - SLM ΠΑΤΡΑ", "ΚΟΖΑΝΗ", "07/07/2026 15:31"),
+                detail("ΠΑΡΑΛΑΒΗ ΑΠΟ ΑΠΟΣΤΟΛΕΑ", "ΚΟΖΑΝΗ", "07/07/2026 15:30"));
+    }
+
+    private static List<TrackingDetailsModel> skroutzForSameParcel() {
+        return Arrays.asList(
+                detail("Παραδόθηκε", "", "13/07/2026 23:47"),
+                detail("Παράδοση σε Skroutz Point", "", "13/07/2026 14:28"),
+                detail("Η αποστολή βρίσκεται σε δρομολόγιο παράδοσης", "", "13/07/2026 10:50"),
+                detail("Η αποστολή βρίσκεται στο SLM HUB Πάτρα", "", "09/07/2026 10:11"),
+                detail("Η αποστολή βρίσκεται στο Hub ACS", "", "08/07/2026 07:15"),
+                detail("Παραλάβαμε το δέμα από το κατάστημα", "", "07/07/2026 15:35"));
+    }
+
+    @Test
+    public void acsHandoverToSkroutzIsDetected() {
+        assertTrue(UpdateTrackingDetails.isHandedToSkroutzLastMile(acsHandedToSkroutz()));
+        assertFalse(UpdateTrackingDetails.isHandedToSkroutzLastMile(Arrays.asList(
+                detail("ΠΑΡΑΔΟΣΗ", "ΚΑΤΑΣΤΗΜΑ ΠΑΤΡΑΣ", "13/07/2026 12:00"),
+                detail("ΠΑΡΑΛΑΒΗ ΑΠΟ ΑΠΟΣΤΟΛΕΑ", "ΚΟΖΑΝΗ", "07/07/2026 15:30"))));
+    }
+
+    @Test
+    public void mergedTimelineCoversTheWholeRouteWithoutDuplicates() {
+        List<TrackingDetailsModel> merged = UpdateTrackingDetails.mergeAcsWithSkroutzLastMile(
+                acsHandedToSkroutz(), skroutzForSameParcel());
+
+        List<String> statuses = new ArrayList<>();
+        for (TrackingDetailsModel detail : merged) {
+            statuses.add(detail.getStatus());
+        }
+        assertEquals(Arrays.asList(
+                "Παραδόθηκε",
+                "Παράδοση σε Skroutz Point",
+                "Η αποστολή βρίσκεται σε δρομολόγιο παράδοσης",
+                "Η αποστολή βρίσκεται στο SLM HUB Πάτρα",
+                "Η αποστολή βρίσκεται στο Hub ACS",
+                "ΑΝΑΧΩΡΗΣΗ ΑΠΟ ΚΕΝΤΡΟ ΔΙΑΛΟΓΗΣ",
+                "ΚΕΝΤΡΟ ΔΙΑΛΟΓΗΣ",
+                "ΑΝΑΧΩΡΗΣΗ W50 - SLM ΠΑΤΡΑ",
+                "ΠΑΡΑΛΑΒΗ ΑΠΟ ΑΠΟΣΤΟΛΕΑ"), statuses);
+    }
+
+    @Test
+    public void skroutzEventsOlderThanAcsAreDroppedWhileStillWithAcs() {
+        // Before ACS reaches the hub, Skroutz only mirrors the ACS pickup
+        List<TrackingDetailsModel> acs = Arrays.asList(
+                detail("ΑΝΑΧΩΡΗΣΗ W50 - SLM ΠΑΤΡΑ", "ΚΟΖΑΝΗ", "07/07/2026 15:31"),
+                detail("ΠΑΡΑΛΑΒΗ ΑΠΟ ΑΠΟΣΤΟΛΕΑ", "ΚΟΖΑΝΗ", "07/07/2026 15:30"));
+        List<TrackingDetailsModel> skroutz = Arrays.asList(
+                detail("Παραλάβαμε το δέμα από το κατάστημα", "", "07/07/2026 15:30"));
+
+        List<TrackingDetailsModel> merged = UpdateTrackingDetails.mergeAcsWithSkroutzLastMile(acs, skroutz);
+
+        assertEquals(2, merged.size());
+        assertEquals("ΑΝΑΧΩΡΗΣΗ W50 - SLM ΠΑΤΡΑ", merged.get(0).getStatus());
     }
 }
