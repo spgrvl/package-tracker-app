@@ -147,6 +147,27 @@ public class PackageStatusTest {
     }
 
     @Test
+    public void diakinisisStatusesInBothLanguages() {
+        for (String valuesDir : new String[]{"values", "values-el"}) {
+            Map<String, String> diakinisis = StringResources.load(valuesDir).stringsWithPrefix("diakinisis_");
+            for (Map.Entry<String, String> status : diakinisis.entrySet()) {
+                String name = status.getKey();
+                PackageStatus expected;
+                if (name.equals("diakinisis_delivered")) {
+                    expected = PackageStatus.DELIVERED;
+                } else if (name.equals("diakinisis_out_for_delivery")) {
+                    expected = PackageStatus.OUT_FOR_DELIVERY;
+                } else {
+                    // Including the hand-over to a local partner, which mentions delivery
+                    expected = PackageStatus.IN_TRANSIT;
+                }
+                assertEquals(valuesDir + "/" + name, expected, active(status.getValue()));
+            }
+            assertEquals(valuesDir, PackageStatus.DELIVERED, active(diakinisis.get("diakinisis_delivered") + " (TEST RECIPIENT)"));
+        }
+    }
+
+    @Test
     public void normalizeIgnoresCaseAccentsAndFinalSigma() {
         assertEquals("παραδοθηκε", PackageStatus.normalize("ΠΑΡΑΔΌΘΗΚΕ"));
         assertEquals("προσ παραδοση", PackageStatus.normalize("Προς Παράδοση"));

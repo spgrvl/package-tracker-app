@@ -426,6 +426,84 @@ public class UpdateTrackingDetails {
         return detailsList;
     }
 
+    private ArrayList<TrackingDetailsModel> trackDiakinisis() {
+        // The tracking page (pod.diakinisis.gr/tnt.php?id=) loads its data from this endpoint
+        Request request = new Request.Builder()
+                .url("https://pod.diakinisis.gr/server_handler_ext.php")
+                .post(new FormBody.Builder()
+                        .add("cmd", "srvcmd_ext_tnt")
+                        .add("action", "srvaction_getrecordstatus")
+                        .add("trackingId", tracking)
+                        .add("secondId", "")
+                        .add("agreementId", "0")
+                        .build())
+                .build();
+        try (Response response = new OkHttpClient().newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                // The messages are only available in Greek; known ones are translated through
+                // the diakinisis_* resources (kept from shrinking in res/raw/keep.xml)
+                Map<String, String> translations = new HashMap<>();
+                for (String[] message : DIAKINISIS_MESSAGES) {
+                    translations.put(message[0], context.getString(context.getResources()
+                            .getIdentifier(message[1], "string", context.getPackageName())));
+                }
+                return parseDiakinisis(Objects.requireNonNull(response.body()).string(), translations);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    private static final String DIAKINISIS_DELIVERED = "Παραδόθηκε η παραγγελία σας.";
+
+    // Every message seen on Diakinisis' tracking page, with the resource that translates it
+    static final String[][] DIAKINISIS_MESSAGES = {
+            {"Καταχωρήθηκε η εντολή σας και περιμένουμε τον αποστολέα να ετοιμάσει την αποστολή σας.", "diakinisis_registered"},
+            {"Ολοκλήρωση Picking.", "diakinisis_picked"},
+            {"Η παραγγελία σας βρίσκεται στο κέντρο διανομής μας.", "diakinisis_at_hub"},
+            {"Η παραγγελία σας έχει προγραμματιστεί για δρομολόγηση.", "diakinisis_scheduled"},
+            {"Η παραγγελία φορτώθηκε για να σας παραδοθεί.", "diakinisis_out_for_delivery"},
+            {"Η παραγγελία σας παραδόθηκε σε τοπικό συνεργάτη.", "diakinisis_handed_to_partner"},
+            {DIAKINISIS_DELIVERED, "diakinisis_delivered"},
+    };
+
+    /**
+     * Parses Diakinisis' tracking response into newest-first details, naming the recipient on the
+     * delivery. Returns an empty list for unknown (or expired) tracking numbers.
+     */
+    static ArrayList<TrackingDetailsModel> parseDiakinisis(String json, Map<String, String> translations) throws JSONException {
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+        // A JSON array of {status, message, data}; apostrophes in names come escaped as \'
+        JSONArray result = new JSONArray(json.replace("\\'", "'"));
+        JSONObject data = result.optJSONObject(2);
+        if (!"1".equals(result.optString(0)) || data == null) {
+            return detailsList;
+        }
+        JSONObject order = data.optJSONObject("order");
+        String recipient = order != null ? optText(order, "recipient").trim() : "";
+        JSONArray history = data.optJSONArray("history");
+        for (int i = 0; history != null && i < history.length(); i++) {
+            JSONObject event = history.getJSONObject(i);
+            // One message is written with a Latin "H"
+            String action = optText(event, "action").trim().replaceFirst("^H ", "Η ");
+            String status = translate(translations, action);
+            if (action.equals(DIAKINISIS_DELIVERED)) {
+                status = withRecipient(status, recipient);
+            }
+            String time = optText(event, "action_time");
+            String datetime = (optText(event, "action_date") + " " + time.substring(0, Math.min(5, time.length()))).trim();
+            // Comments name the depot, or the sender's import file which means nothing to the recipient
+            String place = optText(event, "action_comment").trim();
+            if (place.startsWith("Imported From")) {
+                place = "";
+            }
+            detailsList.add(new TrackingDetailsModel(status, place, datetime));
+        }
+        Collections.reverse(detailsList);
+        return detailsList;
+    }
+
     private static String translate(Map<String, String> translations, String text) {
         String translated = translations.get(text);
         return translated != null ? translated : text;
@@ -451,6 +529,7 @@ public class UpdateTrackingDetails {
                 courierNames.put("speedex", context.getString(R.string.speedex));
                 courierNames.put("easyMail", context.getString(R.string.easyMail));
                 courierNames.put("elta", context.getString(R.string.elta));
+                courierNames.put("diakinisis", context.getString(R.string.diakinisis));
                 plaisioCourier = plaisioCourier(json);
                 return parsePlaisioHistory(json, translations, courierNames);
             }
@@ -483,6 +562,9 @@ public class UpdateTrackingDetails {
                 case "easyMail":
                     courierDetails = trackEasyMail();
                     break;
+                case "diakinisis":
+                    courierDetails = trackDiakinisis();
+                    break;
                 case "elta":
                     courierDetails = trackElta();
                     if (courierDetails.isEmpty()) {
@@ -504,7 +586,7 @@ public class UpdateTrackingDetails {
             {"speedex", "speedex\\.gr/.*[?&]voucher_code=([A-Za-z0-9]+)"},
             {"easyMail", "trackntrace\\.easymail\\.gr/([A-Za-z0-9]+)"},
             {"elta", "elta\\.gr/.*/([A-Za-z]{2}[0-9]{9}[A-Za-z]{2})"},
-            {"ΔΙΑΚΙΝΗΣΙΣ", "diakinisis\\.gr/.*[?&]id=([A-Za-z0-9]+)"},
+            {"diakinisis", "diakinisis\\.gr/.*[?&]id=([A-Za-z0-9]+)"},
             {"Aiolos Courier", "aioloscourier\\.gr/.*[?&]shipping_num=([A-Za-z0-9]+)"},
     };
 
@@ -1132,7 +1214,7 @@ public class UpdateTrackingDetails {
     }
 
     private String acsOrGenikiOrBoxNow() {
-        // determine if tracking belongs to ACS, Geniki or BoxNow
+        // determine if tracking belongs to ACS, Geniki, BoxNow or Diakinisis
         String carrier;
         ArrayList<TrackingDetailsModel> detailsList;
 
@@ -1147,6 +1229,8 @@ public class UpdateTrackingDetails {
                 detailsList = trackGeniki();
                 if (!detailsList.isEmpty()) {
                     carrier = "geniki";
+                } else if (!trackDiakinisis().isEmpty()) {
+                    carrier = "diakinisis";
                 } else {
                     carrier = null;
                 }
@@ -1267,6 +1351,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "boxNow":
                         detailsList = trackBoxNow();
+                        break;
+                    case "diakinisis":
+                        detailsList = trackDiakinisis();
                         break;
                 }
             }

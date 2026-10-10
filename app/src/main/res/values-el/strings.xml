@@ -57,6 +57,14 @@
     </plurals>
     <string name="days_since">Ημέρες από</string>
     <string name="delatolas">Delatolas</string>
+    <string name="diakinisis">Διακίνησις</string>
+    <string name="diakinisis_registered">Καταχωρήθηκε η εντολή σας και περιμένουμε τον αποστολέα να ετοιμάσει την αποστολή σας.</string>
+    <string name="diakinisis_picked">Ολοκλήρωση Picking.</string>
+    <string name="diakinisis_at_hub">Η παραγγελία σας βρίσκεται στο κέντρο διανομής μας.</string>
+    <string name="diakinisis_scheduled">Η παραγγελία σας έχει προγραμματιστεί για δρομολόγηση.</string>
+    <string name="diakinisis_out_for_delivery">Η παραγγελία φορτώθηκε για να σας παραδοθεί.</string>
+    <string name="diakinisis_handed_to_partner">Η παραγγελία σας παραδόθηκε σε τοπικό συνεργάτη.</string>
+    <string name="diakinisis_delivered">Παραδόθηκε η παραγγελία σας.</string>
     <string name="delete">Διαγραφή</string>
     <string name="delete_confirmation">Θέλετε να διαγράψετε αυτό το πακέτο;</string>
     <string name="delete_multiple_confirmation">Θέλετε να διαγράψετε %1$d πακέτα;</string>
@@ -127,6 +135,7 @@
     <string name="place">Τοποθεσία</string>
     <string name="plaisio">Πλαίσιο</string>
     <string name="plaisioBoxNow">Πλαίσιο → BoxNow</string>
+    <string name="plaisioDiakinisis">Πλαίσιο → Διακίνησις</string>
     <string name="plaisioEasyMail">Πλαίσιο → Easy Mail</string>
     <string name="plaisioElta">Πλαίσιο → Ελτα</string>
     <string name="plaisioGeniki">Πλαίσιο → Γενικη Ταχυδρομικη</string>

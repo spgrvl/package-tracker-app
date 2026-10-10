@@ -243,6 +243,68 @@ public class UpdateTrackingDetailsTest {
         assertTrue(UpdateTrackingDetails.parseCleverPointInfo("{\"mainData\":null,\"podData\":null,\"trackingData\":[]}", "x").isEmpty());
     }
 
+    // --- Diakinisis ---
+
+    // Shaped like a real response: a JSON array of {status, message, data}, with \' escapes
+    private static final String DIAKINISIS_DELIVERED_ORDER = "[\"1\",\"\",{\"order\":{\"order_id\":\"0000000103\","
+            + "\"send_company\":\"ΠΛΑΙΣΙΟ COMPUTERS A.E.B.E.\",\"recipient\":\"TEST RECIPIENT Β\\' ΑΕ\"},"
+            + "\"status\":{\"status\":\"Παραδόθηκε η παραγγελία σας.\",\"status_date\":\"31/07/2026\",\"status_time\":\"18:21:19\"},"
+            + "\"history\":["
+            + diakinisisEvent("Καταχωρήθηκε η εντολή σας και περιμένουμε τον αποστολέα να ετοιμάσει την αποστολή σας.", "27/07/2026", "07:24:31", "Imported From : PLAISIO 27.07.2026.xls") + ","
+            + diakinisisEvent("Η παραγγελία σας βρίσκεται στο κέντρο διανομής μας.", "27/07/2026", "13:13:08", "ΣΧΗΜΑΤΑΡΙ") + ","
+            + diakinisisEvent("H παραγγελία σας έχει προγραμματιστεί για δρομολόγηση.", "27/07/2026", "19:05:14", "") + ","
+            + diakinisisEvent("Κάτι καινούργιο.", "28/07/2026", "09:00:00", "") + ","
+            + diakinisisEvent("Παραδόθηκε η παραγγελία σας.", "31/07/2026", "18:21:19", "")
+            + "],\"documents\":[],\"ext_link\":\"\"}]";
+
+    private static String diakinisisEvent(String action, String date, String time, String comment) {
+        return "{\"action\":\"" + action + "\",\"action_reason_code\":\"\",\"action_date\":\"" + date
+                + "\",\"action_time\":\"" + time + "\",\"action_comment\":\"" + comment + "\",\"action_photo\":[]}";
+    }
+
+    private static Map<String, String> diakinisisTranslations(String valuesDir) {
+        Map<String, String> strings = StringResources.load(valuesDir).stringsWithPrefix("diakinisis_");
+        Map<String, String> translations = new HashMap<>();
+        for (String[] message : UpdateTrackingDetails.DIAKINISIS_MESSAGES) {
+            assertTrue("missing " + valuesDir + "/" + message[1], strings.containsKey(message[1]));
+            translations.put(message[0], strings.get(message[1]));
+        }
+        return translations;
+    }
+
+    @Test
+    public void diakinisisNewestFirstWithDepotAndRecipient() throws Exception {
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseDiakinisis(DIAKINISIS_DELIVERED_ORDER,
+                diakinisisTranslations("values"));
+        assertEquals(5, details.size());
+        assertEquals("Your order has been delivered. (TEST RECIPIENT Β' ΑΕ)", details.get(0).getStatus());
+        assertEquals("31/07/2026 18:21", details.get(0).getDatetime());
+        // Unknown messages are kept in Greek
+        assertEquals("Κάτι καινούργιο.", details.get(1).getStatus());
+        // Written with a Latin "H" by Diakinisis
+        assertEquals("Your order has been scheduled for dispatch.", details.get(2).getStatus());
+        assertEquals("Your order is at our distribution center.", details.get(3).getStatus());
+        assertEquals("ΣΧΗΜΑΤΑΡΙ", details.get(3).getPlace());
+        // The sender's import file isn't a place
+        assertEquals("", details.get(4).getPlace());
+        assertEquals("27/07/2026 07:24", details.get(4).getDatetime());
+    }
+
+    @Test
+    public void diakinisisGreekMessagesAreIdenticalToTheSite() {
+        Map<String, String> el = diakinisisTranslations("values-el");
+        for (String[] message : UpdateTrackingDetails.DIAKINISIS_MESSAGES) {
+            assertEquals(message[1], message[0], el.get(message[0]));
+        }
+        diakinisisTranslations("values");
+    }
+
+    @Test
+    public void diakinisisUnknownNumber() throws Exception {
+        assertTrue(UpdateTrackingDetails.parseDiakinisis("[\"0\",\"Δεν βρέθηκε κάμια Παραγγελία.\",[]]",
+                new HashMap<>()).isEmpty());
+    }
+
     // --- Plaisio ---
 
     // A real store-pickup order, as returned by plaisio.gr (orders hold no personal data)
@@ -373,7 +435,7 @@ public class UpdateTrackingDetailsTest {
                 {"http://www.speedex.gr/isapohi.asp?voucher_code=000000000101", "speedex", "000000000101"},
                 {"https://itemsearch.elta.gr/Query/Direct/EL123456789GR", "elta", "EL123456789GR"},
                 {"https://trackntrace.easymail.gr/000000000102", "easyMail", "000000000102"},
-                {"https://pod.diakinisis.gr/tnt.php?id=0000000103", "ΔΙΑΚΙΝΗΣΙΣ", "0000000103"},
+                {"https://pod.diakinisis.gr/tnt.php?id=0000000103", "diakinisis", "0000000103"},
                 {"https://www.aioloscourier.gr/track-trace/?shipping_num=0000000104", "Aiolos Courier", "0000000104"},
         };
         for (String[] link : links) {
@@ -389,7 +451,7 @@ public class UpdateTrackingDetailsTest {
     public void plaisioCombinedWithEveryTrackedCourierIsNamed() {
         for (String valuesDir : new String[]{"values", "values-el"}) {
             Map<String, String> strings = StringResources.load(valuesDir).stringsWithPrefix("");
-            for (String courier : new String[]{"boxNow", "geniki", "speedex", "easyMail", "elta"}) {
+            for (String courier : new String[]{"boxNow", "geniki", "speedex", "easyMail", "elta", "diakinisis"}) {
                 String carrier = UpdateTrackingDetails.plaisioWithCourier(courier);
                 assertEquals(valuesDir + "/" + carrier, strings.get("plaisio") + " → " + strings.get(courier),
                         strings.get(carrier));

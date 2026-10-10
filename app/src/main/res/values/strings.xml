@@ -56,6 +56,14 @@
     </plurals>
     <string name="days_since">Days since</string>
     <string name="delatolas">Delatolas</string>
+    <string name="diakinisis">Diakinisis</string>
+    <string name="diakinisis_registered">Your order has been registered and we are waiting for the sender to prepare your shipment.</string>
+    <string name="diakinisis_picked">Your order has been picked.</string>
+    <string name="diakinisis_at_hub">Your order is at our distribution center.</string>
+    <string name="diakinisis_scheduled">Your order has been scheduled for dispatch.</string>
+    <string name="diakinisis_out_for_delivery">Your order has been loaded for delivery to you.</string>
+    <string name="diakinisis_handed_to_partner">Your order has been handed over to a local partner.</string>
+    <string name="diakinisis_delivered">Your order has been delivered.</string>
     <string name="delete">Delete</string>
     <string name="delete_confirmation">Do you want to delete this package?</string>
     <string name="delete_multiple_confirmation">Do you want to delete %1$d packages?</string>
@@ -127,6 +135,7 @@
     <string name="place">Place</string>
     <string name="plaisio">Plaisio</string>
     <string name="plaisioBoxNow">Plaisio → BoxNow</string>
+    <string name="plaisioDiakinisis">Plaisio → Diakinisis</string>
     <string name="plaisioEasyMail">Plaisio → Easy Mail</string>
     <string name="plaisioElta">Plaisio → Elta</string>
     <string name="plaisioGeniki">Plaisio → Geniki Taxydromiki</string>
@@ -220,6 +229,7 @@
     <!-- Contain "delivered" but mean the parcel is still on its way; checked before status_keywords_delivered -->
     <string-array name="status_keywords_not_delivered" translatable="false">
         <item>being delivered</item>
+        <item>παραδόθηκε σε τοπικό συνεργάτη</item>
         <item>to be delivered</item>
     </string-array>
     <string-array name="status_keywords_out_for_delivery" translatable="false">
@@ -238,6 +248,8 @@
         <item>έφτασε στο clever point</item>
         <item>ready for pickup at</item>
         <item>σε περιμένει να την παραλάβεις</item>
+        <item>loaded for delivery</item>
+        <item>φορτώθηκε για να σας παραδοθεί</item>
     </string-array>
     <string-array name="status_keywords_problem" translatable="false">
         <item>canceled</item>

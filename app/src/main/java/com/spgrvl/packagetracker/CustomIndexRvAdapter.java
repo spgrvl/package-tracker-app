@@ -266,11 +266,13 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             case "cometHellas":     return R.drawable.ic_carrier_comet_hellas;
             case "courierCenter":   return R.drawable.ic_carrier_courier_center;
             case "delatolas":       return R.drawable.ic_carrier_delatolas;
+            case "diakinisis":      return R.drawable.ic_carrier_diakinisis;
             case "easyMail":        return R.drawable.ic_carrier_easy_mail;
             case "elta":            return R.drawable.ic_carrier_elta;
             case "eshop":           return R.drawable.ic_carrier_eshop;
             case "plaisio":         return R.drawable.ic_carrier_plaisio;
             case "plaisioBoxNow":   return R.drawable.ic_carrier_plaisio_boxnow;
+            case "plaisioDiakinisis": return R.drawable.ic_carrier_plaisio_diakinisis;
             case "plaisioEasyMail": return R.drawable.ic_carrier_plaisio_easy_mail;
             case "plaisioElta":     return R.drawable.ic_carrier_plaisio_elta;
             case "plaisioGeniki":   return R.drawable.ic_carrier_plaisio_geniki;

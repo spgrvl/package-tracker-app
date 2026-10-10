@@ -221,11 +221,15 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                     case "cleverPoint":
                         url = "https://www.cleverpoint.gr/clevertrack?track_id=" + tracking;
                         break;
+                    case "diakinisis":
+                        url = "https://pod.diakinisis.gr/tnt.php?id=" + tracking;
+                        break;
                     case "eshop":
                         url = "https://www.e-shop.gr/status?id=" + tracking;
                         break;
                     case "plaisio":
                     case "plaisioBoxNow":
+                    case "plaisioDiakinisis":
                     case "plaisioEasyMail":
                     case "plaisioElta":
                     case "plaisioGeniki":
@@ -328,11 +332,13 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             case "cometHellas":     return R.drawable.ic_carrier_comet_hellas;
             case "courierCenter":   return R.drawable.ic_carrier_courier_center;
             case "delatolas":       return R.drawable.ic_carrier_delatolas;
+            case "diakinisis":      return R.drawable.ic_carrier_diakinisis;
             case "easyMail":        return R.drawable.ic_carrier_easy_mail;
             case "elta":            return R.drawable.ic_carrier_elta;
             case "eshop":           return R.drawable.ic_carrier_eshop;
             case "plaisio":         return R.drawable.ic_carrier_plaisio;
             case "plaisioBoxNow":   return R.drawable.ic_carrier_plaisio_boxnow;
+            case "plaisioDiakinisis": return R.drawable.ic_carrier_plaisio_diakinisis;
             case "plaisioEasyMail": return R.drawable.ic_carrier_plaisio_easy_mail;
             case "plaisioElta":     return R.drawable.ic_carrier_plaisio_elta;
             case "plaisioGeniki":   return R.drawable.ic_carrier_plaisio_geniki;
