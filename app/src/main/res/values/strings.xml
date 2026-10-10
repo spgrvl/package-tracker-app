@@ -67,6 +67,13 @@
     <string name="edit_package_subtitle">Update the tracking number or display name.</string>
     <string name="edited_successfully">Edited successfully!</string>
     <string name="elta">Elta</string>
+    <string name="eshop">e-shop.gr</string>
+    <string name="eshop_availability_check">Product availability check</string>
+    <string name="eshop_collecting_products">Collecting products</string>
+    <string name="eshop_completed">Your order has been completed. Thank you for choosing us.</string>
+    <string name="eshop_order_check">Order check</string>
+    <string name="eshop_shipped">Shipped</string>
+    <string name="eshop_submitted">Order submitted</string>
     <string name="general_pref_cat">General</string>
     <string name="geniki">Geniki Taxydromiki</string>
     <string name="in_transit">In Transit</string>
@@ -179,6 +186,8 @@
         <item>received by</item>
         <item>delivery to consignee</item>
         <item>παραδόθηκε</item>
+        <item>η παραγγελία σας ολοκληρώθηκε</item>
+        <item>your order has been completed</item>
         <item>παραδομένο</item>
         <item>παραδοση -</item>
         <item>παραδοση σε skroutz point</item>

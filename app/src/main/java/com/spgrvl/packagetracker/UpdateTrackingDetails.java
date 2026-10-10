@@ -26,8 +26,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
@@ -62,6 +64,8 @@ public class UpdateTrackingDetails {
     public static final String skroutzLastMileTrackingRegex = "^[A-Za-z0-9]{13}$";
     public static final String acsOrGenikiOrBoxNowTrackingRegex = "^[0-9]{10}$";
     public static final String cometHellasTrackingRegex = "^[0-9]{8}$";
+    // e-shop.gr order numbers: 21 digits starting with the order's date and time (yyMMddHHmm)
+    public static final String eshopOrderRegex = "^[0-9]{21}$";
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final TimeZone GREEK_TIME_ZONE = TimeZone.getTimeZone("Europe/Athens");
     static final String DISPLAY_DATE_FORMAT = "dd/MM/yyyy HH:mm";
@@ -341,6 +345,68 @@ public class UpdateTrackingDetails {
     /** Like optString, but treats JSON null as empty instead of the text "null". */
     private static String optText(JSONObject object, String key) {
         return object.isNull(key) ? "" : object.optString(key);
+    }
+
+    private ArrayList<TrackingDetailsModel> trackEshop() {
+        try {
+            // The page is only available in Greek; known texts are translated through resources
+            Document doc = Jsoup.connect("https://www.e-shop.gr/status?id=" + tracking).get();
+            Map<String, String> translations = new HashMap<>();
+            translations.put("Υποβολή", context.getString(R.string.eshop_submitted));
+            translations.put("Έλεγχος Ομαλότητας", context.getString(R.string.eshop_order_check));
+            translations.put("Έλεγχος Διαθεσιμότητας Προϊόντων", context.getString(R.string.eshop_availability_check));
+            translations.put("Συγκέντρωση Προϊόντων", context.getString(R.string.eshop_collecting_products));
+            translations.put("Αποστολή", context.getString(R.string.eshop_shipped));
+            translations.put("Η παραγγελία σας ολοκληρώθηκε. Ευχαριστούμε για την προτίμηση.", context.getString(R.string.eshop_completed));
+            return parseEshopStatus(doc, translations);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * Parses an e-shop.gr order status page into newest-first details: one entry per stage the
+     * order has reached (rows marked "statusrowok"), plus the page's summary message on top.
+     * Returns an empty list for unknown order numbers.
+     */
+    static ArrayList<TrackingDetailsModel> parseEshopStatus(Document doc, Map<String, String> translations) {
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+        SimpleDateFormat inputFormatter = new SimpleDateFormat("dd/MM/yy HH:mm", Locale.ENGLISH);
+        inputFormatter.setTimeZone(GREEK_TIME_ZONE);
+        SimpleDateFormat outputFormatter = new SimpleDateFormat(DISPLAY_DATE_FORMAT, Locale.ENGLISH);
+
+        for (Element row : doc.select("tr:has(> td.statusrowok)")) {
+            Elements cells = row.select("> td.statusrowok");
+            if (cells.size() < 3) {
+                continue;
+            }
+            String stage = cells.get(1).text().trim();
+            String datetime = cells.get(2).text().trim();
+            try {
+                datetime = outputFormatter.format(Objects.requireNonNull(inputFormatter.parse(datetime)));
+            } catch (Exception ignored) {
+                // keep the page's own text
+            }
+            detailsList.add(new TrackingDetailsModel(translate(translations, stage), "", datetime));
+        }
+        if (detailsList.isEmpty()) {
+            return detailsList;
+        }
+        Collections.reverse(detailsList);
+
+        // The summary has no date of its own; show it with the latest stage's
+        Element report = doc.selectFirst("td.statusreport");
+        if (report != null && !report.text().trim().isEmpty()) {
+            detailsList.add(0, new TrackingDetailsModel(translate(translations, report.text().trim()), "",
+                    detailsList.get(0).getDatetime()));
+        }
+        return detailsList;
+    }
+
+    private static String translate(Map<String, String> translations, String text) {
+        String translated = translations.get(text);
+        return translated != null ? translated : text;
     }
 
     private ArrayList<TrackingDetailsModel> trackSpeedex() {
@@ -830,7 +896,9 @@ public class UpdateTrackingDetails {
     }
 
     private String detectCarrierByFormat() {
-        if (Pattern.compile(eltaTrackingRegex).matcher(tracking).find()) {
+        if (Pattern.compile(eshopOrderRegex).matcher(tracking).find()) {
+            return "eshop";
+        } else if (Pattern.compile(eltaTrackingRegex).matcher(tracking).find()) {
             return "elta";
         } else if (Pattern.compile(easyMailTracking2Regex).matcher(tracking).find()) {
             return "easyMail";
@@ -971,6 +1039,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "cleverPoint":
                         detailsList = trackCleverPoint();
+                        break;
+                    case "eshop":
+                        detailsList = trackEshop();
                         break;
                     case "boxNow":
                         detailsList = trackBoxNow();

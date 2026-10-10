@@ -68,6 +68,13 @@
     <string name="edit_package_subtitle">Ενημερώστε τον αριθμό αποστολής ή το εμφανιζόμενο όνομα.</string>
     <string name="edited_successfully">Η επεξεργασία ήταν επιτυχής!</string>
     <string name="elta">Ελτα</string>
+    <string name="eshop">e-shop.gr</string>
+    <string name="eshop_availability_check">Έλεγχος Διαθεσιμότητας Προϊόντων</string>
+    <string name="eshop_collecting_products">Συγκέντρωση Προϊόντων</string>
+    <string name="eshop_completed">Η παραγγελία σας ολοκληρώθηκε. Ευχαριστούμε για την προτίμηση.</string>
+    <string name="eshop_order_check">Έλεγχος Ομαλότητας</string>
+    <string name="eshop_shipped">Αποστολή</string>
+    <string name="eshop_submitted">Υποβολή</string>
     <string name="general_pref_cat">Γενικές</string>
     <string name="geniki">Γενικη Ταχυδρομικη</string>
     <string name="in_transit">Σε μεταφορά</string>

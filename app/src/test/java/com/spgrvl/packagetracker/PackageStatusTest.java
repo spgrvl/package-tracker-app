@@ -38,6 +38,8 @@ public class PackageStatusTest {
         assertEquals(PackageStatus.DELIVERED, active("Delivered"));
         assertEquals(PackageStatus.DELIVERED, active("Παράδοση σε Skroutz Point"));
         assertEquals(PackageStatus.DELIVERED, active("ΠΑΡΑΔΟΜΕΝΟ"));
+        assertEquals(PackageStatus.DELIVERED, active("Η παραγγελία σας ολοκληρώθηκε. Ευχαριστούμε για την προτίμηση."));
+        assertEquals(PackageStatus.DELIVERED, active("Your order has been completed. Thank you for choosing us."));
     }
 
     @Test

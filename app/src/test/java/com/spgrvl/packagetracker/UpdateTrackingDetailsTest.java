@@ -81,6 +81,76 @@ public class UpdateTrackingDetailsTest {
         assertEquals("08/07/2026 02:30", UpdateTrackingDetails.formatGreekLocalTime("2026-07-08T05:30:53.347"));
     }
 
+    // --- e-shop.gr ---
+
+    private static String eshopRow(String rowClass, String stage, String datetime) {
+        return "<tr><td class=\"" + rowClass + "\"><img src=\"check_ok.png\"></td>"
+                + "<td class=\"" + rowClass + "\">" + stage + "</td>"
+                + "<td class=\"" + rowClass + "\" colspan=2>" + datetime + "</td></tr>";
+    }
+
+    @Test
+    public void eshopCompletedOrderIsNewestFirstAndTranslated() {
+        String html = "<table>"
+                + eshopRow("statusrowok", "Υποβολή", "14/03/21 01:50")
+                + eshopRow("statusrowok", "Έλεγχος Ομαλότητας", "16/03/21 09:13")
+                + eshopRow("statusrowok", "Αποστολή", "26/03/21 13:20")
+                + "<tr><td class=\"statusreport\" colspan=4>Η παραγγελία σας ολοκληρώθηκε. Ευχαριστούμε για την προτίμηση.</td></tr>"
+                + "</table>";
+        java.util.Map<String, String> english = new java.util.HashMap<>();
+        english.put("Υποβολή", "Order submitted");
+        english.put("Αποστολή", "Shipped");
+        english.put("Η παραγγελία σας ολοκληρώθηκε. Ευχαριστούμε για την προτίμηση.", "Your order has been completed.");
+
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseEshopStatus(org.jsoup.Jsoup.parse(html), english);
+
+        assertEquals(4, details.size());
+        assertEquals("Your order has been completed.", details.get(0).getStatus());
+        assertEquals("26/03/2021 13:20", details.get(0).getDatetime());
+        assertEquals("Shipped", details.get(1).getStatus());
+        assertEquals("Έλεγχος Ομαλότητας", details.get(2).getStatus()); // untranslated text is kept
+        assertEquals("Order submitted", details.get(3).getStatus());
+        assertEquals("14/03/2021 01:50", details.get(3).getDatetime());
+    }
+
+    @Test
+    public void eshopStatusTableInsideLayoutTablesIsParsedOnce() {
+        // The real page nests the status table in several layout tables
+        String statusTable = "<table>"
+                + eshopRow("statusrowok", "Υποβολή", "14/03/21 01:50")
+                + eshopRow("statusrowok", "Αποστολή", "26/03/21 13:20")
+                + "</table>";
+        String html = "<table><tr><td><table><tr><td>" + statusTable + "</td></tr></table></td></tr></table>";
+
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseEshopStatus(
+                org.jsoup.Jsoup.parse(html), new java.util.HashMap<>());
+
+        assertEquals(2, details.size());
+        assertEquals("Αποστολή", details.get(0).getStatus());
+        assertEquals("Υποβολή", details.get(1).getStatus());
+    }
+
+    @Test
+    public void eshopPendingStagesAreSkipped() {
+        String html = "<table>"
+                + eshopRow("statusrowok", "Υποβολή", "08/10/26 10:00")
+                + eshopRow("statusrowok", "Έλεγχος Ομαλότητας", "08/10/26 12:30")
+                + eshopRow("statusrownok", "Συγκέντρωση Προϊόντων", "")
+                + "</table>";
+
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseEshopStatus(
+                org.jsoup.Jsoup.parse(html), new java.util.HashMap<>());
+
+        assertEquals(2, details.size());
+        assertEquals("Έλεγχος Ομαλότητας", details.get(0).getStatus());
+    }
+
+    @Test
+    public void eshopUnknownOrderGivesNoDetails() {
+        assertTrue(UpdateTrackingDetails.parseEshopStatus(
+                org.jsoup.Jsoup.parse("<html><body>no order</body></html>"), new java.util.HashMap<>()).isEmpty());
+    }
+
     // --- Clever Point ---
 
     @Test

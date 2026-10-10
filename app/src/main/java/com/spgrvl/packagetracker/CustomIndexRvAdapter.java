@@ -268,6 +268,7 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             case "delatolas":       return R.drawable.ic_carrier_delatolas;
             case "easyMail":        return R.drawable.ic_carrier_easy_mail;
             case "elta":            return R.drawable.ic_carrier_elta;
+            case "eshop":           return R.drawable.ic_carrier_eshop;
             case "geniki":          return R.drawable.ic_carrier_geniki;
             case "skroutzLastMile": return R.drawable.ic_carrier_skroutz_last_mile;
             case "speedex":         return R.drawable.ic_carrier_speedex;
