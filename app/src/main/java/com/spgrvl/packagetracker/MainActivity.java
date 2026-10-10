@@ -29,6 +29,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -69,6 +70,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public int position = -1;
     static boolean startedFlag;
     public boolean isInSelectionMode = false;
+    // Back exits selection mode; only enabled while selecting so predictive back works otherwise
+    private final OnBackPressedCallback selectionBackCallback = new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            clearSelectionMode();
+        }
+    };
     private boolean clipboardPref;
     public static final String PREF_CLIPBOARD = "pref_clipboard";
     public static final String PREF_NOTIF = "pref_notif";
@@ -95,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         // Enable edge-to-edge display
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
+        getOnBackPressedDispatcher().addCallback(this, selectionBackCallback);
 
         this.setTitle(R.string.app_name);
 
@@ -450,15 +460,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         resumeHandler();
     }
 
-    @Override
-    public void onBackPressed() {
-        if (isInSelectionMode) {
-            clearSelectionMode();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
 
@@ -550,6 +551,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void startSelection(int index, String tracking) {
         if (!isInSelectionMode) {
             isInSelectionMode = true;
+            selectionBackCallback.setEnabled(true);
             selectionList.add(tracking);
             counter++;
             updateToolbarText();
@@ -574,6 +576,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void clearSelectionMode() {
         isInSelectionMode = false;
+        selectionBackCallback.setEnabled(false);
         invalidateOptionsMenu();
         counter = 0;
         selectionList.clear();

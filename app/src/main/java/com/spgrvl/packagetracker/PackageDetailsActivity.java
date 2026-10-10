@@ -66,7 +66,10 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         View rootView = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
             androidx.core.graphics.Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBarsInsets.left, systemBarsInsets.top, systemBarsInsets.right, systemBarsInsets.bottom);
+            v.setPadding(systemBarsInsets.left, 0, systemBarsInsets.right, systemBarsInsets.bottom);
+            // Toolbar extends behind the status bar, like the action bar on the other screens
+            View toolbarView = findViewById(R.id.toolbar);
+            toolbarView.setPadding(toolbarView.getPaddingLeft(), systemBarsInsets.top, toolbarView.getPaddingRight(), 0);
             return insets;
         });
 
