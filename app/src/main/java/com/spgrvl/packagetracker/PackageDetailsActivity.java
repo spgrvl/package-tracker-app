@@ -186,7 +186,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                         url = "https://elta.gr/track?code=" + tracking;
                         break;
                     case "speedex":
-                        url = "http://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
+                        url = "https://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
                         break;
                     case "acs":
                         url = "https://a.acssp.gr/track/?k=etr:" + tracking;

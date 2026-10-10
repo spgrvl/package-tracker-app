@@ -230,7 +230,7 @@ public class UpdateTrackingDetails {
 
         try {
             // Fetch tracking details
-            url = "http://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
+            url = "https://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
             doc = Jsoup.connect(url).get();
 
             cardTitle = doc.getElementsByClass("card-title");
@@ -727,7 +727,7 @@ public class UpdateTrackingDetails {
 
         if (!carrier.equals("courierCenter") && !carrier.equals("easyMail")) {
             try {
-                String url = "http://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
+                String url = "https://www.speedex.gr/speedex/NewTrackAndTrace.aspx?number=" + tracking;
                 Document doc = Jsoup.connect(url).get();
                 Elements deliveredSubtitle = doc.getElementsByClass("card-subtitle text-muted mb-0 pt-1 delivered-subtitle");
                 if (!deliveredSubtitle.isEmpty()) {
