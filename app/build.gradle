@@ -37,6 +37,8 @@ dependencies {
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
     implementation 'androidx.preference:preference:1.2.1'
     testImplementation 'junit:junit:4.13.2'
+    // Real org.json for unit tests (android.jar only has stubs)
+    testImplementation 'org.json:json:20260814'
     androidTestImplementation 'androidx.test.ext:junit:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
     // jsoup HTML parser library @ https://jsoup.org/

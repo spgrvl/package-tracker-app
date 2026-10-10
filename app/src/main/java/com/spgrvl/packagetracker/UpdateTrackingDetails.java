@@ -62,6 +62,8 @@ public class UpdateTrackingDetails {
     public static final String acsOrGenikiOrBoxNowTrackingRegex = "^[0-9]{10}$";
     public static final String cometHellasTrackingRegex = "^[0-9]{8}$";
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private static final TimeZone GREEK_TIME_ZONE = TimeZone.getTimeZone("Europe/Athens");
+    static final String DISPLAY_DATE_FORMAT = "dd/MM/yyyy HH:mm";
 
     public UpdateTrackingDetails(String tracking, Context context, Boolean isOnForeground) {
         this.tracking = tracking;
@@ -180,46 +182,81 @@ public class UpdateTrackingDetails {
     }
 
     private ArrayList<TrackingDetailsModel> trackGeniki() {
-        Document doc;
-        String url;
-        Elements status, location, date, time;
-        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
-
+        // The tracking page loads its data from this endpoint; it expects a JSON body
+        // sent with a form content type
+        String lang = languagePref.equals("el_GR") || languagePref.equals("el") ? "el" : "en";
+        String body;
         try {
-            // Fetch tracking details in app's language
-            if (languagePref.equals("el_GR") || languagePref.equals("el")) {
-                url = "https://www.taxydromiki.com/track/" + tracking;
-            } else {
-                url = "https://www.taxydromiki.com/en/track/" + tracking;
-            }
-            doc = Jsoup.connect(url).get();
-            status = doc.getElementsByClass("checkpoint-status");
-            location = doc.getElementsByClass("checkpoint-location");
-            date = doc.getElementsByClass("checkpoint-date");
-            time = doc.getElementsByClass("checkpoint-time");
-            String dateProper, dateTime = "";
+            body = new JSONObject().put("lang", lang).put("voucherNo", tracking).toString();
+        } catch (JSONException e) {
+            return new ArrayList<>();
+        }
 
-            int locationSize = location.size();
-            for (int i = 0; i < locationSize; i++) {
-                Matcher dateMatcher = Pattern.compile("[0-9]{2}/[0-9]{2}/[0-9]{4}").matcher(date.get(i).ownText());
-                if (dateMatcher.find()) {
-                    dateProper = dateMatcher.group(0);
-                    dateTime = dateProper + " " + time.get(i).ownText();
-                }
-                detailsList.add(new TrackingDetailsModel(status.get(i).ownText(), location.get(i).ownText(), dateTime));
+        Request request = new Request.Builder()
+                .url("https://taxydromiki.com/external_scripts/track-site.php")
+                .addHeader("Referer", "https://taxydromiki.com/track/" + tracking + "/")
+                .post(RequestBody.create(body, MediaType.parse("application/x-www-form-urlencoded")))
+                .build();
+
+        try (Response response = new OkHttpClient().newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                return parseGenikiResponse(Objects.requireNonNull(response.body()).string(), tracking);
             }
-            // delivery entry has no location so needs to be added manually
-            Matcher dateMatcher = Pattern.compile("[0-9]{2}/[0-9]{2}/[0-9]{4}").matcher(date.get(locationSize).ownText());
-            if (dateMatcher.find()) {
-                dateProper = dateMatcher.group(0);
-                dateTime = dateProper + " " + time.get(locationSize).ownText();
-            }
-            detailsList.add(new TrackingDetailsModel(status.get(locationSize).ownText(), "", dateTime));
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return new ArrayList<>();
+    }
+
+    /**
+     * Parses Geniki's tracking JSON into newest-first details. Returns an empty list when the
+     * tracking number is unknown, which carrier detection relies on.
+     */
+    static ArrayList<TrackingDetailsModel> parseGenikiResponse(String json, String tracking) throws JSONException {
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+        JSONObject result = new JSONObject(json).getJSONObject(tracking).getJSONObject("TrackAndTraceResult");
+        JSONObject checkpointsObject = result.optJSONObject("Checkpoints");
+        if (result.optInt("Result", -1) != 0 || checkpointsObject == null) {
+            return detailsList;
+        }
+
+        // A single checkpoint is returned as an object instead of an array
+        JSONArray checkpoints = checkpointsObject.optJSONArray("Checkpoint");
+        if (checkpoints == null) {
+            checkpoints = new JSONArray();
+            JSONObject single = checkpointsObject.optJSONObject("Checkpoint");
+            if (single != null) {
+                checkpoints.put(single);
+            }
+        }
+        for (int i = 0; i < checkpoints.length(); i++) {
+            JSONObject checkpoint = checkpoints.getJSONObject(i);
+            detailsList.add(new TrackingDetailsModel(checkpoint.optString("Status"),
+                    checkpoint.optString("Shop"), formatGreekLocalTime(checkpoint.optString("StatusDate"))));
+        }
+
+        // The delivery itself is only in the summary, after the last checkpoint
+        String deliveryDate = result.optString("DeliveryDate");
+        String status = result.optString("Status");
+        if (!status.isEmpty() && !deliveryDate.isEmpty() && !deliveryDate.startsWith("0001")) {
+            detailsList.add(new TrackingDetailsModel(status, result.optString("DeliveredAt"),
+                    formatGreekLocalTime(deliveryDate)));
+        }
+
         Collections.reverse(detailsList);
         return detailsList;
+    }
+
+    /** Formats a carrier timestamp given in Greek local time ("yyyy-MM-ddTHH:mm:ss[.f]") for display. */
+    static String formatGreekLocalTime(String timestamp) {
+        try {
+            SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+            inputFormatter.setTimeZone(GREEK_TIME_ZONE);
+            Date date = inputFormatter.parse(timestamp);
+            return new SimpleDateFormat(DISPLAY_DATE_FORMAT, Locale.ENGLISH).format(Objects.requireNonNull(date));
+        } catch (Exception e) {
+            return timestamp;
+        }
     }
 
     private ArrayList<TrackingDetailsModel> trackSpeedex() {

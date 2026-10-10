@@ -37,6 +37,8 @@ public class PackageStatusTest {
         assertEquals(PackageStatus.DELIVERED, active("ΠΑΡΑΔΟΣΗ - ΠΑΤΡΑ"));
         assertEquals(PackageStatus.DELIVERED, active("Delivered"));
         assertEquals(PackageStatus.DELIVERED, active("Παράδοση σε Skroutz Point"));
+        // Geniki's delivery summary
+        assertEquals(PackageStatus.DELIVERED, active("ΠΑΡΑΔΟΜΕΝΟ"));
     }
 
     @Test
