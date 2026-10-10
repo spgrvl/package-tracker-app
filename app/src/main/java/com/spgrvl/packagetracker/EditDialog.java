@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -108,7 +107,6 @@ public class EditDialog extends AppCompatDialogFragment {
         }
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         window.setWindowAnimations(0);
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         int horizontalInset = (int) (20 * getResources().getDisplayMetrics().density);
         View decor = window.getDecorView();

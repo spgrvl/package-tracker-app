@@ -12,12 +12,15 @@ import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuProvider;
+import androidx.lifecycle.Lifecycle;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -46,13 +49,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
     private ActivityResultLauncher<Intent> backupLauncher;
     private ActivityResultLauncher<Intent> restoreLauncher;
-    private Menu menu;
     private boolean shouldShowRestartButton = false;
     DatabaseHelper databaseHelper = null;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setHasOptionsMenu(true);
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
         // Show app version in the About section
@@ -91,10 +92,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
             if (key.equals(PREF_NOTIF_INTERVAL) || key.equals(PREF_CLIPBOARD)) {
                 Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
-                shouldShowRestartButton = true;
-                if (menu != null) {
-                    menu.findItem(R.id.restart_button).setVisible(true);
-                }
+                showRestartButton();
             }
             if (key.equals(PREF_NOTIF_INTERVAL)) {
                 Preference notifIntervalPref = findPreference(key);
@@ -110,24 +108,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         // Show information if Notification Permission got declined
                         Toast.makeText(requireActivity(), R.string.notifications_permission_denied_info, Toast.LENGTH_LONG).show();
                         disableNotifPref(key);
-                        shouldShowRestartButton = true;
-                        if (menu != null) {
-                            menu.findItem(R.id.restart_button).setVisible(true);
-                        }
+                        showRestartButton();
                         Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
-                        shouldShowRestartButton = true;
-                        if (menu != null) {
-                            menu.findItem(R.id.restart_button).setVisible(true);
-                        }
+                        showRestartButton();
                     }
                 } else {
                     Toast.makeText(getContext(), R.string.changes_restart_toast, Toast.LENGTH_LONG).show();
-                    shouldShowRestartButton = true;
-                    if (menu != null) {
-                        menu.findItem(R.id.restart_button).setVisible(true);
-                    }
+                    showRestartButton();
                 }
             }
         };
@@ -257,27 +246,37 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        this.menu = menu;
-        inflater.inflate(R.menu.settings_action_bar, menu);
-        menu.findItem(R.id.restart_button).setVisible(shouldShowRestartButton);
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        requireActivity().addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                menuInflater.inflate(R.menu.settings_action_bar, menu);
+            }
+
+            @Override
+            public void onPrepareMenu(@NonNull Menu menu) {
+                menu.findItem(R.id.restart_button).setVisible(shouldShowRestartButton);
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                if (menuItem.getItemId() == R.id.restart_button) {
+                    shouldShowRestartButton = false;
+                    triggerRebirth(requireContext());
+                    return true;
+                } else if (menuItem.getItemId() == android.R.id.home) {
+                    requireActivity().finish();
+                    return true;
+                }
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
-    @Override
-    public void onPrepareOptionsMenu(@NonNull Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.restart_button).setVisible(shouldShowRestartButton);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.restart_button) {
-            shouldShowRestartButton = false;
-            triggerRebirth(requireContext());
-        } else if (item.getItemId() == android.R.id.home) {
-            requireActivity().finish();
-        }
-        return super.onOptionsItemSelected(item);
+    private void showRestartButton() {
+        shouldShowRestartButton = true;
+        requireActivity().invalidateMenu();
     }
 
     private String getAppVersion() {
