@@ -6,6 +6,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -243,6 +245,80 @@ public class UpdateTrackingDetailsTest {
         assertTrue(UpdateTrackingDetails.parseCleverPointInfo("{\"mainData\":null,\"podData\":null,\"trackingData\":[]}", "x").isEmpty());
     }
 
+    // --- Aiolos ---
+
+    private static Document aiolosPage(String... rows) {
+        StringBuilder history = new StringBuilder();
+        for (int i = 0; i < rows.length; i += 3) {
+            history.append("<tr><td>").append(rows[i]).append("</td><td>").append(rows[i + 1])
+                    .append("</td><td>").append(rows[i + 2]).append("</td></tr>");
+        }
+        return Jsoup.parse("<div id=\"tracking_results\"><table class=\"tracking_table\"><tr><th>Κωδικός Αποστολής</th></tr>"
+                + "<tr><td>0000000104</td><td>05/10/2026</td><td>-</td><td>-</td></tr></table>"
+                + "<table class=\"tracking_table\"><tr><th align=\"left\">Ημ/νία - Ώρα</th><th>Περιγραφή</th>"
+                + "<th>Στοιχεία Παράδοσης</th></tr>" + history + "</table></div>");
+    }
+
+    private static Map<String, String> aiolosTranslations(String valuesDir) {
+        Map<String, String> strings = StringResources.load(valuesDir).stringsWithPrefix("aiolos_");
+        Map<String, String> translations = new HashMap<>();
+        for (String[] message : UpdateTrackingDetails.AIOLOS_MESSAGES) {
+            assertTrue("missing " + valuesDir + "/" + message[1], strings.containsKey(message[1]));
+            translations.put(message[0], strings.get(message[1]));
+        }
+        return translations;
+    }
+
+    private static List<String> statuses(List<TrackingDetailsModel> details) {
+        List<String> statuses = new ArrayList<>();
+        for (TrackingDetailsModel detail : details) {
+            statuses.add(detail.getStatus() + " | " + detail.getPlace() + " | " + detail.getDatetime());
+        }
+        return statuses;
+    }
+
+    @Test
+    public void aiolosDeliveryDetailsNameTheRecipientOfTheDelivery() {
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseAiolos(aiolosPage(
+                "25/01/2023 08:41", "ΣΕ ΚΟΥΡΙΕΡ ΠΡΟΣ ΠΑΡΑΔΟΣΗ ΣΤΟΝ ΠΑΡΑΛΗΠΤΗ", "ΑΘΗΝΑ-ΚΕΝΤΡΙΚΟ",
+                "25/01/2023 18:11", "ΑΠΑΡΑΔΟΤΑ", "ΑΘΗΝΑ-ΚΕΝΤΡΙΚΟ",
+                "27/01/2023 16:18", "ΑΠΟΣΤΟΛΗ ΠΑΡΑΔΟΘΗΚΕ", "ΑΘΗΝΑ-ΚΕΝΤΡΙΚΟ",
+                "30/01/2023 11:10", "ΣΤΟΙΧΕΙΑ ΠΑΡΑΔΟΣΗΣ", "ΣΦΡΑΓΙΔΑ"), aiolosTranslations("values"));
+        assertEquals(Arrays.asList(
+                "Shipment delivered (ΣΦΡΑΓΙΔΑ) | ΑΘΗΝΑ-ΚΕΝΤΡΙΚΟ | 27/01/2023 16:18",
+                "Not delivered | ΑΘΗΝΑ-ΚΕΝΤΡΙΚΟ | 25/01/2023 18:11",
+                "With courier for delivery to the recipient | ΑΘΗΝΑ-ΚΕΝΤΡΙΚΟ | 25/01/2023 08:41"), statuses(details));
+    }
+
+    @Test
+    public void aiolosDeliveryDetailsWithoutADeliveryStandForIt() {
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseAiolos(aiolosPage(
+                "29/09/2026 08:53", "ΣΕ ΚΟΥΡΙΕΡ ΠΡΟΣ ΠΑΡΑΔΟΣΗ ΣΤΟΝ ΠΑΡΑΛΗΠΤΗ", "ΑΘΗΝΑ-ΚΕΝΤΡΙΚΟ",
+                "29/09/2026 09:34", "ΣΤΟΙΧΕΙΑ ΠΑΡΑΔΟΣΗΣ", "TEST RECIPIENT",
+                "30/09/2026 10:00", "ΚΑΤΙ ΚΑΙΝΟΥΡΓΙΟ", "ΑΘΗΝΑ-ΚΕΝΤΡΙΚΟ"), aiolosTranslations("values-el"));
+        assertEquals(Arrays.asList(
+                // Unknown messages are kept
+                "ΚΑΤΙ ΚΑΙΝΟΥΡΓΙΟ | ΑΘΗΝΑ-ΚΕΝΤΡΙΚΟ | 30/09/2026 10:00",
+                "ΑΠΟΣΤΟΛΗ ΠΑΡΑΔΟΘΗΚΕ (TEST RECIPIENT) |  | 29/09/2026 09:34",
+                "ΣΕ ΚΟΥΡΙΕΡ ΠΡΟΣ ΠΑΡΑΔΟΣΗ ΣΤΟΝ ΠΑΡΑΛΗΠΤΗ | ΑΘΗΝΑ-ΚΕΝΤΡΙΚΟ | 29/09/2026 08:53"), statuses(details));
+    }
+
+    @Test
+    public void aiolosGreekMessagesAreIdenticalToTheSite() {
+        Map<String, String> el = aiolosTranslations("values-el");
+        for (String[] message : UpdateTrackingDetails.AIOLOS_MESSAGES) {
+            assertEquals(message[1], message[0], el.get(message[0]));
+        }
+        aiolosTranslations("values");
+    }
+
+    @Test
+    public void aiolosUnknownNumber() {
+        // An unknown number only gets the search form, without result tables
+        assertTrue(UpdateTrackingDetails.parseAiolos(Jsoup.parse("<form id=\"search_shipping2\"></form>"),
+                new HashMap<>()).isEmpty());
+    }
+
     // --- Diakinisis ---
 
     // Shaped like a real response: a JSON array of {status, message, data}, with \' escapes
@@ -436,7 +512,7 @@ public class UpdateTrackingDetailsTest {
                 {"https://itemsearch.elta.gr/Query/Direct/EL123456789GR", "elta", "EL123456789GR"},
                 {"https://trackntrace.easymail.gr/000000000102", "easyMail", "000000000102"},
                 {"https://pod.diakinisis.gr/tnt.php?id=0000000103", "diakinisis", "0000000103"},
-                {"https://www.aioloscourier.gr/track-trace/?shipping_num=0000000104", "Aiolos Courier", "0000000104"},
+                {"https://www.aioloscourier.gr/track-trace/?shipping_num=0000000104", "aiolos", "0000000104"},
         };
         for (String[] link : links) {
             String json = plaisioOrder(plaisioEvent("01/01/2026 10:00", PLAISIO_MESSAGES[11], link[0]));
@@ -451,7 +527,7 @@ public class UpdateTrackingDetailsTest {
     public void plaisioCombinedWithEveryTrackedCourierIsNamed() {
         for (String valuesDir : new String[]{"values", "values-el"}) {
             Map<String, String> strings = StringResources.load(valuesDir).stringsWithPrefix("");
-            for (String courier : new String[]{"boxNow", "geniki", "speedex", "easyMail", "elta", "diakinisis"}) {
+            for (String courier : new String[]{"boxNow", "geniki", "speedex", "easyMail", "elta", "diakinisis", "aiolos"}) {
                 String carrier = UpdateTrackingDetails.plaisioWithCourier(courier);
                 assertEquals(valuesDir + "/" + carrier, strings.get("plaisio") + " → " + strings.get(courier),
                         strings.get(carrier));

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Plaisio orders handed to Aiolos Courier: both logos placed diagonally, sized to their own
+     aspect ratios (Plaisio 6.4:1, Aiolos Courier 3.2:1) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <size
+                android:width="40dp"
+                android:height="40dp" />
+        </shape>
+    </item>
+    <item
+        android:width="38dp"
+        android:height="6dp"
+        android:drawable="@drawable/ic_carrier_plaisio"
+        android:gravity="top|start"
+        android:top="4dp" />
+    <item
+        android:width="30dp"
+        android:height="9.4dp"
+        android:drawable="@drawable/ic_carrier_aiolos"
+        android:bottom="4dp"
+        android:gravity="bottom|end" />
+</layer-list>

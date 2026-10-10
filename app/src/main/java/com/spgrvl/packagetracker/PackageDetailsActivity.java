@@ -224,10 +224,14 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                     case "diakinisis":
                         url = "https://pod.diakinisis.gr/tnt.php?id=" + tracking;
                         break;
+                    case "aiolos":
+                        url = "https://aioloscourier.gr/track-trace/?shipping_num=" + tracking;
+                        break;
                     case "eshop":
                         url = "https://www.e-shop.gr/status?id=" + tracking;
                         break;
                     case "plaisio":
+                    case "plaisioAiolos":
                     case "plaisioBoxNow":
                     case "plaisioDiakinisis":
                     case "plaisioEasyMail":
@@ -327,6 +331,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         switch (carrier) {
             case "acs":             return R.drawable.ic_carrier_acs;
             case "acsSkroutzLastMile": return R.drawable.ic_carrier_acs_skroutz_last_mile;
+            case "aiolos":          return R.drawable.ic_carrier_aiolos;
             case "boxNow":          return R.drawable.ic_carrier_boxnow;
             case "cleverPoint":     return R.drawable.ic_carrier_clever_point;
             case "cometHellas":     return R.drawable.ic_carrier_comet_hellas;
@@ -337,6 +342,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             case "elta":            return R.drawable.ic_carrier_elta;
             case "eshop":           return R.drawable.ic_carrier_eshop;
             case "plaisio":         return R.drawable.ic_carrier_plaisio;
+            case "plaisioAiolos":   return R.drawable.ic_carrier_plaisio_aiolos;
             case "plaisioBoxNow":   return R.drawable.ic_carrier_plaisio_boxnow;
             case "plaisioDiakinisis": return R.drawable.ic_carrier_plaisio_diakinisis;
             case "plaisioEasyMail": return R.drawable.ic_carrier_plaisio_easy_mail;

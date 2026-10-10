@@ -504,6 +504,75 @@ public class UpdateTrackingDetails {
         return detailsList;
     }
 
+    private ArrayList<TrackingDetailsModel> trackAiolos() {
+        try {
+            Document doc = Jsoup.connect("https://aioloscourier.gr/track-trace/?shipping_num=" + tracking).get();
+            // The page is only available in Greek; known texts are translated through the
+            // aiolos_* resources (kept from shrinking in res/raw/keep.xml)
+            Map<String, String> translations = new HashMap<>();
+            for (String[] message : AIOLOS_MESSAGES) {
+                translations.put(message[0], context.getString(context.getResources()
+                        .getIdentifier(message[1], "string", context.getPackageName())));
+            }
+            return parseAiolos(doc, translations);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    private static final String AIOLOS_DELIVERED = "ΑΠΟΣΤΟΛΗ ΠΑΡΑΔΟΘΗΚΕ";
+    // Its place is who signed for the parcel: a name, "ΣΦΡΑΓΙΔΑ" (stamp) or "ΜΟΝΟΓΡΑΦΟΣ" (initials)
+    private static final String AIOLOS_DELIVERY_DETAILS = "ΣΤΟΙΧΕΙΑ ΠΑΡΑΔΟΣΗΣ";
+
+    // Every message seen on Aiolos' tracking page, with the resource that translates it
+    static final String[][] AIOLOS_MESSAGES = {
+            {"ΣΕ ΚΟΥΡΙΕΡ ΠΡΟΣ ΠΑΡΑΔΟΣΗ ΣΤΟΝ ΠΑΡΑΛΗΠΤΗ", "aiolos_out_for_delivery"},
+            {"ΑΠΑΡΑΔΟΤΑ", "aiolos_not_delivered"},
+            {AIOLOS_DELIVERED, "aiolos_delivered"},
+    };
+
+    /**
+     * Parses an Aiolos tracking page into newest-first details. The delivery details row is
+     * folded into the delivery as its recipient, or stands for it when the page lists no
+     * delivery. Returns an empty list for unknown tracking numbers.
+     */
+    static ArrayList<TrackingDetailsModel> parseAiolos(Document doc, Map<String, String> translations) {
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+        // The first table is a summary of the latest event, the second the full history
+        Elements tables = doc.select("table.tracking_table");
+        if (tables.size() < 2) {
+            return detailsList;
+        }
+        int deliveredAt = -1;
+        for (Element row : tables.get(1).select("tr:has(td)")) {
+            Elements cells = row.select("td");
+            if (cells.size() < 3) {
+                continue;
+            }
+            String datetime = cells.get(0).text().trim();
+            String status = cells.get(1).text().trim();
+            String place = cells.get(2).text().trim();
+            if (status.equals(AIOLOS_DELIVERY_DETAILS)) {
+                if (deliveredAt >= 0) {
+                    TrackingDetailsModel delivery = detailsList.get(deliveredAt);
+                    detailsList.set(deliveredAt, new TrackingDetailsModel(withRecipient(delivery.getStatus(), place),
+                            delivery.getPlace(), delivery.getDatetime()));
+                } else {
+                    detailsList.add(new TrackingDetailsModel(withRecipient(translate(translations, AIOLOS_DELIVERED), place),
+                            "", datetime));
+                }
+                continue;
+            }
+            if (status.equals(AIOLOS_DELIVERED)) {
+                deliveredAt = detailsList.size();
+            }
+            detailsList.add(new TrackingDetailsModel(translate(translations, status), place, datetime));
+        }
+        Collections.reverse(detailsList);
+        return detailsList;
+    }
+
     private static String translate(Map<String, String> translations, String text) {
         String translated = translations.get(text);
         return translated != null ? translated : text;
@@ -530,6 +599,7 @@ public class UpdateTrackingDetails {
                 courierNames.put("easyMail", context.getString(R.string.easyMail));
                 courierNames.put("elta", context.getString(R.string.elta));
                 courierNames.put("diakinisis", context.getString(R.string.diakinisis));
+                courierNames.put("aiolos", context.getString(R.string.aiolos));
                 plaisioCourier = plaisioCourier(json);
                 return parsePlaisioHistory(json, translations, courierNames);
             }
@@ -565,6 +635,9 @@ public class UpdateTrackingDetails {
                 case "diakinisis":
                     courierDetails = trackDiakinisis();
                     break;
+                case "aiolos":
+                    courierDetails = trackAiolos();
+                    break;
                 case "elta":
                     courierDetails = trackElta();
                     if (courierDetails.isEmpty()) {
@@ -587,7 +660,7 @@ public class UpdateTrackingDetails {
             {"easyMail", "trackntrace\\.easymail\\.gr/([A-Za-z0-9]+)"},
             {"elta", "elta\\.gr/.*/([A-Za-z]{2}[0-9]{9}[A-Za-z]{2})"},
             {"diakinisis", "diakinisis\\.gr/.*[?&]id=([A-Za-z0-9]+)"},
-            {"Aiolos Courier", "aioloscourier\\.gr/.*[?&]shipping_num=([A-Za-z0-9]+)"},
+            {"aiolos", "aioloscourier\\.gr/.*[?&]shipping_num=([A-Za-z0-9]+)"},
     };
 
     /** Returns {courier, tracking number} from the latest courier link of a Plaisio order, or null. */
@@ -1214,7 +1287,7 @@ public class UpdateTrackingDetails {
     }
 
     private String acsOrGenikiOrBoxNow() {
-        // determine if tracking belongs to ACS, Geniki, BoxNow or Diakinisis
+        // determine if tracking belongs to ACS, Geniki, BoxNow, Diakinisis or Aiolos
         String carrier;
         ArrayList<TrackingDetailsModel> detailsList;
 
@@ -1231,6 +1304,8 @@ public class UpdateTrackingDetails {
                     carrier = "geniki";
                 } else if (!trackDiakinisis().isEmpty()) {
                     carrier = "diakinisis";
+                } else if (!trackAiolos().isEmpty()) {
+                    carrier = "aiolos";
                 } else {
                     carrier = null;
                 }
@@ -1354,6 +1429,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "diakinisis":
                         detailsList = trackDiakinisis();
+                        break;
+                    case "aiolos":
+                        detailsList = trackAiolos();
                         break;
                 }
             }

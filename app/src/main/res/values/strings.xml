@@ -2,6 +2,10 @@
     <string name="about_cat">About</string>
     <string name="acs">ACS Courier</string>
     <string name="acsSkroutzLastMile">ACS → Skroutz Last Mile</string>
+    <string name="aiolos">Aiolos Courier</string>
+    <string name="aiolos_out_for_delivery">With courier for delivery to the recipient</string>
+    <string name="aiolos_not_delivered">Not delivered</string>
+    <string name="aiolos_delivered">Shipment delivered</string>
     <string name="action_failed_invalid_tracking">This action could not be performed due to invalid tracking number</string>
     <string name="active_packages">Active</string>
     <string name="add_package_subtitle">Enter a tracking number and an optional name.</string>
@@ -134,6 +138,7 @@
     <string name="packages_deleted">Deleted %1$d packages</string>
     <string name="place">Place</string>
     <string name="plaisio">Plaisio</string>
+    <string name="plaisioAiolos">Plaisio → Aiolos Courier</string>
     <string name="plaisioBoxNow">Plaisio → BoxNow</string>
     <string name="plaisioDiakinisis">Plaisio → Diakinisis</string>
     <string name="plaisioEasyMail">Plaisio → Easy Mail</string>
@@ -274,6 +279,7 @@
         <item>απώλεια</item>
         <item>δεν καταφέραμε</item>
         <item>ανεπιτυχ</item>
+        <item>απαράδοτ</item>
         <item>αδυναμία</item>
         <item>άρνηση</item>
         <item>λάθος διεύθυνση</item>

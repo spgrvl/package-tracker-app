@@ -3,6 +3,10 @@
     <string name="about_cat">Σχετικά</string>
     <string name="acs">ACS Courier</string>
     <string name="acsSkroutzLastMile">ACS → Skroutz Last Mile</string>
+    <string name="aiolos">Αίολος Courier</string>
+    <string name="aiolos_out_for_delivery">ΣΕ ΚΟΥΡΙΕΡ ΠΡΟΣ ΠΑΡΑΔΟΣΗ ΣΤΟΝ ΠΑΡΑΛΗΠΤΗ</string>
+    <string name="aiolos_not_delivered">ΑΠΑΡΑΔΟΤΑ</string>
+    <string name="aiolos_delivered">ΑΠΟΣΤΟΛΗ ΠΑΡΑΔΟΘΗΚΕ</string>
     <string name="action_failed_invalid_tracking">Η εκτέλεση αυτής της ενέργειας δεν ήταν δυνατή λόγω μη έγκυρου αριθμού αποστολής</string>
     <string name="active_packages">Ενεργά</string>
     <string name="add_package_subtitle">Εισαγάγετε αριθμό αποστολής και προαιρετικό όνομα.</string>
@@ -134,6 +138,7 @@
     <string name="packages_deleted">Διαγράφηκαν %1$d πακέτα</string>
     <string name="place">Τοποθεσία</string>
     <string name="plaisio">Πλαίσιο</string>
+    <string name="plaisioAiolos">Πλαίσιο → Αίολος Courier</string>
     <string name="plaisioBoxNow">Πλαίσιο → BoxNow</string>
     <string name="plaisioDiakinisis">Πλαίσιο → Διακίνησις</string>
     <string name="plaisioEasyMail">Πλαίσιο → Easy Mail</string>

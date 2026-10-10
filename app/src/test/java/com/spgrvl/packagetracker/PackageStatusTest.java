@@ -168,6 +168,16 @@ public class PackageStatusTest {
     }
 
     @Test
+    public void aiolosStatusesInBothLanguages() {
+        for (String valuesDir : new String[]{"values", "values-el"}) {
+            Map<String, String> aiolos = StringResources.load(valuesDir).stringsWithPrefix("aiolos_");
+            assertEquals(valuesDir, PackageStatus.OUT_FOR_DELIVERY, active(aiolos.get("aiolos_out_for_delivery")));
+            assertEquals(valuesDir, PackageStatus.ISSUE, active(aiolos.get("aiolos_not_delivered")));
+            assertEquals(valuesDir, PackageStatus.DELIVERED, active(aiolos.get("aiolos_delivered") + " (ΣΦΡΑΓΙΔΑ)"));
+        }
+    }
+
+    @Test
     public void normalizeIgnoresCaseAccentsAndFinalSigma() {
         assertEquals("παραδοθηκε", PackageStatus.normalize("ΠΑΡΑΔΌΘΗΚΕ"));
         assertEquals("προσ παραδοση", PackageStatus.normalize("Προς Παράδοση"));
