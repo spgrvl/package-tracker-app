@@ -54,7 +54,7 @@ public class Localization {
             return context;
         }
         Configuration config = new Configuration(context.getResources().getConfiguration());
-        config.setLocale(new Locale(languagePref));
+        config.setLocale(Locale.forLanguageTag(languagePref));
         return context.createConfigurationContext(config);
     }
 

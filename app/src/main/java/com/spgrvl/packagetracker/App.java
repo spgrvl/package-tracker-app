@@ -102,7 +102,7 @@ public class App extends Application {
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                 "updateWorker",
-                ExistingPeriodicWorkPolicy.REPLACE,
+                ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
                 updateWorkRequest);
     }
 }
