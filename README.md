@@ -18,21 +18,25 @@ Greek Package Tracker is an Android application designed to help users track the
 
 ## Features
 
-- **Multi-Carrier Support**: Track packages from 11+ major Greek carriers
+- **Multi-Carrier Support**: Track packages from 14 Greek carriers, plus e-shop.gr and Plaisio orders
+- **Automatic Carrier Detection**: Just enter the tracking number, the app finds the carrier
+- **Courier Hand-offs**: Follow a parcel across carriers in one timeline, e.g. ACS → Skroutz Last Mile or a Plaisio order → its courier
 - **Barcode Scanning**: Quickly add packages by scanning tracking codes
+- **Clipboard Detection**: Optionally offers to add a tracking number you copied
 - **Auto-Refresh**: Automatic background updates for package status
 - **Notifications**: Get notified when package status changes
-- **Package History**: Keep track of completed deliveries
+- **Delivery Status at a Glance**: Pending, in transit, out for delivery, delivered or issue
+- **Package History**: Keep track of completed deliveries, and search all your packages
+- **Backup & Restore**: Export your packages and restore them on another device
 - **Modern UI**: Clean, intuitive interface with Material Design
 - **Dark Mode**: Full dark theme support
-- **Multi-Language**: Support for Greek and English
+- **Multi-Language**: Support for Greek and English, with carrier updates translated where carriers only publish them in Greek
 
 ## Supported Carriers
 
 | Carrier | Website |
 |---------|---------|
-| **ELTA** | [elta.gr](https://www.elta.gr/) |
-| **ELTA Courier** | [elta-courier.gr](https://www.elta-courier.gr/) |
+| **ELTA / ELTA Courier** | [elta.gr](https://www.elta.gr/) |
 | **ACS Courier** | [acscourier.net](https://www.acscourier.net/) |
 | **Geniki Taxydromiki** | [taxydromiki.com](https://www.taxydromiki.com/) |
 | **Speedex** | [speedex.gr](https://www.speedex.gr/) |
@@ -42,14 +46,27 @@ Greek Package Tracker is an Android application designed to help users track the
 | **Courier Center** | [courier.gr](https://www.courier.gr/) |
 | **Delatolas Courier** | [delatolascourier.gr](https://www.delatolascourier.gr/) |
 | **Easy Mail** | [easymail.gr](https://www.easymail.gr/) |
+| **Clever Point** | [cleverpoint.gr](https://www.cleverpoint.gr/) |
+| **Diakinisis** | [diakinisis.gr](https://www.diakinisis.gr/) |
+| **Aiolos Courier** | [aioloscourier.gr](https://aioloscourier.gr/) |
+
+### Supported Stores
+
+Orders are tracked from the store until they are handed to a courier, whose updates are then shown in the same timeline.
+
+| Store | Website |
+|-------|---------|
+| **e-shop.gr** | [e-shop.gr](https://www.e-shop.gr/) |
+| **Plaisio** | [plaisio.gr](https://www.plaisio.gr/) |
 
 ## Technical Details
 
 - **Platform**: Android (API 24+)
 - **Language**: Java
 - **Architecture**: Native Android with SQLite database
+- **Libraries**: Jsoup, OkHttp, WorkManager, Google Mobile Vision (barcode scanning), OpenCSV (backups)
 - **Minimum Android Version**: 7.0 (API 24)
-- **Target SDK**: 35
+- **Target SDK**: 37 (Android 17)
 
 ## Getting Started
 
@@ -64,22 +81,24 @@ Greek Package Tracker is an Android application designed to help users track the
    cd package-tracker-app
    ./gradlew assembleDebug
    ```
+   Run the unit tests with `./gradlew testDebugUnitTest`.
 
 ### Usage
 
 1. **Add a Package**: 
-   - Tap the + button to manually enter a tracking number
-   - Or use the camera icon to scan a barcode
+   - Tap **New package** in the bottom bar and enter a tracking number, optionally with a name
+   - Or tap **Scan** in the same dialog to scan a barcode
    
 2. **Track Progress**: 
-   - View real-time updates on the main screen
+   - See every package's latest status on the **Active** tab
    - Pull down to refresh manually
-   - Tap any package for detailed tracking history
+   - Tap any package for its full tracking timeline; tap links in updates to open the courier's own page
    
 3. **Manage Packages**: 
-   - Access delivered packages history via the menu > Completed
+   - Mark packages as completed from their details screen; find them later on the **Completed** tab
+   - Search packages by name or tracking number
    - Long press to bulk select packages
-   - Edit, delete, copy details or open package carrier's website via the menu 
+   - Edit, delete, copy details or open the carrier's website from the details screen's menu
 
 ## Contributing
 
