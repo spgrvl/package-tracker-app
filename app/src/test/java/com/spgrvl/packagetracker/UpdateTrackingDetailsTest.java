@@ -524,6 +524,28 @@ public class UpdateTrackingDetailsTest {
     }
 
     @Test
+    public void fewerEventsInAnotherLanguageReplaceTheStoredOnes() {
+        List<TrackingDetailsModel> stored = List.of(
+                detail("Παραδόθηκε", "ΑΘΗΝΑ", "03/01/2026 10:00"),
+                detail("Σε μεταφορά", "", "02/01/2026 10:00"),
+                detail("Παραλαβή", "", "01/01/2026 10:00"));
+        // The carrier's English page leaves out an event
+        assertTrue(UpdateTrackingDetails.translatesStoredDetails(List.of(
+                detail("Delivered", "ATHENS", "03/01/2026 10:00"),
+                detail("Picked up", "", "01/01/2026 10:00")), stored));
+        // An event the carrier added meanwhile
+        assertFalse(UpdateTrackingDetails.translatesStoredDetails(List.of(
+                detail("Returned", "", "04/01/2026 10:00"),
+                detail("Delivered", "ATHENS", "03/01/2026 10:00")), stored));
+        assertFalse(UpdateTrackingDetails.translatesStoredDetails(List.of(), stored));
+        assertFalse(UpdateTrackingDetails.translatesStoredDetails(List.of(
+                detail("Delivered", "ATHENS", "03/01/2026 10:00"),
+                detail("Delivered", "ATHENS", "03/01/2026 10:00"),
+                detail("In transit", "", "02/01/2026 10:00"),
+                detail("Picked up", "", "01/01/2026 10:00")), stored));
+    }
+
+    @Test
     public void plaisioLinksOfUntrackedCouriersAreShownToo() throws Exception {
         String json = plaisioOrder(plaisioEvent("01/01/2026 10:00", "Κάποιο νέο μήνυμα", "https://example.com/0000000108"));
         TrackingDetailsModel detail = parsePlaisio(json, "values").get(0);

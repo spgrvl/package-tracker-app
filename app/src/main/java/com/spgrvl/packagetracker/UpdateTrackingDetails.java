@@ -27,11 +27,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
@@ -695,6 +697,33 @@ public class UpdateTrackingDetails {
      */
     static boolean rewordsStoredDetails(List<TrackingDetailsModel> fresh, List<TrackingDetailsModel> stored) {
         return !fresh.isEmpty() && fresh.size() == stored.size() && !fresh.toString().equals(stored.toString());
+    }
+
+    /**
+     * Whether a carrier's details, fetched after a language switch, are the stored events in the
+     * new language, so they can replace them even though carriers may report fewer events in
+     * some languages. Every event must have the date and time of a stored one; an event
+     * the carrier added meanwhile waits for a refresh that reports more events than stored.
+     */
+    static boolean translatesStoredDetails(List<TrackingDetailsModel> fresh, List<TrackingDetailsModel> stored) {
+        if (fresh.isEmpty() || fresh.size() > stored.size()) {
+            return false;
+        }
+        Set<String> storedDatetimes = new HashSet<>();
+        for (TrackingDetailsModel detail : stored) {
+            storedDatetimes.add(detail.getDatetime());
+        }
+        for (TrackingDetailsModel detail : fresh) {
+            if (!storedDatetimes.contains(detail.getDatetime())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** The language details are fetched in, "el" or "en", as recorded with the saved details. */
+    private String detailsLanguage() {
+        return languagePref.equals("el_GR") || languagePref.equals("el") ? "el" : "en";
     }
 
     /** The combined carrier of a Plaisio order handed to a tracked courier, e.g. "plaisioBoxNow". */
@@ -1454,12 +1483,18 @@ public class UpdateTrackingDetails {
             DatabaseHelper databaseHelper = new DatabaseHelper(context);
             int db_count = databaseHelper.getTrackingDetailsCount(tracking);
             int carrier_count = detailsList.size();
-            boolean changedDetails = carrier_count == db_count
-                    && rewordsStoredDetails(detailsList, databaseHelper.getTrackingDetails(tracking));
+            String language = detailsLanguage();
+            String storedLanguage = databaseHelper.getDetailsLanguage(tracking);
+            List<TrackingDetailsModel> storedDetails = databaseHelper.getTrackingDetails(tracking);
+            // Carriers may report fewer events in another language, so those may replace the
+            // stored ones only after a language switch
+            boolean changedDetails = rewordsStoredDetails(detailsList, storedDetails)
+                    || storedLanguage != null && !storedLanguage.equals(language)
+                    && translatesStoredDetails(detailsList, storedDetails);
 
             if (carrier_count > db_count) {
                 // updating Details table in DB
-                databaseHelper.updateTrackingDetails(tracking, detailsList);
+                databaseHelper.updateTrackingDetails(tracking, detailsList, language);
 
                 // updating latest status and current datetime in Index table in DB
                 // mark as unread only if updating all packages and not individually or updating while in foreground
@@ -1489,13 +1524,17 @@ public class UpdateTrackingDetails {
                     sendPackageUpdateNotification(notificationTitle, notificationMessage, rowId, tracking);
                 }
             } else if (changedDetails) {
-                databaseHelper.updateTrackingDetails(tracking, detailsList);
+                databaseHelper.updateTrackingDetails(tracking, detailsList, language);
                 databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), detailsList.get(0).getStatus(), false, carrier);
             } else if (carrier_count < db_count) {
                 Log.e("UpdateTrackingDetails", "Carrier is reporting less updates (" + carrier_count + ") than already stored in DB (" + db_count + ")");
             } else {
                 // updating current datetime in Index table in DB
                 databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), null, false, carrier);
+                // Unchanged details are in the current language, for packages saved before it was recorded
+                if (storedLanguage == null && carrier_count > 0) {
+                    databaseHelper.setDetailsLanguage(tracking, language);
+                }
             }
         });
         t.start();

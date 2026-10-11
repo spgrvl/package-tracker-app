@@ -16,7 +16,7 @@ import static java.lang.Integer.parseInt;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int VERSION = 6;
+    public static final int VERSION = 7;
 
     public static final String DATABASE_NAME = "tracking.db";
     public static final String INDEX_TABLE = "Tracking_Index";
@@ -28,6 +28,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String UNREAD_COL = "Unread";
     public static final String CARRIER_COL = "Carrier";
     public static final String COMPLETED_COL = "Completed";
+    // Language the package's details were saved in, "el" or "en"; null if saved before it was recorded
+    public static final String LANGUAGE_COL = "Language";
     public static final String STATUS_COL = "Status";
     public static final String PLACE_COL = "Place";
     public static final String DATETIME_COL = "Datetime";
@@ -38,7 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE IF NOT EXISTS " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT, " + UNREAD_COL + " BOOLEAN NOT NULL, " + CARRIER_COL + " TEXT, " + COMPLETED_COL + " BOOLEAN NOT NULL, " + CREATED_COL + " TEXT, CHECK ( " + UNREAD_COL + " IN (0,1) AND " + COMPLETED_COL + " IN (0,1)))";
+        String createTable = "CREATE TABLE IF NOT EXISTS " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT, " + UNREAD_COL + " BOOLEAN NOT NULL, " + CARRIER_COL + " TEXT, " + COMPLETED_COL + " BOOLEAN NOT NULL, " + CREATED_COL + " TEXT, " + LANGUAGE_COL + " TEXT, CHECK ( " + UNREAD_COL + " IN (0,1) AND " + COMPLETED_COL + " IN (0,1)))";
         db.execSQL(createTable);
     }
 
@@ -76,6 +78,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int createdColumnIndex = cursor.getColumnIndex(CREATED_COL);
         if (createdColumnIndex < 0) {
             db.execSQL("ALTER TABLE " + INDEX_TABLE + " ADD COLUMN " + CREATED_COL + " TEXT DEFAULT ''");
+        }
+
+        // check if LANGUAGE_COL exists and if not add it
+        int languageColumnIndex = cursor.getColumnIndex(LANGUAGE_COL);
+        if (languageColumnIndex < 0) {
+            db.execSQL("ALTER TABLE " + INDEX_TABLE + " ADD COLUMN " + LANGUAGE_COL + " TEXT");
         }
 
         // close cursor when done.
@@ -123,13 +131,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void updateTrackingDetails(String tracking, ArrayList<TrackingDetailsModel> detailsList) {
-        // Delete Tracking table contents and insert the new list of entries
+    public void updateTrackingDetails(String tracking, ArrayList<TrackingDetailsModel> detailsList, String language) {
+        // Delete Tracking table contents and insert the new list of entries, in the given language
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         db.beginTransaction();
         try {
+            setDetailsLanguage(db, tracking, language);
             db.execSQL("DELETE FROM " + detailsTable(tracking));
             for (int i = 0; i < detailsList.size(); i++) {
                 ContentValues contentValues = new ContentValues();
@@ -143,6 +152,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.endTransaction();
         }
         db.close();
+    }
+
+    /** The language a package's details were saved in, or null if it wasn't recorded. */
+    public String getDetailsLanguage(String tracking) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + LANGUAGE_COL + " FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = ?",
+                new String[]{tracking});
+        String language = cursor.moveToFirst() ? cursor.getString(0) : null;
+        cursor.close();
+        db.close();
+        return language;
+    }
+
+    public void setDetailsLanguage(String tracking, String language) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        setDetailsLanguage(db, tracking, language);
+        db.close();
+    }
+
+    private static void setDetailsLanguage(SQLiteDatabase db, String tracking, String language) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(LANGUAGE_COL, language);
+        db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[]{tracking});
     }
 
     public void updateTrackingIndex(String tracking, String updated, String lastUpdate, Boolean isUnread, String carrier) {
