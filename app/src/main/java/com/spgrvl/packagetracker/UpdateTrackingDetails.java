@@ -688,6 +688,15 @@ public class UpdateTrackingDetails {
         return null;
     }
 
+    /**
+     * Whether a carrier's details are the stored events worded differently, in another language
+     * or by a newer app version, so they can replace them silently. Never true for fewer events,
+     * so that history a carrier deletes stays in the app.
+     */
+    static boolean rewordsStoredDetails(List<TrackingDetailsModel> fresh, List<TrackingDetailsModel> stored) {
+        return !fresh.isEmpty() && fresh.size() == stored.size() && !fresh.toString().equals(stored.toString());
+    }
+
     /** The combined carrier of a Plaisio order handed to a tracked courier, e.g. "plaisioBoxNow". */
     static String plaisioWithCourier(String courier) {
         return "plaisio" + Character.toUpperCase(courier.charAt(0)) + courier.substring(1);
@@ -1445,14 +1454,8 @@ public class UpdateTrackingDetails {
             DatabaseHelper databaseHelper = new DatabaseHelper(context);
             int db_count = databaseHelper.getTrackingDetailsCount(tracking);
             int carrier_count = detailsList.size();
-            String db_last_update = databaseHelper.getIndexEntry(tracking).get(3);
-            // Same events in another language, or worded differently by a newer app version
-            boolean changedDetails = false;
-            if (carrier_count > 0) {
-                changedDetails = !detailsList.get(0).getStatus().equals(db_last_update)
-                        || carrier_count == db_count
-                        && !detailsList.toString().equals(databaseHelper.getTrackingDetails(tracking).toString());
-            }
+            boolean changedDetails = carrier_count == db_count
+                    && rewordsStoredDetails(detailsList, databaseHelper.getTrackingDetails(tracking));
 
             if (carrier_count > db_count) {
                 // updating Details table in DB

@@ -506,6 +506,24 @@ public class UpdateTrackingDetailsTest {
     }
 
     @Test
+    public void storedHistoryIsOnlyReplacedWhenReworded() {
+        List<TrackingDetailsModel> stored = List.of(
+                detail("Delivered", "ΑΘΗΝΑ", "02/01/2026 10:00"),
+                detail("Picked up", "", "01/01/2026 10:00"));
+        // Another language or a newer app version's wording
+        assertTrue(UpdateTrackingDetails.rewordsStoredDetails(List.of(
+                detail("Παραδόθηκε", "ΑΘΗΝΑ", "02/01/2026 10:00"),
+                detail("Picked up", "", "01/01/2026 10:00")), stored));
+        assertFalse(UpdateTrackingDetails.rewordsStoredDetails(List.of(
+                detail("Delivered", "ΑΘΗΝΑ", "02/01/2026 10:00"),
+                detail("Picked up", "", "01/01/2026 10:00")), stored));
+        // History the carrier deleted, even if what's left is worded differently
+        assertFalse(UpdateTrackingDetails.rewordsStoredDetails(List.of(
+                detail("Παραδόθηκε", "ΑΘΗΝΑ", "02/01/2026 10:00")), stored));
+        assertFalse(UpdateTrackingDetails.rewordsStoredDetails(List.of(), stored));
+    }
+
+    @Test
     public void plaisioLinksOfUntrackedCouriersAreShownToo() throws Exception {
         String json = plaisioOrder(plaisioEvent("01/01/2026 10:00", "Κάποιο νέο μήνυμα", "https://example.com/0000000108"));
         TrackingDetailsModel detail = parsePlaisio(json, "values").get(0);
