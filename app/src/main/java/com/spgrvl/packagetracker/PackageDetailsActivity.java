@@ -16,6 +16,7 @@ import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Bundle;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -301,8 +302,11 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         String carrier = getCarrier(false);
         int logoResId = getCarrierLogoResId(carrier);
         if (logoResId != 0) {
-            // Logos can be PNGs or XML drawables (e.g. the combined ACS + Skroutz one)
-            Drawable logo = ContextCompat.getDrawable(this, logoResId);
+            // The toolbar is blue in both themes, so it always takes the logos made for dark
+            // backgrounds. Logos can be PNGs or XML drawables (e.g. the combined ACS + Skroutz one)
+            Configuration night = new Configuration(getResources().getConfiguration());
+            night.uiMode = (night.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | Configuration.UI_MODE_NIGHT_YES;
+            Drawable logo = ContextCompat.getDrawable(createConfigurationContext(night), logoResId);
             if (logo != null && logo.getIntrinsicWidth() > 0 && logo.getIntrinsicHeight() > 0) {
                 float density = getResources().getDisplayMetrics().density;
                 int maxHeight = (int) (32 * density);
@@ -314,9 +318,12 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                 int targetWidth = Math.max(1, (int) (logo.getIntrinsicWidth() * scale));
                 int targetHeight = Math.max(1, (int) (logo.getIntrinsicHeight() * scale));
 
-                Bitmap scaled = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888);
-                logo.setBounds(0, 0, targetWidth, targetHeight);
-                logo.draw(new Canvas(scaled));
+                // Drawn at full size first: layers of combined logos have fixed sizes and would
+                // be cut off in smaller bounds
+                Bitmap full = Bitmap.createBitmap(logo.getIntrinsicWidth(), logo.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+                logo.setBounds(0, 0, full.getWidth(), full.getHeight());
+                logo.draw(new Canvas(full));
+                Bitmap scaled = Bitmap.createScaledBitmap(full, targetWidth, targetHeight, true);
                 BitmapDrawable logoDrawable = new BitmapDrawable(getResources(), scaled);
                 int rightInset = (int) (8 * density);
                 toolbar.setLogo(new InsetDrawable(logoDrawable, 0, 0, rightInset, 0));
