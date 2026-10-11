@@ -739,7 +739,8 @@ public class UpdateTrackingDetails {
      * Parses Plaisio's order history (oldest first, dates already "dd/MM/yyyy HH:mm") into
      * newest-first details. Messages matching a translation pattern are replaced by its format,
      * filled with the pattern's groups (store names, dates); others are kept as they are. The
-     * event handing the order to a courier gets the courier and its tracking number as place.
+     * event handing the order to a courier gets the courier's link appended to its message and
+     * the courier and its tracking number as place.
      */
     static ArrayList<TrackingDetailsModel> parsePlaisioHistory(String json, Map<Pattern, String> translations,
                                                                Map<String, String> courierNames) throws JSONException {
@@ -762,8 +763,13 @@ public class UpdateTrackingDetails {
                     break;
                 }
             }
+            // Shown so that couriers the app can't track can still be followed on their own site
+            String link = optText(event, "courierTrackingLink").trim();
+            if (link.startsWith("http")) {
+                status += " " + link;
+            }
             String place = "";
-            String[] courier = courierFromLink(optText(event, "courierTrackingLink"));
+            String[] courier = courierFromLink(link);
             if (courier != null) {
                 String name = courierNames.get(courier[0]);
                 place = (name != null ? name : courier[0]) + " " + courier[1];
@@ -1440,9 +1446,12 @@ public class UpdateTrackingDetails {
             int db_count = databaseHelper.getTrackingDetailsCount(tracking);
             int carrier_count = detailsList.size();
             String db_last_update = databaseHelper.getIndexEntry(tracking).get(3);
-            boolean changedLanguage = false;
+            // Same events in another language, or worded differently by a newer app version
+            boolean changedDetails = false;
             if (carrier_count > 0) {
-                changedLanguage = !detailsList.get(0).getStatus().equals(db_last_update);
+                changedDetails = !detailsList.get(0).getStatus().equals(db_last_update)
+                        || carrier_count == db_count
+                        && !detailsList.toString().equals(databaseHelper.getTrackingDetails(tracking).toString());
             }
 
             if (carrier_count > db_count) {
@@ -1476,7 +1485,7 @@ public class UpdateTrackingDetails {
 
                     sendPackageUpdateNotification(notificationTitle, notificationMessage, rowId, tracking);
                 }
-            } else if (changedLanguage) {
+            } else if (changedDetails) {
                 databaseHelper.updateTrackingDetails(tracking, detailsList);
                 databaseHelper.updateTrackingIndex(tracking, String.valueOf(System.currentTimeMillis()), detailsList.get(0).getStatus(), false, carrier);
             } else if (carrier_count < db_count) {

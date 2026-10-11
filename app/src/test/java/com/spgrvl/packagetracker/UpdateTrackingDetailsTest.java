@@ -501,7 +501,16 @@ public class UpdateTrackingDetailsTest {
         assertArrayEquals(new String[]{"boxNow", "0000000107"}, UpdateTrackingDetails.plaisioCourier(json));
         List<TrackingDetailsModel> details = parsePlaisio(json, "values");
         assertEquals("BoxNow 0000000107", details.get(0).getPlace());
+        assertTrue(details.get(0).getStatus().endsWith(" https://boxnow.gr/?track=0000000107"));
         assertEquals("", details.get(1).getPlace());
+    }
+
+    @Test
+    public void plaisioLinksOfUntrackedCouriersAreShownToo() throws Exception {
+        String json = plaisioOrder(plaisioEvent("01/01/2026 10:00", "Κάποιο νέο μήνυμα", "https://example.com/0000000108"));
+        TrackingDetailsModel detail = parsePlaisio(json, "values").get(0);
+        assertEquals("Κάποιο νέο μήνυμα https://example.com/0000000108", detail.getStatus());
+        assertEquals("", detail.getPlace());
     }
 
     @Test

@@ -51,7 +51,9 @@
             android:id="@+id/statusTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autoLink="web"
             android:textColor="@color/text_primary"
+            android:textColorLink="@color/accent_blue"
             android:textSize="15sp"
             tools:text="Out for delivery" />
 

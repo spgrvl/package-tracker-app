@@ -60,7 +60,7 @@ public class CustomDetailsRvAdapter extends RecyclerView.Adapter<CustomDetailsRv
         holder.lineBelow.setVisibility(position == listData.size() - 1 ? View.INVISIBLE : View.VISIBLE);
 
         // Called when user long clicks RecyclerView items
-        holder.parentView.setOnLongClickListener(v -> {
+        View.OnLongClickListener copyToClipboard = v -> {
             ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
 
             String clipboardMessage;
@@ -74,7 +74,10 @@ public class CustomDetailsRvAdapter extends RecyclerView.Adapter<CustomDetailsRv
             clipboard.setPrimaryClip(clip);
             Toast.makeText(v.getContext(), R.string.status_to_clipboard, Toast.LENGTH_SHORT).show();
             return true;
-        });
+        };
+        holder.parentView.setOnLongClickListener(copyToClipboard);
+        // Links in the status make it take its own touches
+        holder.status.setOnLongClickListener(copyToClipboard);
     }
 
     @Override
