@@ -97,6 +97,8 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             this.startActivity(new Intent(this, MainActivity.class));
             Toast.makeText(this, R.string.not_found, Toast.LENGTH_SHORT).show();
             finish();
+            // e.g. a notification of a package deleted since
+            return;
         }
         customName = indexEntry.get(4);
         completed = indexEntry.get(7).equals("1");
