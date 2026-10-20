@@ -246,15 +246,33 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void showTrackingOnRecyclerView() {
-        // Show active packages
         List<TrackingIndexModel> activeTracking = databaseHelper.getAllTracking(false);
+        List<TrackingIndexModel> deliveredTracking = databaseHelper.getAllTracking(true);
+
+        // Reloading (e.g. when returning to the app) creates new items, so carry the selection
+        // over to them, dropping packages no longer in the tab (e.g. completed from a notification)
+        boolean selectionChanged = false;
+        if (isInSelectionMode) {
+            List<String> shown = new ArrayList<>();
+            for (TrackingIndexModel t : isDeliveredTabSelected() ? deliveredTracking : activeTracking) {
+                t.setSelected(selectionList.contains(t.getTracking()));
+                shown.add(t.getTracking());
+            }
+            selectionChanged = selectionList.retainAll(shown);
+            counter = selectionList.size();
+        }
+
+        // Show active packages
         adapter = new CustomIndexRvAdapter(MainActivity.this, activeTracking);
         trackingNumbersRv.setAdapter(adapter);
 
         // Show delivered packages
-        List<TrackingIndexModel> deliveredTracking = databaseHelper.getAllTracking(true);
         deliveredAdapter = new CustomIndexRvAdapter(MainActivity.this, deliveredTracking);
         deliveredPackagesRv.setAdapter(deliveredAdapter);
+
+        if (selectionChanged) {
+            updateToolbarText();
+        }
 
         // Force RecyclerViews to measure and layout
         trackingNumbersRv.requestLayout();
@@ -592,11 +610,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         if (((CheckBox) v).isChecked()) {
             ((CheckBox) v).setChecked(false);
             selectionList.remove(tracking);
-            counter--;
+            counter = selectionList.size();
         } else {
             ((CheckBox) v).setChecked(true);
-            selectionList.add(tracking);
-            counter++;
+            if (!selectionList.contains(tracking)) {
+                selectionList.add(tracking);
+            }
+            counter = selectionList.size();
         }
         updateToolbarText();
     }
