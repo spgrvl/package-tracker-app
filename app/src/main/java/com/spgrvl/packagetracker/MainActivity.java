@@ -288,9 +288,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void updateIndex() {
         if (isNetworkAvailable()) {
+            boolean completed = isDeliveredTabSelected();
             new Thread(() -> {
                 UpdateTrackingDetails upd = new UpdateTrackingDetails(null, MainActivity.this, true);
-                boolean a = upd.updateAll();
+                boolean a = upd.updateAll(completed);
                 runOnUiThread(() -> {
                     if (a) {
                         showTrackingOnRecyclerView();
@@ -352,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.refresh_button) {
-            swipeRefreshLayout.setRefreshing(true);
+            (isDeliveredTabSelected() ? swipeRefreshDelivered : swipeRefreshLayout).setRefreshing(true);
             updateIndex();
         } else if (item.getItemId() == R.id.settings_button) {
             startActivity(new Intent(this, SettingsActivity.class));
