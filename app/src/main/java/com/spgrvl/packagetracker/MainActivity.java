@@ -533,7 +533,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     public void openDialog(String tracking) {
-        AddNewDialog addDialog = new AddNewDialog(tracking);
+        AddNewDialog addDialog = AddNewDialog.newInstance(tracking);
         addDialog.show(getSupportFragmentManager(), "New Tracking Dialog");
     }
 

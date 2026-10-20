@@ -23,19 +23,27 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class AddNewDialog extends AppCompatDialogFragment {
-    private final String barcode;
+    private static final String ARG_BARCODE = "barcode";
     private EditText editTextTracking;
     private EditText editTextCustomName;
     private AddDialogListener listener;
     private DatabaseHelper databaseHelper;
 
-    public AddNewDialog(String barcode) {
-        this.barcode = barcode;
+    // Passed as an argument, since the system recreates the dialog with the no-argument
+    // constructor after a configuration change such as a switch to dark mode
+    public static AddNewDialog newInstance(String barcode) {
+        AddNewDialog dialog = new AddNewDialog();
+        Bundle args = new Bundle();
+        args.putString(ARG_BARCODE, barcode);
+        dialog.setArguments(args);
+        return dialog;
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        String barcode = requireArguments().getString(ARG_BARCODE);
+
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.add_new_dialog, null);
