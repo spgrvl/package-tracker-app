@@ -296,7 +296,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     }
 
     private void openDialog() {
-        EditDialog editDialog = new EditDialog(tracking);
+        EditDialog editDialog = EditDialog.newInstance(tracking);
         editDialog.show(getSupportFragmentManager(), "Edit Tracking Dialog");
     }
 

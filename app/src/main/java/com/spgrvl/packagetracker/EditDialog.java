@@ -24,18 +24,26 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 
 public class EditDialog extends AppCompatDialogFragment {
-    private final String tracking;
+    private static final String ARG_TRACKING = "tracking";
     private EditText editTextTracking;
     private EditText editTextCustomName;
     private AddDialogListener listener;
 
-    public EditDialog(String tracking) {
-        this.tracking = tracking;
+    // Passed as an argument, since the system recreates the dialog with the no-argument
+    // constructor after a configuration change such as a switch to dark mode
+    public static EditDialog newInstance(String tracking) {
+        EditDialog dialog = new EditDialog();
+        Bundle args = new Bundle();
+        args.putString(ARG_TRACKING, tracking);
+        dialog.setArguments(args);
+        return dialog;
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        String tracking = requireArguments().getString(ARG_TRACKING);
+
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireActivity());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.add_new_dialog, null);
