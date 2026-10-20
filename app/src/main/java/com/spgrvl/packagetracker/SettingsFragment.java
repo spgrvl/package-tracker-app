@@ -26,8 +26,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.opencsv.CSVReader;
-
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -197,13 +196,26 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         restoreLauncher.launch(intent);
     }
 
-    private void readBackupFromUri(Uri uri) {
-        try (InputStreamReader isr = new InputStreamReader(
-                requireActivity().getContentResolver().openInputStream(uri));
-             CSVReader csvReader = new CSVReader(isr)) {
+    /**
+     * Fields of a backup line, or null if it isn't one. Backups replace commas in fields with
+     * dots, so lines are split on commas; quotes are plain text, not CSV quoting, since custom
+     * names may contain them (e.g. 5" monitor).
+     */
+    static String[] parseBackupLine(String line) {
+        String[] fields = line.split(",", -1);
+        return fields.length >= 4 ? fields : null;
+    }
 
-            String[] nextLine;
-            while ((nextLine = csvReader.readNext()) != null) {
+    private void readBackupFromUri(Uri uri) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                requireActivity().getContentResolver().openInputStream(uri)))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] nextLine = parseBackupLine(line);
+                if (nextLine == null) {
+                    continue;
+                }
                 String tracking = nextLine[0];
                 String customName = nextLine[1];
                 Boolean completed = Boolean.valueOf(nextLine[2]);
