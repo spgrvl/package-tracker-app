@@ -93,7 +93,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // table and deleting one dropped it for the other: recreate any missing details tables
         Cursor trackingCursor = db.rawQuery("SELECT " + TRACKING_COL + " FROM " + INDEX_TABLE, null);
         while (trackingCursor.moveToNext()) {
-            db.execSQL("CREATE TABLE IF NOT EXISTS " + detailsTable(trackingCursor.getString(0)) + "(" + STATUS_COL + " TEXT, " + PLACE_COL + " TEXT, " + DATETIME_COL + " TEXT )");
+            db.execSQL(createDetailsTable(trackingCursor.getString(0)));
         }
         trackingCursor.close();
     }
@@ -121,6 +121,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return "\"" + tracking.replace("\"", "\"\"") + "\"";
     }
 
+    static String createDetailsTable(String tracking) {
+        return "CREATE TABLE IF NOT EXISTS " + detailsTable(tracking) + "(" + STATUS_COL + " TEXT, " + PLACE_COL + " TEXT, " + DATETIME_COL + " TEXT )";
+    }
+
+    /**
+     * Whether a package differing only in case shares this package's details table (stored
+     * before duplicates were checked regardless of case), so it must not be dropped.
+     */
+    private static boolean isDetailsTableShared(SQLiteDatabase db, String tracking) {
+        Cursor cursor = db.rawQuery("SELECT 1 FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = ? COLLATE NOCASE AND " + TRACKING_COL + " != ?",
+                new String[]{tracking, tracking});
+        boolean shared = cursor.moveToFirst();
+        cursor.close();
+        return shared;
+    }
+
     public boolean addNewTracking(String Tracking, String CustomName, Boolean Completed, String Created) {
         if (findTracking(Tracking) != null) {
             return false;
@@ -130,8 +146,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Create table for details of new Tracking number
         try {
-            String createTrackingTable = "CREATE TABLE IF NOT EXISTS " + detailsTable(Tracking) + "(" + STATUS_COL + " TEXT, " + PLACE_COL + " TEXT, " + DATETIME_COL + " TEXT )";
-            db.execSQL(createTrackingTable);
+            db.execSQL(createDetailsTable(Tracking));
 
             if (Created == null) {
                 Created = String.valueOf(System.currentTimeMillis());
@@ -328,22 +343,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean editTracking(String tracking, String newTracking, String customName) {
+        // A change of letter case only keeps the package as it is, since table names ignore case
+        boolean numberChanged = !tracking.equalsIgnoreCase(newTracking);
+        if (numberChanged && findTracking(newTracking) != null) {
+            return false;
+        }
+
         SQLiteDatabase db = this.getWritableDatabase();
 
+        db.beginTransaction();
         try {
             ContentValues contentValues = new ContentValues();
-            // A change of letter case only keeps the same details table, since table names ignore case
-            if (!tracking.equalsIgnoreCase(newTracking)) {
-                db.execSQL("ALTER TABLE " + detailsTable(tracking) + " RENAME TO " + detailsTable(newTracking));
+            if (numberChanged) {
+                // The old number's history, carrier and status belong to another parcel: start
+                // the new number empty, as if just added
+                if (!isDetailsTableShared(db, tracking)) {
+                    db.execSQL("DROP TABLE IF EXISTS " + detailsTable(tracking));
+                }
+                db.execSQL("DROP TABLE IF EXISTS " + detailsTable(newTracking));
+                db.execSQL(createDetailsTable(newTracking));
+                contentValues.put(UPDATED_COL, "Never");
+                contentValues.put(LAST_UPDATE_COL, "Status: None");
+                contentValues.putNull(CARRIER_COL);
+                contentValues.putNull(LANGUAGE_COL);
+                contentValues.put(UNREAD_COL, false);
             }
             contentValues.put(TRACKING_COL, newTracking);
             contentValues.put(CUSTOM_NAME_COL, customName);
             db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[]{tracking});
+            db.setTransactionSuccessful();
             return true;
         } catch (SQLException e) {
             Log.e("SQLException", e.toString());
-            db.close();
             return false;
+        } finally {
+            db.endTransaction();
+            db.close();
         }
     }
 
@@ -442,13 +477,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Delete Tracking table and Index table entry. Return true if done, else false
         SQLiteDatabase db = this.getWritableDatabase();
 
-        // Delete tracking table, unless a package differing only in case shares it (stored
-        // before duplicates were checked regardless of case)
-        Cursor cursor = db.rawQuery("SELECT 1 FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = ? COLLATE NOCASE AND " + TRACKING_COL + " != ?",
-                new String[]{tracking, tracking});
-        boolean shared = cursor.moveToFirst();
-        cursor.close();
-        if (!shared) {
+        // Delete tracking table, unless another package still uses it
+        if (!isDetailsTableShared(db, tracking)) {
             db.execSQL("DROP TABLE IF EXISTS " + detailsTable(tracking));
         }
 

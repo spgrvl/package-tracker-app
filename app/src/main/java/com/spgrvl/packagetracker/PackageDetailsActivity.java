@@ -407,10 +407,20 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
     }
 
     private void editTrackingDb(String trackingNumber, String newTrackingNumber, String newCustomName) {
+        // A new number (not just a name or letter case change) clears the old number's history
+        boolean clearsHistory = !trackingNumber.equalsIgnoreCase(newTrackingNumber)
+                && databaseHelper.getTrackingDetailsCount(trackingNumber) > 0;
         boolean updateData = databaseHelper.editTracking(trackingNumber, newTrackingNumber, newCustomName);
         if (updateData) {
-            Toast.makeText(PackageDetailsActivity.this, R.string.edited_successfully, Toast.LENGTH_SHORT).show();
+            if (clearsHistory) {
+                Toast.makeText(PackageDetailsActivity.this, R.string.tracking_changed_history_cleared, Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(PackageDetailsActivity.this, R.string.edited_successfully, Toast.LENGTH_SHORT).show();
+            }
             this.tracking = newTrackingNumber;
+            showDetailsOnRecyclerView();
+            carrierTv.setText(getCarrier(true));
+            updateActionBarLogo();
             // Set title and subtitle in action bar
             if (newCustomName != null) {
                 this.setTitle(newCustomName);

@@ -79,6 +79,7 @@
     <string name="edit_package">Επεξεργασία πακέτου</string>
     <string name="edit_package_subtitle">Ενημερώστε τον αριθμό αποστολής ή το εμφανιζόμενο όνομα.</string>
     <string name="edited_successfully">Η επεξεργασία ήταν επιτυχής!</string>
+    <string name="tracking_changed_history_cleared">Ο αριθμός αποστολής άλλαξε. Το ιστορικό του παλιού αριθμού διαγράφηκε</string>
     <string name="elta">Ελτα</string>
     <string name="eshop">e-shop.gr</string>
     <string name="eshop_availability_check">Έλεγχος Διαθεσιμότητας Προϊόντων</string>
