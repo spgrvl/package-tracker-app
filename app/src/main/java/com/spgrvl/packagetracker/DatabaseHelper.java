@@ -16,7 +16,7 @@ import static java.lang.Integer.parseInt;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int VERSION = 7;
+    public static final int VERSION = 8;
 
     public static final String DATABASE_NAME = "tracking.db";
     public static final String INDEX_TABLE = "Tracking_Index";
@@ -88,6 +88,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // close cursor when done.
         cursor.close();
+
+        // Table names are case-insensitive, so packages differing only in case shared one details
+        // table and deleting one dropped it for the other: recreate any missing details tables
+        Cursor trackingCursor = db.rawQuery("SELECT " + TRACKING_COL + " FROM " + INDEX_TABLE, null);
+        while (trackingCursor.moveToNext()) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS " + detailsTable(trackingCursor.getString(0)) + "(" + STATUS_COL + " TEXT, " + PLACE_COL + " TEXT, " + DATETIME_COL + " TEXT )");
+        }
+        trackingCursor.close();
+    }
+
+    /**
+     * The tracking number as stored, if a package with it exists in any letter case, else null.
+     * Details tables are named after tracking numbers and SQLite table names ignore case, so
+     * numbers differing only in case must not be stored twice.
+     */
+    public String findTracking(String tracking) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + TRACKING_COL + " FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = ? COLLATE NOCASE",
+                new String[]{tracking});
+        String stored = cursor.moveToFirst() ? cursor.getString(0) : null;
+        cursor.close();
+        db.close();
+        return stored;
     }
 
     /**
@@ -99,6 +122,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean addNewTracking(String Tracking, String CustomName, Boolean Completed, String Created) {
+        if (findTracking(Tracking) != null) {
+            return false;
+        }
+
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Create table for details of new Tracking number
@@ -305,10 +332,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         try {
             ContentValues contentValues = new ContentValues();
-            if (!tracking.equals(newTracking)) {
+            // A change of letter case only keeps the same details table, since table names ignore case
+            if (!tracking.equalsIgnoreCase(newTracking)) {
                 db.execSQL("ALTER TABLE " + detailsTable(tracking) + " RENAME TO " + detailsTable(newTracking));
-                contentValues.put(TRACKING_COL, newTracking);
             }
+            contentValues.put(TRACKING_COL, newTracking);
             contentValues.put(CUSTOM_NAME_COL, customName);
             db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[]{tracking});
             return true;
@@ -414,8 +442,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Delete Tracking table and Index table entry. Return true if done, else false
         SQLiteDatabase db = this.getWritableDatabase();
 
-        // Delete tracking table
-        db.execSQL("DROP TABLE IF EXISTS " + detailsTable(tracking));
+        // Delete tracking table, unless a package differing only in case shares it (stored
+        // before duplicates were checked regardless of case)
+        Cursor cursor = db.rawQuery("SELECT 1 FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = ? COLLATE NOCASE AND " + TRACKING_COL + " != ?",
+                new String[]{tracking, tracking});
+        boolean shared = cursor.moveToFirst();
+        cursor.close();
+        if (!shared) {
+            db.execSQL("DROP TABLE IF EXISTS " + detailsTable(tracking));
+        }
 
         db.execSQL("DELETE FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = ?", new Object[]{tracking});
 

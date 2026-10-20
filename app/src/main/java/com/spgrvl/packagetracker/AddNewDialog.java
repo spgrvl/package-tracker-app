@@ -17,7 +17,6 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
-import java.util.ArrayList;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -83,9 +82,7 @@ public class AddNewDialog extends AppCompatDialogFragment {
                 trackingInputLayout.setError(getString(R.string.toast_empty_tracking));
                 return;
             }
-            ArrayList<String> existing = databaseHelper.getTrackingNumbers(false);
-            existing.addAll(databaseHelper.getTrackingNumbers(true));
-            if (existing.contains(tracking)) {
+            if (databaseHelper.findTracking(tracking) != null) {
                 trackingInputLayout.setError(getString(R.string.toast_tracking_exists));
                 return;
             }

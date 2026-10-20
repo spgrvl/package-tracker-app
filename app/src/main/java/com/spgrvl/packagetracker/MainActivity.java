@@ -509,19 +509,17 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void submitTracking(String trackingNumber, String customName) {
-        ArrayList<String> tracking_numbers = databaseHelper.getTrackingNumbers(false);
-        ArrayList<String> completed_tracking_numbers = databaseHelper.getTrackingNumbers(true);
-        tracking_numbers.addAll(completed_tracking_numbers);
-
         // remove spaces from start and end of input
         trackingNumber = trackingNumber.trim();
         if (customName != null) {
             customName = customName.trim();
         }
 
-        if (tracking_numbers.contains(trackingNumber)) {
+        // Existing packages are matched regardless of letter case
+        String storedTracking = databaseHelper.findTracking(trackingNumber);
+        if (storedTracking != null) {
             Toast.makeText(this, R.string.toast_tracking_exists, Toast.LENGTH_LONG).show();
-            openTrackingDetails(trackingNumber);
+            openTrackingDetails(storedTracking);
         } else {
             // Add to database (table + index)
             addTrackingDb(trackingNumber, customName);

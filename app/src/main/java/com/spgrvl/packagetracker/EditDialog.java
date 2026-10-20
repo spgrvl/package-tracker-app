@@ -81,13 +81,10 @@ public class EditDialog extends AppCompatDialogFragment {
                 trackingInputLayout.setError(getString(R.string.toast_empty_tracking));
                 return;
             }
-            if (!newTracking.equals(tracking)) {
-                ArrayList<String> existing = databaseHelper.getTrackingNumbers(false);
-                existing.addAll(databaseHelper.getTrackingNumbers(true));
-                if (existing.contains(newTracking)) {
-                    trackingInputLayout.setError(getString(R.string.toast_tracking_exists));
-                    return;
-                }
+            // Changing only the letter case of the package's own number is allowed
+            if (!newTracking.equalsIgnoreCase(tracking) && databaseHelper.findTracking(newTracking) != null) {
+                trackingInputLayout.setError(getString(R.string.toast_tracking_exists));
+                return;
             }
             String newCustomName = editTextCustomName.getText().toString();
             if (newCustomName.isEmpty()) {
