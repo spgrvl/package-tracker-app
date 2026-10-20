@@ -352,25 +352,36 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         context.startActivity(myIntent);
     }
 
+    private List<TrackingIndexModel> filterList(CharSequence constraint) {
+        List<TrackingIndexModel> filteredList = new ArrayList<>();
+
+        if (constraint == null || constraint.length() == 0) {
+            filteredList.addAll(listData);
+        } else {
+            String filterPattern = constraint.toString().toLowerCase().trim();
+            for (TrackingIndexModel item : listData) {
+                if (item.getTracking().toLowerCase().contains(filterPattern) ||
+                    (item.getCustomName() != null && item.getCustomName().toLowerCase().contains(filterPattern))) {
+                    filteredList.add(item);
+                }
+            }
+        }
+        return filteredList;
+    }
+
+    /** Filters right away, unlike getFilter(), so a reloaded list never shows unfiltered first. */
+    public void filterNow(CharSequence constraint) {
+        listDataFiltered = filterList(constraint);
+        notifyDataSetChanged();
+    }
+
     @Override
     public Filter getFilter() {
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
-                List<TrackingIndexModel> filteredList = new ArrayList<>();
-
-                if (constraint == null || constraint.length() == 0) {
-                    filteredList.addAll(listData);
-                } else {
-                    String filterPattern = constraint.toString().toLowerCase().trim();
-                    for (TrackingIndexModel item : listData) {
-                        if (item.getTracking().toLowerCase().contains(filterPattern) ||
-                            (item.getCustomName() != null && item.getCustomName().toLowerCase().contains(filterPattern))) {
-                            filteredList.add(item);
-                        }
-                    }
-                }
+                List<TrackingIndexModel> filteredList = filterList(constraint);
 
                 results.values = filteredList;
                 results.count = filteredList.size();

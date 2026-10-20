@@ -262,12 +262,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             counter = selectionList.size();
         }
 
-        // Show active packages
         adapter = new CustomIndexRvAdapter(MainActivity.this, activeTracking);
+        deliveredAdapter = new CustomIndexRvAdapter(MainActivity.this, deliveredTracking);
+
+        // Keep showing only the packages matching the search (switching tabs clears it)
+        getCurrentAdapter().filterNow(searchEditText.getText());
+
+        // Show active packages
         trackingNumbersRv.setAdapter(adapter);
 
         // Show delivered packages
-        deliveredAdapter = new CustomIndexRvAdapter(MainActivity.this, deliveredTracking);
         deliveredPackagesRv.setAdapter(deliveredAdapter);
 
         if (selectionChanged) {
