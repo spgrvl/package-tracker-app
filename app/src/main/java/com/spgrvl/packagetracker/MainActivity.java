@@ -289,8 +289,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         updateEmptyState();
     }
 
-    public void addTrackingDb(String trackingNumber, String customName) {
-        boolean insertData = databaseHelper.addNewTracking(trackingNumber, customName, false, null);
+    public void addTrackingDb(String trackingNumber, String customName, String chosenCarrier) {
+        boolean insertData = databaseHelper.addNewTracking(trackingNumber, customName, false, null, chosenCarrier);
 
         if (insertData) {
             Toast.makeText(MainActivity.this, R.string.added_successfully, Toast.LENGTH_LONG).show();
@@ -507,7 +507,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     new MaterialAlertDialogBuilder(MainActivity.this)
                             .setTitle(R.string.ask_add_package)
                             .setMessage(getString(R.string.possible_tracking_id) + tracking)
-                            .setPositiveButton(R.string.yes, (dialog, which) -> submitTracking(tracking, null))
+                            .setPositiveButton(R.string.yes, (dialog, which) -> submitTracking(tracking, null, null))
                             .setNeutralButton(R.string.edit, (dialog, which) -> openDialog(tracking))
                             .setNegativeButton(R.string.no, null)
                             .show();
@@ -530,7 +530,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     @Override
-    public void submitTracking(String trackingNumber, String customName) {
+    public void submitTracking(String trackingNumber, String customName, String chosenCarrier) {
         // remove spaces from start and end of input
         trackingNumber = trackingNumber.trim();
         if (customName != null) {
@@ -544,7 +544,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             openTrackingDetails(storedTracking);
         } else {
             // Add to database (table + index)
-            addTrackingDb(trackingNumber, customName);
+            addTrackingDb(trackingNumber, customName, chosenCarrier);
 
             // Update the RecyclerView adapter
             showTrackingOnRecyclerView();

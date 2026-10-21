@@ -24,10 +24,13 @@ import com.google.android.material.textfield.TextInputLayout;
 
 public class AddNewDialog extends AppCompatDialogFragment {
     private static final String ARG_BARCODE = "barcode";
+    private static final String STATE_CARRIER_POSITION = "carrierPosition";
     private EditText editTextTracking;
     private EditText editTextCustomName;
     private AddDialogListener listener;
     private DatabaseHelper databaseHelper;
+    // Picker position of the chosen carrier, 0 to auto-detect it
+    private int carrierPosition = 0;
 
     // Passed as an argument, since the system recreates the dialog with the no-argument
     // constructor after a configuration change such as a switch to dark mode
@@ -58,6 +61,10 @@ public class AddNewDialog extends AppCompatDialogFragment {
         if (barcode != null) {
             editTextTracking.setText(barcode);
         }
+        if (savedInstanceState != null) {
+            carrierPosition = savedInstanceState.getInt(STATE_CARRIER_POSITION);
+        }
+        Carriers.setUpPicker(view.findViewById(R.id.dropdown_carrier), carrierPosition, picked -> carrierPosition = picked);
 
         editTextTracking.addTextChangedListener(new TextWatcher() {
             @Override
@@ -98,11 +105,17 @@ public class AddNewDialog extends AppCompatDialogFragment {
             if (customName.isEmpty()) {
                 customName = null;
             }
-            listener.submitTracking(tracking, customName);
+            listener.submitTracking(tracking, customName, Carriers.atPickerPosition(carrierPosition));
             dismiss();
         });
 
         return dialog;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(STATE_CARRIER_POSITION, carrierPosition);
     }
 
     private void applyStableWindowSize(Dialog dialog) {
@@ -134,6 +147,6 @@ public class AddNewDialog extends AppCompatDialogFragment {
     }
 
     public interface AddDialogListener {
-        void submitTracking(String tracking, String customName);
+        void submitTracking(String tracking, String customName, String chosenCarrier);
     }
 }

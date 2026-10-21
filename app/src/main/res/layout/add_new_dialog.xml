@@ -74,7 +74,7 @@
                     app:boxStrokeColor="@color/dialog_input_stroke_selector"
                     app:boxStrokeWidth="1dp"
                     app:hintTextColor="@color/text_secondary"
-                    app:startIconDrawable="@drawable/ic_local_shipping"
+                    app:startIconDrawable="@drawable/ic_tag"
                     app:startIconTint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -116,6 +116,40 @@
                         android:paddingBottom="14dp"
                         android:textColor="@color/text_primary"
                         android:textColorHint="@color/text_secondary" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Carrier: auto-detected unless the user picks one -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:hint="@string/carrier"
+                    app:boxBackgroundMode="outline"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/dialog_input_stroke_selector"
+                    app:boxStrokeWidth="1dp"
+                    app:endIconMode="dropdown_menu"
+                    app:endIconTint="@color/text_secondary"
+                    app:hintTextColor="@color/text_secondary"
+                    app:startIconDrawable="@drawable/ic_local_shipping"
+                    app:startIconTint="@color/text_secondary">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/dropdown_carrier"
+                        style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:minHeight="52dp"
+                        android:paddingTop="14dp"
+                        android:paddingBottom="14dp"
+                        android:saveEnabled="false"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 

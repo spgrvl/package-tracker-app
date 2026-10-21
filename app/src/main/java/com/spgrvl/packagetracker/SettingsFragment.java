@@ -173,6 +173,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             csvContent.append(Objects.toString(recordsList.get(i).isCompleted(), ""));
             csvContent.append(",");
             csvContent.append(Objects.toString(recordsList.get(i).getCreated(), ""));
+            csvContent.append(",");
+            // Empty when auto-detected; older versions ignore this field when restoring
+            csvContent.append(Objects.toString(recordsList.get(i).getChosenCarrier(), ""));
             csvContent.append("\n");
         }
 
@@ -206,6 +209,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         return fields.length >= 4 ? fields : null;
     }
 
+    /** The chosen carrier of a parsed backup line, null to auto-detect (older backups have none). */
+    static String chosenCarrierOf(String[] fields) {
+        return fields.length >= 5 && Carriers.isChoosable(fields[4]) ? fields[4] : null;
+    }
+
     private void readBackupFromUri(Uri uri) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                 requireActivity().getContentResolver().openInputStream(uri)))) {
@@ -224,7 +232,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 if (customName.equals("")) {
                     customName = null;
                 }
-                databaseHelper.addNewTracking(tracking, customName, completed, created);
+                databaseHelper.addNewTracking(tracking, customName, completed, created, chosenCarrierOf(nextLine));
             }
             Toast.makeText(getContext(), R.string.backup_restored, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {

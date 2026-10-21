@@ -11,6 +11,8 @@ public class TrackingIndexModel {
     private String customName;
     private boolean completed;
     private boolean isSelected;
+    // Carrier the user chose, null if it's auto-detected
+    private String chosenCarrier;
 
     // constructors
     public TrackingIndexModel(String tracking, String created, String updated, String lastUpdate, String carrier, String customName, boolean completed) {
@@ -102,5 +104,13 @@ public class TrackingIndexModel {
 
     public void setSelected(boolean selected) {
         this.isSelected = selected;
+    }
+
+    public String getChosenCarrier() {
+        return chosenCarrier;
+    }
+
+    public void setChosenCarrier(String chosenCarrier) {
+        this.chosenCarrier = chosenCarrier;
     }
 }

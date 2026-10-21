@@ -25,9 +25,12 @@ import java.util.ArrayList;
 
 public class EditDialog extends AppCompatDialogFragment {
     private static final String ARG_TRACKING = "tracking";
+    private static final String STATE_CARRIER_POSITION = "carrierPosition";
     private EditText editTextTracking;
     private EditText editTextCustomName;
     private AddDialogListener listener;
+    // Picker position of the chosen carrier, 0 to auto-detect it
+    private int carrierPosition;
 
     // Passed as an argument, since the system recreates the dialog with the no-argument
     // constructor after a configuration change such as a switch to dark mode
@@ -62,6 +65,10 @@ public class EditDialog extends AppCompatDialogFragment {
         String dbCustomName = indexEntry.get(4);
         editTextCustomName.setText(dbCustomName != null ? dbCustomName : "");
         editTextTracking.setText(tracking);
+        carrierPosition = savedInstanceState != null
+                ? savedInstanceState.getInt(STATE_CARRIER_POSITION)
+                : Carriers.pickerPosition(databaseHelper.getChosenCarrier(tracking));
+        Carriers.setUpPicker(view.findViewById(R.id.dropdown_carrier), carrierPosition, picked -> carrierPosition = picked);
 
         editTextTracking.addTextChangedListener(new TextWatcher() {
             @Override
@@ -98,11 +105,17 @@ public class EditDialog extends AppCompatDialogFragment {
             if (newCustomName.isEmpty()) {
                 newCustomName = null;
             }
-            listener.editTracking(tracking, newTracking, newCustomName);
+            listener.editTracking(tracking, newTracking, newCustomName, Carriers.atPickerPosition(carrierPosition));
             dismiss();
         });
 
         return dialog;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(STATE_CARRIER_POSITION, carrierPosition);
     }
 
     private void applyStableWindowSize(Dialog dialog) {
@@ -134,6 +147,6 @@ public class EditDialog extends AppCompatDialogFragment {
     }
 
     public interface AddDialogListener {
-        void editTracking(String tracking, String newTracking, String newCustomName);
+        void editTracking(String tracking, String newTracking, String newCustomName, String newChosenCarrier);
     }
 }

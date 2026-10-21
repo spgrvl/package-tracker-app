@@ -1411,7 +1411,10 @@ public class UpdateTrackingDetails {
         Thread t = new Thread(() -> {
             ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
 
-            String carrier = detectCarrier();
+            DatabaseHelper databaseHelper = new DatabaseHelper(context);
+            // A carrier the user chose is tracked directly, without probing carriers to detect it
+            String chosenCarrier = databaseHelper.getChosenCarrier(tracking);
+            String carrier = chosenCarrier != null ? chosenCarrier : detectCarrier();
             if (carrier != null) {
                 switch (carrier) {
                     case "elta":
@@ -1480,7 +1483,6 @@ public class UpdateTrackingDetails {
                 }
             }
 
-            DatabaseHelper databaseHelper = new DatabaseHelper(context);
             int db_count = databaseHelper.getTrackingDetailsCount(tracking);
             int carrier_count = detailsList.size();
             String language = detailsLanguage();

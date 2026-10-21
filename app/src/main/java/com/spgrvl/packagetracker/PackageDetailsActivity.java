@@ -113,7 +113,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
 
         // Find Carrier TextView by ID and set value
         this.carrierTv = findViewById(R.id.carrierTv);
-        carrierTv.setText(getCarrier(true));
+        showCarrier();
 
         updateActionBarLogo();
 
@@ -150,7 +150,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                 if (a) {
                     runOnUiThread(() -> {
                         showDetailsOnRecyclerView();
-                        carrierTv.setText(getCarrier(true));
+                        showCarrier();
                         updateActionBarLogo();
                         swipeRefreshLayout.setRefreshing(false);
                     });
@@ -365,6 +365,16 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         }
     }
 
+    /** Shows the carrier, marked when the user chose it, so a wrong choice is easy to spot. */
+    private void showCarrier() {
+        String carrier = getCarrier(true);
+        if (databaseHelper.getChosenCarrier(tracking) != null) {
+            carrierTv.setText(getString(R.string.carrier_chosen, carrier));
+        } else {
+            carrierTv.setText(carrier);
+        }
+    }
+
     private String getCarrier(boolean presentable) {
         // Fetch carrier from DB
         indexEntry = databaseHelper.getIndexEntry(tracking);
@@ -389,7 +399,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
 
 
     @Override
-    public void editTracking(String trackingNumber, String newTrackingNumber, String newCustomName) {
+    public void editTracking(String trackingNumber, String newTrackingNumber, String newCustomName, String newChosenCarrier) {
 
         // remove spaces from start and end of input
         newTrackingNumber = newTrackingNumber.trim();
@@ -398,28 +408,33 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
         }
 
         // Edit database (table + index) if changed
-        if (newCustomName == null && customName == null && newTrackingNumber.equals(tracking) ||
-                (newCustomName != null && newCustomName.equals(customName) && newTrackingNumber.equals(tracking))) {
+        if (newTrackingNumber.equals(tracking) && Objects.equals(newCustomName, customName)
+                && Objects.equals(newChosenCarrier, databaseHelper.getChosenCarrier(tracking))) {
             Toast.makeText(PackageDetailsActivity.this, R.string.no_information_changed, Toast.LENGTH_SHORT).show();
         } else {
-            editTrackingDb(trackingNumber, newTrackingNumber, newCustomName);
+            editTrackingDb(trackingNumber, newTrackingNumber, newCustomName, newChosenCarrier);
         }
     }
 
-    private void editTrackingDb(String trackingNumber, String newTrackingNumber, String newCustomName) {
-        // A new number (not just a name or letter case change) clears the old number's history
-        boolean clearsHistory = !trackingNumber.equalsIgnoreCase(newTrackingNumber)
+    private void editTrackingDb(String trackingNumber, String newTrackingNumber, String newCustomName, String newChosenCarrier) {
+        // A new number (not just a name or letter case change) or another chosen carrier clears
+        // the old history
+        boolean numberChanged = !trackingNumber.equalsIgnoreCase(newTrackingNumber);
+        boolean clearsHistory = databaseHelper.editClearsDetails(trackingNumber, newTrackingNumber, newChosenCarrier)
                 && databaseHelper.getTrackingDetailsCount(trackingNumber) > 0;
-        boolean updateData = databaseHelper.editTracking(trackingNumber, newTrackingNumber, newCustomName);
+        boolean updateData = databaseHelper.editTracking(trackingNumber, newTrackingNumber, newCustomName, newChosenCarrier);
         if (updateData) {
             if (clearsHistory) {
-                Toast.makeText(PackageDetailsActivity.this, R.string.tracking_changed_history_cleared, Toast.LENGTH_LONG).show();
+                Toast.makeText(PackageDetailsActivity.this, numberChanged
+                        ? R.string.tracking_changed_history_cleared
+                        : R.string.carrier_changed_history_cleared, Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(PackageDetailsActivity.this, R.string.edited_successfully, Toast.LENGTH_SHORT).show();
             }
             this.tracking = newTrackingNumber;
+            this.customName = newCustomName;
             showDetailsOnRecyclerView();
-            carrierTv.setText(getCarrier(true));
+            showCarrier();
             updateActionBarLogo();
             // Set title and subtitle in action bar
             if (newCustomName != null) {

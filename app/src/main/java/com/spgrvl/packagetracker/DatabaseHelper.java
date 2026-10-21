@@ -16,7 +16,7 @@ import static java.lang.Integer.parseInt;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int VERSION = 8;
+    public static final int VERSION = 9;
 
     public static final String DATABASE_NAME = "tracking.db";
     public static final String INDEX_TABLE = "Tracking_Index";
@@ -30,6 +30,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COMPLETED_COL = "Completed";
     // Language the package's details were saved in, "el" or "en"; null if saved before it was recorded
     public static final String LANGUAGE_COL = "Language";
+    // Carrier the user chose for the package (a key of Carriers.KEYS); null to auto-detect it
+    public static final String CHOSEN_CARRIER_COL = "ChosenCarrier";
     public static final String STATUS_COL = "Status";
     public static final String PLACE_COL = "Place";
     public static final String DATETIME_COL = "Datetime";
@@ -40,7 +42,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE IF NOT EXISTS " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT, " + UNREAD_COL + " BOOLEAN NOT NULL, " + CARRIER_COL + " TEXT, " + COMPLETED_COL + " BOOLEAN NOT NULL, " + CREATED_COL + " TEXT, " + LANGUAGE_COL + " TEXT, CHECK ( " + UNREAD_COL + " IN (0,1) AND " + COMPLETED_COL + " IN (0,1)))";
+        String createTable = "CREATE TABLE IF NOT EXISTS " + INDEX_TABLE + "(" + TRACKING_COL + " TEXT PRIMARY KEY, " + UPDATED_COL + " TEXT, " + LAST_UPDATE_COL + " TEXT, " + CUSTOM_NAME_COL + " TEXT, " + UNREAD_COL + " BOOLEAN NOT NULL, " + CARRIER_COL + " TEXT, " + COMPLETED_COL + " BOOLEAN NOT NULL, " + CREATED_COL + " TEXT, " + LANGUAGE_COL + " TEXT, " + CHOSEN_CARRIER_COL + " TEXT, CHECK ( " + UNREAD_COL + " IN (0,1) AND " + COMPLETED_COL + " IN (0,1)))";
         db.execSQL(createTable);
     }
 
@@ -84,6 +86,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int languageColumnIndex = cursor.getColumnIndex(LANGUAGE_COL);
         if (languageColumnIndex < 0) {
             db.execSQL("ALTER TABLE " + INDEX_TABLE + " ADD COLUMN " + LANGUAGE_COL + " TEXT");
+        }
+
+        // check if CHOSEN_CARRIER_COL exists and if not add it
+        int chosenCarrierColumnIndex = cursor.getColumnIndex(CHOSEN_CARRIER_COL);
+        if (chosenCarrierColumnIndex < 0) {
+            db.execSQL("ALTER TABLE " + INDEX_TABLE + " ADD COLUMN " + CHOSEN_CARRIER_COL + " TEXT");
         }
 
         // close cursor when done.
@@ -137,7 +145,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return shared;
     }
 
-    public boolean addNewTracking(String Tracking, String CustomName, Boolean Completed, String Created) {
+    public boolean addNewTracking(String Tracking, String CustomName, Boolean Completed, String Created, String ChosenCarrier) {
         if (findTracking(Tracking) != null) {
             return false;
         }
@@ -161,6 +169,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(CUSTOM_NAME_COL, CustomName);
             contentValues.put(UNREAD_COL, false);
             contentValues.put(COMPLETED_COL, Completed);
+            // A chosen carrier is shown right away, before it has any events
+            contentValues.put(CARRIER_COL, ChosenCarrier);
+            contentValues.put(CHOSEN_CARRIER_COL, ChosenCarrier);
             long result = db.insert(INDEX_TABLE, null, contentValues);
 
             db.close();
@@ -205,6 +216,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return language;
+    }
+
+    /** The carrier the user chose for the package, or null to auto-detect it. */
+    public String getChosenCarrier(String tracking) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + CHOSEN_CARRIER_COL + " FROM " + INDEX_TABLE + " WHERE " + TRACKING_COL + " = ?",
+                new String[]{tracking});
+        String chosen = cursor.moveToFirst() ? cursor.getString(0) : null;
+        cursor.close();
+        db.close();
+        return chosen;
     }
 
     public void setDetailsLanguage(String tracking, String language) {
@@ -258,6 +280,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         queryString += " ORDER BY CAST(" + CREATED_COL + " AS INTEGER) DESC, " + TRACKING_COL + " COLLATE NOCASE ASC";
 
         Cursor cursor = db.rawQuery(queryString, null);
+        int chosenCarrierColumn = cursor.getColumnIndex(CHOSEN_CARRIER_COL);
 
         if (cursor.moveToFirst()) {
             // loop through the cursor and create new tracking objects. Add them in the return list.
@@ -271,6 +294,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String created = cursor.getString(7);
 
                 TrackingIndexModel newTracking = new TrackingIndexModel(tracking, created, updated, lastUpdate, carrier, customName, isCompleted);
+                newTracking.setChosenCarrier(cursor.getString(chosenCarrierColumn));
                 returnList.add(newTracking);
 
             } while (cursor.moveToNext());
@@ -342,21 +366,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return indexEntry;
     }
 
-    public boolean editTracking(String tracking, String newTracking, String customName) {
+    /**
+     * Whether editing a package this way starts it empty: a new tracking number (not just a
+     * change of letter case), or a chosen carrier other than the one tracking it so far.
+     * Switching back to auto-detect keeps the history, as detection finds the same carrier.
+     */
+    public boolean editClearsDetails(String tracking, String newTracking, String chosenCarrier) {
+        if (!tracking.equalsIgnoreCase(newTracking)) {
+            return true;
+        }
+        return chosenCarrier != null && !chosenCarrier.equals(Carriers.chosenAs(getIndexEntry(tracking).get(6)));
+    }
+
+    public boolean editTracking(String tracking, String newTracking, String customName, String chosenCarrier) {
         // A change of letter case only keeps the package as it is, since table names ignore case
         boolean numberChanged = !tracking.equalsIgnoreCase(newTracking);
         if (numberChanged && findTracking(newTracking) != null) {
             return false;
         }
+        boolean clearsDetails = editClearsDetails(tracking, newTracking, chosenCarrier);
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         db.beginTransaction();
         try {
             ContentValues contentValues = new ContentValues();
-            if (numberChanged) {
-                // The old number's history, carrier and status belong to another parcel: start
-                // the new number empty, as if just added
+            if (clearsDetails) {
+                // The old history, carrier and status belong to another parcel or carrier: start
+                // empty, as if just added
                 if (!isDetailsTableShared(db, tracking)) {
                     db.execSQL("DROP TABLE IF EXISTS " + detailsTable(tracking));
                 }
@@ -364,12 +401,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.execSQL(createDetailsTable(newTracking));
                 contentValues.put(UPDATED_COL, "Never");
                 contentValues.put(LAST_UPDATE_COL, "Status: None");
-                contentValues.putNull(CARRIER_COL);
+                contentValues.put(CARRIER_COL, chosenCarrier);
                 contentValues.putNull(LANGUAGE_COL);
                 contentValues.put(UNREAD_COL, false);
             }
             contentValues.put(TRACKING_COL, newTracking);
             contentValues.put(CUSTOM_NAME_COL, customName);
+            contentValues.put(CHOSEN_CARRIER_COL, chosenCarrier);
             db.update(INDEX_TABLE, contentValues, TRACKING_COL + " = ?", new String[]{tracking});
             db.setTransactionSuccessful();
             return true;

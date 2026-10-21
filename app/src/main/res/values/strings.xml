@@ -79,6 +79,9 @@
     <string name="edit_package_subtitle">Update the tracking number or display name.</string>
     <string name="edited_successfully">Edited successfully!</string>
     <string name="tracking_changed_history_cleared">Tracking number changed. The old number\'s history was cleared</string>
+    <string name="carrier_changed_history_cleared">Carrier changed. The old history was cleared</string>
+    <string name="auto_detect">Auto-detect</string>
+    <string name="carrier_chosen">%1$s (chosen)</string>
     <string name="elta">Elta</string>
     <string name="eshop">e-shop.gr</string>
     <string name="eshop_availability_check">Product availability check</string>
