@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private BottomNavigationView bottomNavigation;
     private CustomIndexRvAdapter deliveredAdapter;
     private View emptyLayout;
+    private ImageView emptyIcon;
     private TextView emptyTitleText;
     private TextView emptySubtitleText;
     private int activePackageCount = 0;
@@ -136,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         // Find UI elements by ID
         searchEditText = findViewById(R.id.searchEditText);
         emptyLayout = findViewById(R.id.empty_layout);
+        emptyIcon = findViewById(R.id.emptyIcon);
         emptyTitleText = findViewById(R.id.emptyTitleText);
         emptySubtitleText = findViewById(R.id.emptySubtitleText);
 
@@ -459,10 +462,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         boolean showForDelivered = currentTabId == R.id.nav_delivered && deliveredPackageCount == 0;
 
         if (showForActive) {
+            emptyIcon.setImageResource(R.drawable.ic_inventory_2);
             emptyTitleText.setText(R.string.no_active_packages);
             emptySubtitleText.setText(R.string.no_packages_instructions);
             emptyLayout.setVisibility(View.VISIBLE);
         } else if (showForDelivered) {
+            emptyIcon.setImageResource(R.drawable.ic_check_circle_outline);
             emptyTitleText.setText(R.string.no_delivered_packages);
             emptySubtitleText.setText(R.string.no_delivered_instructions);
             emptyLayout.setVisibility(View.VISIBLE);

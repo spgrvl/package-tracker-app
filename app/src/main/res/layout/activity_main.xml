@@ -112,8 +112,10 @@
         android:visibility="gone">
 
         <ImageView
+            android:id="@+id/emptyIcon"
             android:layout_width="96dp"
             android:layout_height="96dp"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_inventory_2"
             app:tint="@color/text_secondary" />
 
