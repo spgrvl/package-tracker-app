@@ -66,6 +66,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/new_tracking_hint"
+                    app:boxBackgroundColor="@android:color/transparent"
                     app:boxBackgroundMode="outline"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
@@ -95,6 +96,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:hint="@string/new_name_hint"
+                    app:boxBackgroundColor="@android:color/transparent"
                     app:boxBackgroundMode="outline"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
@@ -125,6 +127,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:hint="@string/carrier"
+                    app:boxBackgroundColor="@android:color/transparent"
                     app:boxBackgroundMode="outline"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
@@ -175,6 +178,7 @@
                         android:minHeight="52dp"
                         android:text="@string/scan"
                         android:textAllCaps="false"
+                        android:textColor="@color/dialog_text_button"
                         android:textSize="15sp"
                         app:rippleColor="@color/primary_blue" />
 
@@ -192,6 +196,7 @@
                         android:minHeight="52dp"
                         android:text="@string/cancel"
                         android:textAllCaps="false"
+                        android:textColor="@color/dialog_text_button"
                         android:textSize="15sp"
                         app:rippleColor="@color/primary_blue" />
 

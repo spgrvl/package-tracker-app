@@ -28,6 +28,7 @@
     <color name="list_divider">#33FFFFFF</color>
 
     <color name="dialog_input_stroke">#40FFFFFF</color>
+    <color name="dialog_text_button">@color/accent_blue</color>
 
     <!-- Carrier banner under the details toolbar -->
     <color name="carrier_banner_background">@color/surface_search</color>

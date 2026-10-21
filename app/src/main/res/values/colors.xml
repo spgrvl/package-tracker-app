@@ -46,6 +46,8 @@
     <!-- Dialog outlined inputs + header subtitle on primary blue -->
     <color name="dialog_input_stroke">#66000000</color>
     <color name="header_subtitle_on_primary">#CCFFFFFF</color>
+    <!-- Dialog text buttons (Scan, Cancel); lighter in values-night to stay readable -->
+    <color name="dialog_text_button">@color/primary_blue</color>
 
     <!-- Carrier banner under the details toolbar -->
     <color name="carrier_banner_background">#E3EEF9</color>
