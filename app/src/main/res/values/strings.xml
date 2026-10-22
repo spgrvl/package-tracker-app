@@ -114,7 +114,7 @@
     <string name="no_active_packages">No active packages</string>
     <string name="no_backup_found">No backup found!</string>
     <string name="no_delivered_instructions">Mark a package as completed from its details page</string>
-    <string name="no_delivered_packages">No delivered packages yet</string>
+    <string name="no_delivered_packages">No completed packages yet</string>
     <string name="no_information_changed">No information changed</string>
     <string name="no_internet">There is no active internet connection</string>
     <string name="no_packages">No packages</string>
