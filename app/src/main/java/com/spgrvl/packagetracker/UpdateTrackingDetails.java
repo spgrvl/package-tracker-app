@@ -1408,6 +1408,7 @@ public class UpdateTrackingDetails {
     }
 
     protected boolean getWebsite() {
+        final boolean[] packageRemoved = {false};
         Thread t = new Thread(() -> {
             ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
 
@@ -1483,6 +1484,14 @@ public class UpdateTrackingDetails {
                 }
             }
 
+            // The package may have been deleted or renamed while its carrier was being fetched,
+            // which drops its details table. Callers then mustn't show it either.
+            if (!tracking.equals(databaseHelper.findTracking(tracking))) {
+                Log.i("UpdateTrackingDetails", "Package " + tracking + " was removed during its update");
+                packageRemoved[0] = true;
+                return;
+            }
+
             int db_count = databaseHelper.getTrackingDetailsCount(tracking);
             int carrier_count = detailsList.size();
             String language = detailsLanguage();
@@ -1546,7 +1555,7 @@ public class UpdateTrackingDetails {
             e.printStackTrace();
             return false;
         }
-        return true;
+        return !packageRemoved[0];
     }
 
     protected boolean updateAll(boolean completed) {

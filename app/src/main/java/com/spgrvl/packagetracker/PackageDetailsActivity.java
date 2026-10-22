@@ -149,6 +149,10 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                 boolean a = upd.getWebsite();
                 if (a) {
                     runOnUiThread(() -> {
+                        // Deleting the package finishes this screen and drops its details table
+                        if (isFinishing()) {
+                            return;
+                        }
                         showDetailsOnRecyclerView();
                         showCarrier();
                         updateActionBarLogo();
