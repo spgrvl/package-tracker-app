@@ -64,7 +64,7 @@ public class AddNewDialog extends AppCompatDialogFragment {
         if (savedInstanceState != null) {
             carrierPosition = savedInstanceState.getInt(STATE_CARRIER_POSITION);
         }
-        Carriers.setUpPicker(view.findViewById(R.id.dropdown_carrier), carrierPosition, picked -> carrierPosition = picked);
+        Carriers.setUpPicker(view.findViewById(R.id.textInputLayout_carrier), carrierPosition, picked -> carrierPosition = picked);
 
         editTextTracking.addTextChangedListener(new TextWatcher() {
             @Override

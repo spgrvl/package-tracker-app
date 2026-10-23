@@ -89,7 +89,7 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         holder.accentBorder.setVisibility(View.VISIBLE);
         holder.accentBorder.setBackgroundColor(statusColor);
 
-        int carrierLogoRes = getCarrierLogoResId(tracking.getCarrier());
+        int carrierLogoRes = Carriers.logoResId(tracking.getCarrier());
         if (carrierLogoRes != 0) {
             holder.carrierLogo.setImageResource(carrierLogoRes);
             holder.carrierLogo.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -256,38 +256,6 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
         return carrierName;
     }
 
-    private int getCarrierLogoResId(String carrier) {
-        if (carrier == null) return 0;
-        switch (carrier) {
-            case "acs":             return R.drawable.ic_carrier_acs;
-            case "acsSkroutzLastMile": return R.drawable.ic_carrier_acs_skroutz_last_mile;
-            case "aiolos":          return R.drawable.ic_carrier_aiolos;
-            case "bizCourier":      return R.drawable.ic_carrier_biz_courier;
-            case "boxNow":          return R.drawable.ic_carrier_boxnow;
-            case "cleverPoint":     return R.drawable.ic_carrier_clever_point;
-            case "cometHellas":     return R.drawable.ic_carrier_comet_hellas;
-            case "courierCenter":   return R.drawable.ic_carrier_courier_center;
-            case "delatolas":       return R.drawable.ic_carrier_delatolas;
-            case "diakinisis":      return R.drawable.ic_carrier_diakinisis;
-            case "easyMail":        return R.drawable.ic_carrier_easy_mail;
-            case "elta":            return R.drawable.ic_carrier_elta;
-            case "eshop":           return R.drawable.ic_carrier_eshop;
-            case "plaisio":         return R.drawable.ic_carrier_plaisio;
-            case "plaisioAiolos":   return R.drawable.ic_carrier_plaisio_aiolos;
-            case "plaisioBoxNow":   return R.drawable.ic_carrier_plaisio_boxnow;
-            case "plaisioDiakinisis": return R.drawable.ic_carrier_plaisio_diakinisis;
-            case "plaisioEasyMail": return R.drawable.ic_carrier_plaisio_easy_mail;
-            case "plaisioElta":     return R.drawable.ic_carrier_plaisio_elta;
-            case "plaisioGeniki":   return R.drawable.ic_carrier_plaisio_geniki;
-            case "plaisioSpeedex":  return R.drawable.ic_carrier_plaisio_speedex;
-            case "geniki":          return R.drawable.ic_carrier_geniki;
-            case "ikea":            return R.drawable.ic_carrier_ikea;
-            case "packMan":         return R.drawable.ic_carrier_pack_man;
-            case "skroutzLastMile": return R.drawable.ic_carrier_skroutz_last_mile;
-            case "speedex":         return R.drawable.ic_carrier_speedex;
-            default:                return 0;
-        }
-    }
 
     /**
      * Shrinks the status label just enough to keep its longest word on one line in the

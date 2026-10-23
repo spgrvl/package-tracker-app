@@ -47,6 +47,15 @@ public class CarriersTest {
     }
 
     @Test
+    public void everyChoosableCarrierHasALogo() {
+        for (String key : Carriers.KEYS) {
+            assertTrue("No logo for " + key, Carriers.logoResId(key) != 0);
+        }
+        assertEquals(0, Carriers.logoResId(null));
+        assertEquals(0, Carriers.logoResId("unknown"));
+    }
+
+    @Test
     public void pickerPositionsMapToCarriersAndBack() {
         assertEquals(0, Carriers.pickerPosition(null));
         assertNull(Carriers.atPickerPosition(0));
