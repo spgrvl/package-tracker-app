@@ -24,6 +24,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -74,6 +75,7 @@ public class UpdateTrackingDetails {
     public static final String eshopOrderRegex = "^[0-9]{21}$";
     public static final String plaisioOrderRegex = "^[0-9]{7}$";
     public static final String bizCourierTrackingRegex = "^[A-Za-z]{3}[0-9]{8}$";
+    public static final String packManTrackingRegex = "^[A-Za-z]-[0-9]{8}$";
     // IKEA order numbers: 12 hexadecimal characters, also the length of Delatolas numbers
     public static final String ikeaOrderRegex = "^[0-9A-Fa-f]{12}$";
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -540,6 +542,69 @@ public class UpdateTrackingDetails {
                 detailsList.add(new TrackingDetailsModel(title.text().trim(), comment, datetime));
             }
         }
+        return detailsList;
+    }
+
+    private ArrayList<TrackingDetailsModel> trackPackMan() {
+        try {
+            // The page is only available in Greek; known statuses are translated through the
+            // packMan_* resources (kept from shrinking in res/raw/keep.xml)
+            Document doc = Jsoup.connect("https://pack-man.gr/anazitisi-apostolis.html?code=" + tracking).get();
+            Map<String, String> translations = new HashMap<>();
+            for (String[] message : PACK_MAN_MESSAGES) {
+                translations.put(message[0], context.getString(context.getResources()
+                        .getIdentifier(message[1], "string", context.getPackageName())));
+            }
+            return parsePackMan(doc, translations);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    // Every status seen on Pack-Man's tracking page, with the resource that translates it
+    static final String[][] PACK_MAN_MESSAGES = {
+            {"Εκκρεμεί (προς Παραλαβή)", "packMan_awaiting_pickup"},
+            {"Εγινε Παραλαβή Από Pack-man Courier", "packMan_picked_up"},
+            {"Έχει δρομολογηθεί για παράδοση", "packMan_scheduled"},
+            {"Εγινε Ανάθεση σε Οδηγό", "packMan_assigned_to_driver"},
+            {"Παραδόθηκε στον Παραλήπτη", "packMan_delivered"},
+    };
+
+    // Notes that only repeat the status or name a bulk update
+    private static final Set<String> PACK_MAN_PLAIN_NOTES = new HashSet<>(Arrays.asList(
+            "Μαζική Αλλαγή", "Προγραμματισμένο για αποστολή", "Προγραμματισμένο", "Ολοκληρώθηκε"));
+
+    /**
+     * Parses a Pack-Man tracking page, which lists events oldest first, into newest-first
+     * details. Events after the delivery are the sender's invoicing and are left out, so the
+     * delivery stays the latest status. Other notes become the place. Returns an empty list for
+     * unknown tracking numbers.
+     */
+    static ArrayList<TrackingDetailsModel> parsePackMan(Document doc, Map<String, String> translations) {
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+        SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.ENGLISH);
+        SimpleDateFormat outputFormatter = new SimpleDateFormat(DISPLAY_DATE_FORMAT, Locale.ENGLISH);
+        for (Element event : doc.select("ol.timeline > li.tl-item")) {
+            Element status = event.selectFirst(".tl-status");
+            Element time = event.selectFirst("time[datetime]");
+            if (status == null || time == null) {
+                continue;
+            }
+            String datetime;
+            try {
+                datetime = outputFormatter.format(Objects.requireNonNull(inputFormatter.parse(time.attr("datetime"))));
+            } catch (Exception e) {
+                datetime = time.text().replace(" · ", " ").trim();
+            }
+            Element note = event.selectFirst(".tl-note");
+            String place = note != null && !PACK_MAN_PLAIN_NOTES.contains(note.text().trim()) ? note.text().trim() : "";
+            detailsList.add(new TrackingDetailsModel(translate(translations, status.text().trim()), place, datetime));
+            if (event.hasClass("tl-delivered")) {
+                break;
+            }
+        }
+        Collections.reverse(detailsList);
         return detailsList;
     }
 
@@ -1445,6 +1510,8 @@ public class UpdateTrackingDetails {
             return "skroutzLastMile";
         } else if (Pattern.compile(bizCourierTrackingRegex).matcher(tracking).find()) {
             return "bizCourier";
+        } else if (Pattern.compile(packManTrackingRegex).matcher(tracking).find()) {
+            return "packMan";
         }
         return null;
     }
@@ -1610,6 +1677,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "bizCourier":
                         detailsList = trackBizCourier();
+                        break;
+                    case "packMan":
+                        detailsList = trackPackMan();
                         break;
                 }
             }

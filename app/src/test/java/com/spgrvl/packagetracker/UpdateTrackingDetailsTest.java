@@ -760,6 +760,88 @@ public class UpdateTrackingDetailsTest {
         assertFalse(biz.matcher("SE000000000GR").find());
     }
 
+    // --- Pack-Man ---
+
+    // Shaped like a Pack-Man tracking page: {itemClass, status, datetime, note} per event, oldest first
+    private static Document packManPage(String[]... events) {
+        StringBuilder html = new StringBuilder("<div class=\"track-result\"><ol class=\"timeline\">");
+        for (String[] e : events) {
+            html.append("<li class=\"tl-item is-done ").append(e[0]).append("\"><div class=\"tl-body\">")
+                    .append("<p class=\"tl-status\">").append(e[1]).append("</p><p class=\"tl-time mono\">")
+                    .append("<time datetime=\"").append(e[2]).append("\">some text</time></p>");
+            if (!e[3].isEmpty()) {
+                html.append("<p class=\"tl-note\">").append(e[3]).append("</p>");
+            }
+            html.append("</div></li>");
+        }
+        return Jsoup.parse(html + "</ol></div>");
+    }
+
+    private static Map<String, String> packManTranslations(String valuesDir) {
+        Map<String, String> strings = StringResources.load(valuesDir).stringsWithPrefix("packMan_");
+        Map<String, String> translations = new HashMap<>();
+        for (String[] message : UpdateTrackingDetails.PACK_MAN_MESSAGES) {
+            assertTrue("missing " + valuesDir + "/" + message[1], strings.containsKey(message[1]));
+            translations.put(message[0], strings.get(message[1]));
+        }
+        return translations;
+    }
+
+    @Test
+    public void packManIsNewestFirstAndEndsWithTheDelivery() {
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parsePackMan(packManPage(
+                new String[]{"tl-pending", "Εκκρεμεί (προς Παραλαβή)", "2026-07-23T16:14:00+03:00", ""},
+                new String[]{"tl-picked", "Εγινε Παραλαβή Από Pack-man Courier", "2026-07-23T19:19:32+03:00", "Μαζική Αλλαγή"},
+                new String[]{"tl-transit", "Έχει δρομολογηθεί για παράδοση", "2026-07-24T07:30:25+03:00", "Προγραμματισμένο για αποστολή"},
+                new String[]{"tl-driver", "Εγινε Ανάθεση σε Οδηγό", "2026-07-24T09:52:17+03:00", "Προγραμματισμένο"},
+                new String[]{"tl-delivered", "Παραδόθηκε στον Παραλήπτη", "2026-07-24T12:53:39+03:00", "Ολοκληρώθηκε"},
+                // The sender's invoicing after the delivery
+                new String[]{"tl-step", "Προς Τιμολόγηση", "2026-07-28T12:15:59+03:00", "Μαζική Αλλαγή"},
+                new String[]{"is-current tl-step", "Τιμολογημένη", "2026-07-31T16:41:06+03:00", "Μαζική Αλλαγή"}),
+                packManTranslations("values"));
+        assertEquals(Arrays.asList(
+                "Delivered to the recipient |  | 24/07/2026 12:53",
+                "Assigned to a driver |  | 24/07/2026 09:52",
+                "Scheduled for delivery |  | 24/07/2026 07:30",
+                "Picked up by Pack-Man Courier |  | 23/07/2026 19:19",
+                "Awaiting pickup from the sender |  | 23/07/2026 16:14"), statuses(details));
+    }
+
+    @Test
+    public void packManKeepsUnknownStatusesAndNotes() {
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parsePackMan(packManPage(
+                new String[]{"tl-driver", "Εγινε Ανάθεση σε Οδηγό", "2026-10-22T09:00:00+03:00", ""},
+                new String[]{"is-current tl-step", "Απών Παραλήπτης", "2026-10-22T13:05:00+03:00", "Δεν απαντά στο τηλέφωνο"}),
+                packManTranslations("values-el"));
+        assertEquals(Arrays.asList(
+                "Απών Παραλήπτης | Δεν απαντά στο τηλέφωνο | 22/10/2026 13:05",
+                "Εγινε Ανάθεση σε Οδηγό |  | 22/10/2026 09:00"), statuses(details));
+    }
+
+    @Test
+    public void packManGreekMessagesAreIdenticalToTheSite() {
+        Map<String, String> el = packManTranslations("values-el");
+        for (String[] message : UpdateTrackingDetails.PACK_MAN_MESSAGES) {
+            assertEquals(message[1], message[0], el.get(message[0]));
+        }
+        packManTranslations("values");
+    }
+
+    @Test
+    public void packManUnknownNumber() {
+        // An unknown number only gets the search form
+        assertTrue(UpdateTrackingDetails.parsePackMan(Jsoup.parse("<form class=\"track-form\" id=\"trackForm\"></form>"
+                + "<p class=\"track-err\" role=\"alert\"></p>"), new HashMap<>()).isEmpty());
+    }
+
+    @Test
+    public void packManNumbers() {
+        Pattern packMan = Pattern.compile(UpdateTrackingDetails.packManTrackingRegex);
+        assertTrue(packMan.matcher("A-20799123").find());
+        assertTrue(packMan.matcher("a-20799123").find());
+        assertFalse(packMan.matcher("A20799123").find());
+    }
+
     // --- ACS handed over to Skroutz Last Mile ---
 
     private static List<TrackingDetailsModel> acsHandedToSkroutz() {

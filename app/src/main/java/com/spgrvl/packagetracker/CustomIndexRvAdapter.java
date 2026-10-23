@@ -282,6 +282,7 @@ public class CustomIndexRvAdapter extends RecyclerView.Adapter<CustomIndexRvAdap
             case "plaisioSpeedex":  return R.drawable.ic_carrier_plaisio_speedex;
             case "geniki":          return R.drawable.ic_carrier_geniki;
             case "ikea":            return R.drawable.ic_carrier_ikea;
+            case "packMan":         return R.drawable.ic_carrier_pack_man;
             case "skroutzLastMile": return R.drawable.ic_carrier_skroutz_last_mile;
             case "speedex":         return R.drawable.ic_carrier_speedex;
             default:                return 0;

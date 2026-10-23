@@ -12,7 +12,7 @@ final class Carriers {
     // Combined carriers (e.g. acsSkroutzLastMile, plaisioBoxNow) are results of tracking, not choices.
     static final String[] KEYS = {
             "acs", "aiolos", "bizCourier", "boxNow", "cleverPoint", "cometHellas", "courierCenter", "delatolas",
-            "diakinisis", "easyMail", "elta", "eshop", "geniki", "ikea", "plaisio", "skroutzLastMile", "speedex"};
+            "diakinisis", "easyMail", "elta", "eshop", "geniki", "ikea", "packMan", "plaisio", "skroutzLastMile", "speedex"};
 
     private Carriers() {
     }

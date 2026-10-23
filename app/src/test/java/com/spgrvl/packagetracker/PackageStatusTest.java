@@ -123,6 +123,18 @@ public class PackageStatusTest {
     }
 
     @Test
+    public void packManStatusesInBothLanguages() {
+        for (String valuesDir : new String[]{"values", "values-el"}) {
+            Map<String, String> packMan = StringResources.load(valuesDir).stringsWithPrefix("packMan_");
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(packMan.get("packMan_awaiting_pickup")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(packMan.get("packMan_picked_up")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(packMan.get("packMan_scheduled")));
+            assertEquals(valuesDir, PackageStatus.OUT_FOR_DELIVERY, active(packMan.get("packMan_assigned_to_driver")));
+            assertEquals(valuesDir, PackageStatus.DELIVERED, active(packMan.get("packMan_delivered")));
+        }
+    }
+
+    @Test
     public void ikeaStatusesInBothLanguages() {
         for (String valuesDir : new String[]{"values", "values-el"}) {
             Map<String, String> ikea = StringResources.load(valuesDir).stringsWithPrefix("ikea_");

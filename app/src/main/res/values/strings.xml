@@ -148,6 +148,12 @@
     <string name="packages_active">Marked %1$d packages as active</string>
     <string name="packages_completed">Marked %1$d packages as completed</string>
     <string name="packages_deleted">Deleted %1$d packages</string>
+    <string name="packMan">Pack-Man Courier</string>
+    <string name="packMan_awaiting_pickup">Awaiting pickup from the sender</string>
+    <string name="packMan_picked_up">Picked up by Pack-Man Courier</string>
+    <string name="packMan_scheduled">Scheduled for delivery</string>
+    <string name="packMan_assigned_to_driver">Assigned to a driver</string>
+    <string name="packMan_delivered">Delivered to the recipient</string>
     <string name="place">Place</string>
     <string name="plaisio">Plaisio</string>
     <string name="plaisioAiolos">Plaisio → Aiolos Courier</string>
@@ -274,6 +280,8 @@
         <item>βρίσκεται στο κατάστημα</item>
         <item>assigned to courier</item>
         <item>ανάθεση στον οδηγό</item>
+        <item>assigned to a driver</item>
+        <item>ανάθεση σε οδηγό</item>
     </string-array>
     <string-array name="status_keywords_problem" translatable="false">
         <item>canceled</item>

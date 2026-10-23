@@ -245,6 +245,9 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                                 + (getResources().getConfiguration().getLocales().get(0).getLanguage().equals("el") ? "el" : "en")
                                 + "/" + tracking;
                         break;
+                    case "packMan":
+                        url = "https://pack-man.gr/t/" + tracking;
+                        break;
                     case "plaisio":
                     case "plaisioAiolos":
                     case "plaisioBoxNow":
@@ -373,6 +376,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             case "plaisioSpeedex":  return R.drawable.ic_carrier_plaisio_speedex;
             case "geniki":          return R.drawable.ic_carrier_geniki;
             case "ikea":            return R.drawable.ic_carrier_ikea;
+            case "packMan":         return R.drawable.ic_carrier_pack_man;
             case "skroutzLastMile": return R.drawable.ic_carrier_skroutz_last_mile;
             case "speedex":         return R.drawable.ic_carrier_speedex;
             default:                return 0;

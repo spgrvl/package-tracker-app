@@ -148,6 +148,12 @@
     <string name="packages_active">%1$d πακέτα επισημάνθηκαν ως ενεργά</string>
     <string name="packages_completed">%1$d πακέτα επισημάνθηκαν ως ολοκληρωμένα</string>
     <string name="packages_deleted">Διαγράφηκαν %1$d πακέτα</string>
+    <string name="packMan">Pack-Man Courier</string>
+    <string name="packMan_awaiting_pickup">Εκκρεμεί (προς Παραλαβή)</string>
+    <string name="packMan_picked_up">Εγινε Παραλαβή Από Pack-man Courier</string>
+    <string name="packMan_scheduled">Έχει δρομολογηθεί για παράδοση</string>
+    <string name="packMan_assigned_to_driver">Εγινε Ανάθεση σε Οδηγό</string>
+    <string name="packMan_delivered">Παραδόθηκε στον Παραλήπτη</string>
     <string name="place">Τοποθεσία</string>
     <string name="plaisio">Πλαίσιο</string>
     <string name="plaisioAiolos">Πλαίσιο → Αίολος Courier</string>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pack-Man logo, converted from https://pack-man.gr/assets/img/favicon.svg -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="128"
+    android:viewportHeight="128">
+    <path
+        android:fillColor="#06377B"
+        android:pathData="M26,0H102A26,26 0,0 1,128 26V102A26,26 0,0 1,102 128H26A26,26 0,0 1,0 102V26A26,26 0,0 1,26 0Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M18,74.5a46,46 0,1 0,92 0a46,46 0,1 0,-92 0Z" />
+    <path
+        android:fillColor="#FBD733"
+        android:pathData="M56.5,12H71.5A4,4 0,0 1,75.5 16V22A4,4 0,0 1,71.5 26H56.5A4,4 0,0 1,52.5 22V16A4,4 0,0 1,56.5 12ZM58.5,23h11v9h-11Z" />
+    <path
+        android:strokeColor="#FBD733"
+        android:strokeWidth="8"
+        android:pathData="M22,74.5a42,42 0,1 0,84 0a42,42 0,1 0,-84 0Z" />
+    <path
+        android:fillColor="#FBD733"
+        android:pathData="M64,74.5L88.6,55.4A31.2,31.2 0,0 1,88.6 93.6Z" />
+    <path
+        android:fillColor="#06377B"
+        android:pathData="M58.1,48a6.6,6.6 0,1 0,13.2 0a6.6,6.6 0,1 0,-13.2 0Z" />
+</vector>
