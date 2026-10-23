@@ -842,6 +842,47 @@ public class UpdateTrackingDetailsTest {
         assertFalse(packMan.matcher("A20799123").find());
     }
 
+    // --- ELTA Courier ---
+
+    private static String eltaCourierEvent(String date, String time, String place, String status) {
+        return "{\"date\":\"" + date + "\",\"time\":\"" + time + "\",\"place\":\"" + place + "\",\"status\":\"" + status + "\"}";
+    }
+
+    @Test
+    public void eltaCourierGreekEventsAreNewestFirst() throws Exception {
+        // Shaped like a real response, including the byte order mark it starts with
+        String json = "\uFEFF{\"status\":1,\"result\":{\"SE000000000GR\":{\"status\":1,\"result\":["
+                + eltaCourierEvent("12-03-2026", "11:05", "ΛΑΡΙΣΑ 1 - ΠΡΑΚΤΟΡΕΙΟ", "Αποστολή παραδόθηκε") + ","
+                + eltaCourierEvent("09-03-2026", "09:40", "ΛΑΡΙΣΑ 1 - ΠΡΑΚΤΟΡΕΙΟ", "Άφιξη σε") + ","
+                + eltaCourierEvent("05-03-2026", "19:30", "ΝΕΟ ΚΔΤΑ 19-20-21-32-33-34", "Δημιουργία ΣΥ.ΔΕ.ΤΑ.") + "]}}}";
+        assertEquals(Arrays.asList(
+                "Αποστολή παραδόθηκε | ΛΑΡΙΣΑ 1 - ΠΡΑΚΤΟΡΕΙΟ | 12/03/2026 11:05",
+                "Άφιξη σε | ΛΑΡΙΣΑ 1 - ΠΡΑΚΤΟΡΕΙΟ | 09/03/2026 09:40",
+                "Δημιουργία ΣΥ.ΔΕ.ΤΑ. | ΝΕΟ ΚΔΤΑ 19-20-21-32-33-34 | 05/03/2026 19:30"),
+                statuses(UpdateTrackingDetails.parseEltaCourier(json, "SE000000000GR")));
+    }
+
+    @Test
+    public void eltaCourierEnglishEventsComeOldestFirstAndAreReversed() throws Exception {
+        String json = "{\"status\":1,\"result\":{\"SE000000000GR\":{\"status\":1,\"result\":["
+                + eltaCourierEvent("05-03-2026", "19:30", "", "Create shipment") + ","
+                + eltaCourierEvent("09-03-2026", "14:52", "", " Shipment at store - Can be collected") + ","
+                + eltaCourierEvent("12-03-2026", "11:05", "", "Delivered") + "]}}}";
+        assertEquals(Arrays.asList(
+                "Delivered |  | 12/03/2026 11:05",
+                "Shipment at store - Can be collected |  | 09/03/2026 14:52",
+                "Create shipment |  | 05/03/2026 19:30"),
+                statuses(UpdateTrackingDetails.parseEltaCourier(json, "SE000000000GR")));
+    }
+
+    @Test
+    public void eltaCourierWrongNumberGivesNoDetails() throws Exception {
+        assertTrue(UpdateTrackingDetails.parseEltaCourier(
+                "\uFEFF{\"status\":1,\"result\":{\"1234567890\":{\"status\":0,\"result\":\"wrong number\"}}}",
+                "1234567890").isEmpty());
+        assertTrue(UpdateTrackingDetails.parseEltaCourier("{\"status\":0}", "SE000000000GR").isEmpty());
+    }
+
     // --- ACS handed over to Skroutz Last Mile ---
 
     private static List<TrackingDetailsModel> acsHandedToSkroutz() {

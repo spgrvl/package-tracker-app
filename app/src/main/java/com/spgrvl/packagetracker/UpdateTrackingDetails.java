@@ -198,6 +198,78 @@ public class UpdateTrackingDetails {
         return detailsList;
     }
 
+    /**
+     * ELTA's history from elta.gr (or its item search when that fails), unless ELTA Courier, a
+     * separate company that also tracks ELTA numbers, has more events for it.
+     */
+    private ArrayList<TrackingDetailsModel> trackEltaWithCourier() {
+        ArrayList<TrackingDetailsModel> detailsList = trackElta();
+        if (detailsList.isEmpty()) {
+            detailsList = trackEltaBackup();
+        }
+        ArrayList<TrackingDetailsModel> courierDetails = trackEltaCourier();
+        return courierDetails.size() > detailsList.size() ? courierDetails : detailsList;
+    }
+
+    private ArrayList<TrackingDetailsModel> trackEltaCourier() {
+        // The site answers in Greek unless its language cookie says otherwise
+        String lang = languagePref.equals("el_GR") || languagePref.equals("el") ? "el" : "en";
+        Request request = new Request.Builder()
+                .url("https://www.elta-courier.gr/track.php")
+                .addHeader("Cookie", "lang=" + lang)
+                .post(new FormBody.Builder().add("number", tracking).add("s", "0").build())
+                .build();
+        try (Response response = new OkHttpClient().newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                return parseEltaCourier(Objects.requireNonNull(response.body()).string(), tracking);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * Parses ELTA Courier's tracking JSON into newest-first details. Greek results come newest
+     * first, English ones oldest first. Returns an empty list for unknown tracking numbers.
+     */
+    static ArrayList<TrackingDetailsModel> parseEltaCourier(String json, String tracking) throws JSONException {
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+        // The response starts with a byte order mark
+        JSONObject response = new JSONObject(json.replace("﻿", "").trim());
+        JSONObject shipment = response.optJSONObject("result") != null
+                ? response.getJSONObject("result").optJSONObject(tracking) : null;
+        // A status of 0 means a wrong number; the events are only there with 1
+        if (response.optInt("status") != 1 || shipment == null || shipment.optInt("status") != 1) {
+            return detailsList;
+        }
+        JSONArray events = shipment.optJSONArray("result");
+        if (events == null) {
+            return detailsList;
+        }
+        SimpleDateFormat inputFormatter = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.ENGLISH);
+        SimpleDateFormat outputFormatter = new SimpleDateFormat(DISPLAY_DATE_FORMAT, Locale.ENGLISH);
+        List<Long> times = new ArrayList<>();
+        for (int i = 0; i < events.length(); i++) {
+            JSONObject event = events.getJSONObject(i);
+            String datetime = event.optString("date") + " " + event.optString("time");
+            long time = Long.MIN_VALUE;
+            try {
+                Date date = Objects.requireNonNull(inputFormatter.parse(datetime));
+                time = date.getTime();
+                datetime = outputFormatter.format(date);
+            } catch (Exception ignored) {
+                // keep the site's own text
+            }
+            times.add(time);
+            detailsList.add(new TrackingDetailsModel(event.optString("status").trim(), event.optString("place").trim(), datetime));
+        }
+        if (times.size() > 1 && times.get(0) < times.get(times.size() - 1)) {
+            Collections.reverse(detailsList);
+        }
+        return detailsList;
+    }
+
     private ArrayList<TrackingDetailsModel> trackGeniki() {
         // The tracking page loads its data from this endpoint; it expects a JSON body
         // sent with a form content type
@@ -821,10 +893,7 @@ public class UpdateTrackingDetails {
                     courierDetails = trackAiolos();
                     break;
                 case "elta":
-                    courierDetails = trackElta();
-                    if (courierDetails.isEmpty()) {
-                        courierDetails = trackEltaBackup();
-                    }
+                    courierDetails = trackEltaWithCourier();
                     break;
             }
         } finally {
@@ -1610,10 +1679,7 @@ public class UpdateTrackingDetails {
             if (carrier != null) {
                 switch (carrier) {
                     case "elta":
-                        detailsList = trackElta();
-                        if (detailsList.isEmpty()) {
-                            detailsList = trackEltaBackup();
-                        }
+                        detailsList = trackEltaWithCourier();
                         break;
                     case "speedex":
                         detailsList = trackSpeedex();
