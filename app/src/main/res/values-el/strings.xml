@@ -93,6 +93,13 @@
     <string name="eshop_submitted">Υποβολή</string>
     <string name="general_pref_cat">Γενικές</string>
     <string name="geniki">Γενικη Ταχυδρομικη</string>
+    <string name="ikea">IKEA</string>
+    <string name="ikea_order_placed">Καταχώρηση παραγγελίας</string>
+    <string name="ikea_ready_to_ship">Έτοιμη προς αποστολή</string>
+    <string name="ikea_order_routed">Δρομολόγηση παραγγελίας</string>
+    <string name="ikea_at_store">Βρίσκεται στο κατάστημα</string>
+    <string name="ikea_delivery_completed">Ολοκλήρωση παράδοσης</string>
+    <string name="ikea_order_completed">Ολοκλήρωση παραγγελίας</string>
     <string name="in_transit">Σε μεταφορά</string>
     <string name="issue">Πρόβλημα</string>
     <string name="pending">Εκκρεμεί</string>

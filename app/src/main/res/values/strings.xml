@@ -92,6 +92,13 @@
     <string name="eshop_submitted">Order submitted</string>
     <string name="general_pref_cat">General</string>
     <string name="geniki">Geniki Taxydromiki</string>
+    <string name="ikea">IKEA</string>
+    <string name="ikea_order_placed">Order placed</string>
+    <string name="ikea_ready_to_ship">Ready to ship</string>
+    <string name="ikea_order_routed">Order scheduled for delivery</string>
+    <string name="ikea_at_store">Ready for pickup at the store</string>
+    <string name="ikea_delivery_completed">Delivery completed</string>
+    <string name="ikea_order_completed">Order completed</string>
     <string name="in_transit">In Transit</string>
     <string name="issue">Issue</string>
     <string name="pending">Pending</string>
@@ -234,6 +241,10 @@
         <item>παραδοση -</item>
         <item>παραδοση σε skroutz point</item>
         <item>παραδοση αποστολης απο smart point</item>
+        <item>ολοκλήρωση παράδοσης</item>
+        <item>delivery completed</item>
+        <item>ολοκλήρωση παραγγελίας</item>
+        <item>order completed</item>
     </string-array>
     <!-- Contain "delivered" but mean the parcel is still on its way; checked before status_keywords_delivered -->
     <string-array name="status_keywords_not_delivered" translatable="false">
@@ -259,6 +270,7 @@
         <item>σε περιμένει να την παραλάβεις</item>
         <item>loaded for delivery</item>
         <item>φορτώθηκε για να σας παραδοθεί</item>
+        <item>βρίσκεται στο κατάστημα</item>
     </string-array>
     <string-array name="status_keywords_problem" translatable="false">
         <item>canceled</item>

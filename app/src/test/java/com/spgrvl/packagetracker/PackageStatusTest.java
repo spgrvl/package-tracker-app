@@ -113,6 +113,19 @@ public class PackageStatusTest {
     }
 
     @Test
+    public void ikeaStatusesInBothLanguages() {
+        for (String valuesDir : new String[]{"values", "values-el"}) {
+            Map<String, String> ikea = StringResources.load(valuesDir).stringsWithPrefix("ikea_");
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(ikea.get("ikea_order_placed")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(ikea.get("ikea_ready_to_ship")));
+            assertEquals(valuesDir, PackageStatus.IN_TRANSIT, active(ikea.get("ikea_order_routed")));
+            assertEquals(valuesDir, PackageStatus.OUT_FOR_DELIVERY, active(ikea.get("ikea_at_store")));
+            assertEquals(valuesDir, PackageStatus.DELIVERED, active(ikea.get("ikea_delivery_completed")));
+            assertEquals(valuesDir, PackageStatus.DELIVERED, active(ikea.get("ikea_order_completed")));
+        }
+    }
+
+    @Test
     public void plaisioStatusesInBothLanguages() {
         for (String valuesDir : new String[]{"values", "values-el"}) {
             Map<String, String> plaisio = StringResources.load(valuesDir).stringsWithPrefix("plaisio_");

@@ -613,6 +613,84 @@ public class UpdateTrackingDetailsTest {
         assertNull(UpdateTrackingDetails.plaisioCourier(notFound));
     }
 
+    // --- IKEA ---
+
+    // Shaped like the guest order page: one element per stage, reached ones marked success/complete
+    private static Document ikeaPage(String... stages) {
+        StringBuilder html = new StringBuilder("<h1>Λεπτομέρειες παραγγελίας: 0123456789AB</h1>"
+                + "<p>Παράδοση στο Καταστήμα</p><div class=\"at-order-track\"><div class=\"at-order-track__inner\">");
+        for (int i = 0; i < stages.length; i += 3) {
+            html.append("<div class=\"at-order-track__elm ").append(stages[i]).append("\"><div class=\"at-order-track__item\">")
+                    .append("<div class=\"at-order-track__text\"><span class=\"at-order-track__text__label\">")
+                    .append(stages[i + 1]).append("</span><div class=\"at-order-track__text__date\">\n")
+                    .append(stages[i + 2]).append("\n</div></div></div></div>");
+        }
+        return Jsoup.parse(html + "</div></div>");
+    }
+
+    private static Map<String, String> ikeaTranslations(String valuesDir) {
+        Map<String, String> strings = StringResources.load(valuesDir).stringsWithPrefix("ikea_");
+        Map<String, String> translations = new HashMap<>();
+        for (String[] message : UpdateTrackingDetails.IKEA_MESSAGES) {
+            assertTrue("missing " + valuesDir + "/" + message[1], strings.containsKey(message[1]));
+            translations.put(message[0], strings.get(message[1]));
+        }
+        return translations;
+    }
+
+    @Test
+    public void ikeaReachedStagesWithDatesAreNewestFirstAndTranslated() {
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseIkea(ikeaPage(
+                "at-order-track__elm--success", "Καταχώρηση παραγγελίας", "10/02/2025",
+                "at-order-track__elm--complete", "Έτοιμη προς αποστολή", "",
+                "at-order-track__elm--complete", "Δρομολόγηση παραγγελίας", "",
+                "at-order-track__elm--complete", "Βρίσκεται στο κατάστημα", "24/02/2025",
+                "at-order-track__elm--complete at-order-track__elm--final", "Ολοκλήρωση παράδοσης", "26/02/2025"),
+                ikeaTranslations("values"));
+        assertEquals(Arrays.asList(
+                "Delivery completed |  | 26/02/2025",
+                "Ready for pickup at the store |  | 24/02/2025",
+                "Order placed |  | 10/02/2025"), statuses(details));
+    }
+
+    @Test
+    public void ikeaStagesNotReachedYetAreLeftOutButTheCurrentOneIsKept() {
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseIkea(ikeaPage(
+                "at-order-track__elm--success", "Καταχώρηση παραγγελίας", "07/01/2025",
+                "at-order-track__elm--complete at-order-track__elm--current", "Έτοιμη προς αποστολή", "",
+                "", "Δρομολόγηση παραγγελίας", "",
+                "at-order-track__elm--final", "Ολοκλήρωση παραγγελίας", ""), ikeaTranslations("values-el"));
+        assertEquals(Arrays.asList(
+                "Έτοιμη προς αποστολή |  | ",
+                "Καταχώρηση παραγγελίας |  | 07/01/2025"), statuses(details));
+    }
+
+    @Test
+    public void ikeaGreekMessagesAreIdenticalToTheSite() {
+        Map<String, String> el = ikeaTranslations("values-el");
+        for (String[] message : UpdateTrackingDetails.IKEA_MESSAGES) {
+            assertEquals(message[1], message[0], el.get(message[0]));
+        }
+        ikeaTranslations("values");
+    }
+
+    @Test
+    public void ikeaUnknownOrder() {
+        // An unknown order only gets the form back, with a "not found" message
+        assertTrue(UpdateTrackingDetails.parseIkea(Jsoup.parse("<form><span class=\"field-validation-error\">"
+                + "Η παραγγελία δεν βρέθηκε.</span></form>"), new HashMap<>()).isEmpty());
+    }
+
+    @Test
+    public void ikeaOrderNumbersAreHexadecimal() {
+        Pattern ikea = Pattern.compile(UpdateTrackingDetails.ikeaOrderRegex);
+        assertTrue(ikea.matcher("0F1E2D3C4B5A").find());
+        assertTrue(ikea.matcher("a1b2c3d4e5f6").find());
+        assertTrue(ikea.matcher("123456789012").find());
+        assertFalse(ikea.matcher("0F1E2D3C4B5G").find());
+        assertFalse(ikea.matcher("0F1E2D3C4B5").find());
+    }
+
     // --- ACS handed over to Skroutz Last Mile ---
 
     private static List<TrackingDetailsModel> acsHandedToSkroutz() {

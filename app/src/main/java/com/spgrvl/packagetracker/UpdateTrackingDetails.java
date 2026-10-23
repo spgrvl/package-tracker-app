@@ -73,6 +73,8 @@ public class UpdateTrackingDetails {
     // e-shop.gr order numbers: 21 digits starting with the order's date and time (yyMMddHHmm)
     public static final String eshopOrderRegex = "^[0-9]{21}$";
     public static final String plaisioOrderRegex = "^[0-9]{7}$";
+    // IKEA order numbers: 12 hexadecimal characters, also the length of Delatolas numbers
+    public static final String ikeaOrderRegex = "^[0-9A-Fa-f]{12}$";
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final TimeZone GREEK_TIME_ZONE = TimeZone.getTimeZone("Europe/Athens");
     static final String DISPLAY_DATE_FORMAT = "dd/MM/yyyy HH:mm";
@@ -425,6 +427,62 @@ public class UpdateTrackingDetails {
             detailsList.add(0, new TrackingDetailsModel(translate(translations, report.text().trim()), "",
                     detailsList.get(0).getDatetime()));
         }
+        return detailsList;
+    }
+
+    private ArrayList<TrackingDetailsModel> trackIkea() {
+        try {
+            // The guest order page only speaks Greek; its stages are translated through the
+            // ikea_* resources (kept from shrinking in res/raw/keep.xml)
+            Document doc = Jsoup.connect("https://www.ikea.gr/ajax/Atcom.Sites.Ikea.Components.Account.Account.OrderDetailsGuest/?OrderNumber="
+                    + tracking + "&language=el").get();
+            Map<String, String> translations = new HashMap<>();
+            for (String[] message : IKEA_MESSAGES) {
+                translations.put(message[0], context.getString(context.getResources()
+                        .getIdentifier(message[1], "string", context.getPackageName())));
+            }
+            return parseIkea(doc, translations);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    // Every stage seen on IKEA's order page, with the resource that translates it
+    static final String[][] IKEA_MESSAGES = {
+            {"Καταχώρηση παραγγελίας", "ikea_order_placed"},
+            {"Έτοιμη προς αποστολή", "ikea_ready_to_ship"},
+            {"Δρομολόγηση παραγγελίας", "ikea_order_routed"},
+            {"Βρίσκεται στο κατάστημα", "ikea_at_store"},
+            {"Ολοκλήρωση παράδοσης", "ikea_delivery_completed"},
+            {"Ολοκλήρωση παραγγελίας", "ikea_order_completed"},
+    };
+
+    /**
+     * Parses an IKEA order page into newest-first details: one entry per stage the order has
+     * reached. Stages it passed without a date of their own are left out, except the current
+     * one. Returns an empty list for unknown order numbers.
+     */
+    static ArrayList<TrackingDetailsModel> parseIkea(Document doc, Map<String, String> translations) {
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+        Elements stages = doc.select(".at-order-track__elm");
+        for (int i = 0; i < stages.size(); i++) {
+            Element stage = stages.get(i);
+            boolean reached = stage.hasClass("at-order-track__elm--success") || stage.hasClass("at-order-track__elm--complete");
+            if (!reached) {
+                continue;
+            }
+            boolean current = i + 1 == stages.size() || !(stages.get(i + 1).hasClass("at-order-track__elm--success")
+                    || stages.get(i + 1).hasClass("at-order-track__elm--complete"));
+            Element label = stage.selectFirst(".at-order-track__text__label");
+            Element date = stage.selectFirst(".at-order-track__text__date");
+            String datetime = date != null ? date.text().trim() : "";
+            if (label == null || datetime.isEmpty() && !current) {
+                continue;
+            }
+            detailsList.add(new TrackingDetailsModel(translate(translations, label.text().trim()), "", datetime));
+        }
+        Collections.reverse(detailsList);
         return detailsList;
     }
 
@@ -1322,6 +1380,8 @@ public class UpdateTrackingDetails {
             return acsOrGenikiOrBoxNow();
         } else if (Pattern.compile(cometHellasTrackingRegex).matcher(tracking).find()) {
             return "cometHellas";
+        } else if (Pattern.compile(ikeaOrderRegex).matcher(tracking).find() && !trackIkea().isEmpty()) {
+            return "ikea";
         } else if (Pattern.compile(delatolasTrackingRegex).matcher(tracking).find()) {
             return "delatolas";
         } else if (Pattern.compile(skroutzLastMileTrackingRegex).matcher(tracking).find()) {
@@ -1359,7 +1419,7 @@ public class UpdateTrackingDetails {
     }
 
     private String speedexOrCourierCenterOrEasyMail() {
-        // determine if tracking belongs to Speedex, Courier Center or Easy Mail
+        // determine if tracking belongs to Speedex, Courier Center, Easy Mail or an IKEA order
         String carrier = "";
 
         try {
@@ -1397,6 +1457,11 @@ public class UpdateTrackingDetails {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        // IKEA's order page asks for 12 digits, though its order numbers also have letters
+        if (carrier.equals("") && !trackIkea().isEmpty()) {
+            carrier = "ikea";
         }
 
         if (!carrier.equals("")) {
@@ -1480,6 +1545,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "aiolos":
                         detailsList = trackAiolos();
+                        break;
+                    case "ikea":
+                        detailsList = trackIkea();
                         break;
                 }
             }
