@@ -691,6 +691,75 @@ public class UpdateTrackingDetailsTest {
         assertFalse(ikea.matcher("0F1E2D3C4B5").find());
     }
 
+    // --- Biz Courier ---
+
+    // Shaped like a Track iT page: {sectionClass, current, datetime, title, comment} per event,
+    // newest first
+    private static Document bizPage(String[]... events) {
+        StringBuilder html = new StringBuilder("<div class=\"v-timeline js-v-timeline\">");
+        for (String[] e : events) {
+            html.append("<section class=\"v-timeline__section js-v-timeline__section ").append(e[0]).append("\">")
+                    .append("<div class=\"v-timeline__marker bg-contrast-high ").append(e[1]).append("\"></div>")
+                    .append("<div class=\"v-timeline__items-group\"><div class=\"v-timeline__item\">")
+                    .append("<div class=\"v-timeline__date\"><time class=\"v-timeline__date-value\" datetime=\"")
+                    .append(e[2]).append("\">some text</time></div><div class=\"text-component\"><h3>").append(e[3]).append("</h3>");
+            if (!e[4].isEmpty()) {
+                html.append("<p class=\"text-comments\">").append(e[4]).append("</p>");
+            }
+            html.append("</div></div></div></section>");
+        }
+        return Jsoup.parse(html + "</div>");
+    }
+
+    @Test
+    public void bizCourierBookkeepingAfterTheCurrentEventIsLeftOut() {
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseBizCourier(bizPage(
+                new String[]{"", "", "2020-08-07T12:04:21Z", "Confirmation Of Deposit", ""},
+                new String[]{"", "", "2020-07-31T09:00:21Z", "Comments On Shipment's History", ""},
+                new String[]{"", "current", "2020-07-30T12:38:21Z", "Delivered", "ΠΑΡΑΔΟΣΗ - ΠΑΤΡΑ"},
+                new String[]{"", "", "2020-07-30T09:48:21Z", "Pending For Delivery", "ΑΦΙΞΗ ΣΕ ΚΑΤΑΣΤΗΜΑ -"},
+                new String[]{"v-timeline__section-secondary invisible comments", "", "2020-07-29T17:39:21Z", "Comments",
+                        "ΑΝΑΧΩΡΗΣΗ ΑΠΟ ΚΕΝΤΡΟ ΔΙΑΛΟΓΗΣ -"},
+                new String[]{"", "", "2020-07-29T00:57:21Z", "Order Placed", ""}));
+        assertEquals(Arrays.asList(
+                "Delivered | ΠΑΡΑΔΟΣΗ - ΠΑΤΡΑ | 30/07/2020 15:38",
+                "Pending For Delivery | ΑΦΙΞΗ ΣΕ ΚΑΤΑΣΤΗΜΑ | 30/07/2020 12:48",
+                // Comments are events of their own
+                "ΑΝΑΧΩΡΗΣΗ ΑΠΟ ΚΕΝΤΡΟ ΔΙΑΛΟΓΗΣ |  | 29/07/2020 20:39",
+                "Order Placed |  | 29/07/2020 03:57"), statuses(details));
+    }
+
+    @Test
+    public void bizCourierPartnerStatusCodesAreDroppedAndSecondsIgnored() {
+        List<TrackingDetailsModel> details = UpdateTrackingDetails.parseBizCourier(bizPage(
+                new String[]{"", "current", "2020-07-22T08:51:01Z", "Αποστολή Παραδόθηκε", "DLIVRD#Consegnata"},
+                new String[]{"", "", "2020-07-22T06:30:59Z", "Ανάθεση στον Οδηγό", "INDEL#In consegna"}));
+        assertEquals(Arrays.asList(
+                "Αποστολή Παραδόθηκε | Consegnata | 22/07/2020 11:51",
+                "Ανάθεση στον Οδηγό | In consegna | 22/07/2020 09:30"), statuses(details));
+    }
+
+    @Test
+    public void bizCourierWithoutACurrentEventKeepsEverything() {
+        assertEquals(2, UpdateTrackingDetails.parseBizCourier(bizPage(
+                new String[]{"", "", "2026-10-20T08:00:00Z", "Pending For Delivery", ""},
+                new String[]{"", "", "2026-10-19T08:00:00Z", "Order Placed", ""})).size());
+    }
+
+    @Test
+    public void bizCourierUnknownNumber() {
+        // An unknown number gets the search page without a timeline
+        assertTrue(UpdateTrackingDetails.parseBizCourier(Jsoup.parse("<form id=\"voucher_browse_list\"></form>")).isEmpty());
+    }
+
+    @Test
+    public void bizCourierNumbers() {
+        Pattern biz = Pattern.compile(UpdateTrackingDetails.bizCourierTrackingRegex);
+        assertTrue(biz.matcher("SWS43517108").find());
+        assertFalse(biz.matcher("SW43517108").find());
+        assertFalse(biz.matcher("SE000000000GR").find());
+    }
+
     // --- ACS handed over to Skroutz Last Mile ---
 
     private static List<TrackingDetailsModel> acsHandedToSkroutz() {

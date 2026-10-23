@@ -21,6 +21,7 @@
     <string name="backup_pref_summary">Δημιουργήστε ένα αντίγραφo ασφαλείας των πακέτων σας</string>
     <string name="backup_restore_cat">Δημιουργία &amp; Επαναφορά Αντιγράφων Ασφαλείας</string>
     <string name="backup_restored">Η επαναφορά του αντιγράφου ασφαλείας ήταν επιτυχής!</string>
+    <string name="bizCourier">Biz Courier</string>
     <string name="boxNow">BoxNow</string>
     <string name="boxNow_accepted_to_locker">Σε διαδικασία παράδοσης</string>
     <string name="boxNow_canceled">Ακυρώθηκε</string>

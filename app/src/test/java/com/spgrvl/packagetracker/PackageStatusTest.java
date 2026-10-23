@@ -113,6 +113,16 @@ public class PackageStatusTest {
     }
 
     @Test
+    public void bizCourierStatuses() {
+        assertEquals(PackageStatus.DELIVERED, active("Αποστολή Παραδόθηκε"));
+        assertEquals(PackageStatus.DELIVERED, active("Delivered"));
+        assertEquals(PackageStatus.OUT_FOR_DELIVERY, active("Ανάθεση στον Οδηγό"));
+        assertEquals(PackageStatus.OUT_FOR_DELIVERY, active("Assigned to Courier"));
+        assertEquals(PackageStatus.IN_TRANSIT, active("Assigned to the Responsible Associate"));
+        assertEquals(PackageStatus.IN_TRANSIT, active("Ανάθεση στον Συνεργάτη"));
+    }
+
+    @Test
     public void ikeaStatusesInBothLanguages() {
         for (String valuesDir : new String[]{"values", "values-el"}) {
             Map<String, String> ikea = StringResources.load(valuesDir).stringsWithPrefix("ikea_");

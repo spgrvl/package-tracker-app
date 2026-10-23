@@ -240,6 +240,11 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
                     case "ikea":
                         url = "https://www.ikea.gr/poreia-paraggelias/?OrderNumber=" + tracking;
                         break;
+                    case "bizCourier":
+                        url = "https://trackit.bizcourier.eu/app/"
+                                + (getResources().getConfiguration().getLocales().get(0).getLanguage().equals("el") ? "el" : "en")
+                                + "/" + tracking;
+                        break;
                     case "plaisio":
                     case "plaisioAiolos":
                     case "plaisioBoxNow":
@@ -348,6 +353,7 @@ public class PackageDetailsActivity extends AppCompatActivity implements SwipeRe
             case "acs":             return R.drawable.ic_carrier_acs;
             case "acsSkroutzLastMile": return R.drawable.ic_carrier_acs_skroutz_last_mile;
             case "aiolos":          return R.drawable.ic_carrier_aiolos;
+            case "bizCourier":      return R.drawable.ic_carrier_biz_courier;
             case "boxNow":          return R.drawable.ic_carrier_boxnow;
             case "cleverPoint":     return R.drawable.ic_carrier_clever_point;
             case "cometHellas":     return R.drawable.ic_carrier_comet_hellas;

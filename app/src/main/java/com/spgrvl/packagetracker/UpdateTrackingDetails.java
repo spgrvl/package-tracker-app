@@ -73,6 +73,7 @@ public class UpdateTrackingDetails {
     // e-shop.gr order numbers: 21 digits starting with the order's date and time (yyMMddHHmm)
     public static final String eshopOrderRegex = "^[0-9]{21}$";
     public static final String plaisioOrderRegex = "^[0-9]{7}$";
+    public static final String bizCourierTrackingRegex = "^[A-Za-z]{3}[0-9]{8}$";
     // IKEA order numbers: 12 hexadecimal characters, also the length of Delatolas numbers
     public static final String ikeaOrderRegex = "^[0-9A-Fa-f]{12}$";
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -483,6 +484,62 @@ public class UpdateTrackingDetails {
             detailsList.add(new TrackingDetailsModel(translate(translations, label.text().trim()), "", datetime));
         }
         Collections.reverse(detailsList);
+        return detailsList;
+    }
+
+    private ArrayList<TrackingDetailsModel> trackBizCourier() {
+        // The page is translated by the site itself
+        String lang = languagePref.equals("el_GR") || languagePref.equals("el") ? "el" : "en";
+        try {
+            return parseBizCourier(Jsoup.connect("https://trackit.bizcourier.eu/app/" + lang + "/" + tracking).get());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * Parses a Biz Courier Track iT page, which lists events newest first. Events above the one
+     * the page marks as current are the sender's bookkeeping after delivery (e.g. cash on
+     * delivery paid out) and are left out, so the delivery stays the latest status. Comments
+     * become events of their own; partners' status codes ("DLIVRD#...") are dropped. Returns an
+     * empty list for unknown tracking numbers.
+     */
+    static ArrayList<TrackingDetailsModel> parseBizCourier(Document doc) {
+        ArrayList<TrackingDetailsModel> detailsList = new ArrayList<>();
+        Elements events = doc.select("section.v-timeline__section");
+        int first = 0;
+        for (int i = 0; i < events.size(); i++) {
+            if (events.get(i).selectFirst(".v-timeline__marker.current") != null) {
+                first = i;
+                break;
+            }
+        }
+        // The timestamps' seconds change on every request, so only minutes are kept
+        SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.ENGLISH);
+        inputFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+        SimpleDateFormat outputFormatter = new SimpleDateFormat(DISPLAY_DATE_FORMAT, Locale.ENGLISH);
+        for (Element event : events.subList(first, events.size())) {
+            Element time = event.selectFirst("time[datetime]");
+            Element title = event.selectFirst("h3");
+            if (time == null || title == null) {
+                continue;
+            }
+            String datetime;
+            try {
+                datetime = outputFormatter.format(Objects.requireNonNull(inputFormatter.parse(time.attr("datetime"))));
+            } catch (Exception e) {
+                datetime = time.text().trim();
+            }
+            Element comments = event.selectFirst(".text-comments");
+            String comment = comments != null
+                    ? comments.text().replaceFirst("^[A-Z]+#", "").replaceFirst("\\s*-\\s*$", "").trim() : "";
+            if (event.hasClass("comments") && !comment.isEmpty()) {
+                detailsList.add(new TrackingDetailsModel(comment, "", datetime));
+            } else {
+                detailsList.add(new TrackingDetailsModel(title.text().trim(), comment, datetime));
+            }
+        }
         return detailsList;
     }
 
@@ -1386,6 +1443,8 @@ public class UpdateTrackingDetails {
             return "delatolas";
         } else if (Pattern.compile(skroutzLastMileTrackingRegex).matcher(tracking).find()) {
             return "skroutzLastMile";
+        } else if (Pattern.compile(bizCourierTrackingRegex).matcher(tracking).find()) {
+            return "bizCourier";
         }
         return null;
     }
@@ -1548,6 +1607,9 @@ public class UpdateTrackingDetails {
                         break;
                     case "ikea":
                         detailsList = trackIkea();
+                        break;
+                    case "bizCourier":
+                        detailsList = trackBizCourier();
                         break;
                 }
             }

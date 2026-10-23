@@ -11,7 +11,7 @@ final class Carriers {
     // Keys as used by UpdateTrackingDetails.getWebsite(), named after their string resources.
     // Combined carriers (e.g. acsSkroutzLastMile, plaisioBoxNow) are results of tracking, not choices.
     static final String[] KEYS = {
-            "acs", "aiolos", "boxNow", "cleverPoint", "cometHellas", "courierCenter", "delatolas",
+            "acs", "aiolos", "bizCourier", "boxNow", "cleverPoint", "cometHellas", "courierCenter", "delatolas",
             "diakinisis", "easyMail", "elta", "eshop", "geniki", "ikea", "plaisio", "skroutzLastMile", "speedex"};
 
     private Carriers() {

@@ -20,6 +20,7 @@
     <string name="backup_pref_summary">Backup your packages</string>
     <string name="backup_restore_cat">Backup &amp; Restore</string>
     <string name="backup_restored">Backup restored!</string>
+    <string name="bizCourier">Biz Courier</string>
     <string name="boxNow">BoxNow</string>
     <string name="boxNow_accepted_to_locker">Being delivered</string>
     <string name="boxNow_canceled">Cancelled</string>
@@ -271,6 +272,8 @@
         <item>loaded for delivery</item>
         <item>φορτώθηκε για να σας παραδοθεί</item>
         <item>βρίσκεται στο κατάστημα</item>
+        <item>assigned to courier</item>
+        <item>ανάθεση στον οδηγό</item>
     </string-array>
     <string-array name="status_keywords_problem" translatable="false">
         <item>canceled</item>
