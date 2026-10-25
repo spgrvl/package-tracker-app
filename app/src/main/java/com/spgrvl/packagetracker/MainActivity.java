@@ -29,6 +29,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import androidx.annotation.NonNull;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private int activePackageCount = 0;
     private int deliveredPackageCount = 0;
     private int currentTabId = R.id.nav_active;
+    private static final String STATE_DELIVERED_TAB = "deliveredTab";
     protected final ArrayList<String> selectionList = new ArrayList<>();
     protected int counter = 0;
     public int position = -1;
@@ -159,6 +161,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         // Find BottomNavigationView by ID
         bottomNavigation = findViewById(R.id.bottomNavigation);
         bottomNavigation.setOnItemSelectedListener(this::onNavigationItemSelected);
+
+        // A rebuilt screen (e.g. after a language change) shows the tab it was showing; the bottom
+        // navigation restores its own selection, but not the list shown
+        if (savedInstanceState != null && savedInstanceState.getBoolean(STATE_DELIVERED_TAB)) {
+            currentTabId = R.id.nav_delivered;
+            bottomNavigation.getMenu().findItem(R.id.nav_delivered).setChecked(true);
+            findViewById(R.id.swipeRefreshMain).setVisibility(View.GONE);
+            findViewById(R.id.swipeRefreshDelivered).setVisibility(View.VISIBLE);
+        }
         
         // Handle system window insets for bottom navigation container
         View bottomNavigationContainer = findViewById(R.id.bottomNavigationContainer);
@@ -477,6 +488,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         } else {
             emptyLayout.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_DELIVERED_TAB, isDeliveredTabSelected());
     }
 
     @Override
