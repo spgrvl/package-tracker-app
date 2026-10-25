@@ -10,3 +10,6 @@ local.properties
 
 # Instrumented test files
 androidTest/
+
+# Claude skills
+.claude/
