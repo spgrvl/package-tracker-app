@@ -46,8 +46,10 @@
     <!-- Dialog outlined inputs + header subtitle on primary blue -->
     <color name="dialog_input_stroke">#66000000</color>
     <color name="header_subtitle_on_primary">#CCFFFFFF</color>
-    <!-- Dialog text buttons (Scan, Cancel); lighter in values-night to stay readable -->
+    <!-- Dialog text buttons; lighter in values-night to stay readable -->
     <color name="dialog_text_button">@color/primary_blue</color>
+    <!-- Alert and Settings list dialogs; values-night matches the package dialog's card after its elevation overlay -->
+    <color name="dialog_surface">@color/card_background</color>
 
     <!-- Carrier banner under the details toolbar -->
     <color name="carrier_banner_background">#E3EEF9</color>

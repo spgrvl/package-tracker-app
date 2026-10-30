@@ -119,7 +119,7 @@
     <string name="new_name_hint">Όνομα Πακέτου (προαιρετικό)</string>
     <string name="new_package">Νέο Πακέτο</string>
     <string name="new_tracking_hint">Αριθμός Αποστολής</string>
-    <string name="no">Οχι</string>
+    <string name="no">Όχι</string>
     <string name="no_active_packages">Δεν υπάρχουν ενεργά πακέτα</string>
     <string name="no_backup_found">Δεν βρέθηκε αντίγραφο ασφαλείας!</string>
     <string name="no_delivered_instructions">Επισημάνετε ένα πακέτο ως ολοκληρωμένο από τη σελίδα λεπτομερειών του</string>

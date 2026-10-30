@@ -29,6 +29,7 @@
 
     <color name="dialog_input_stroke">#40FFFFFF</color>
     <color name="dialog_text_button">@color/accent_blue</color>
+    <color name="dialog_surface">#383F48</color>
 
     <!-- Carrier banner under the details toolbar -->
     <color name="carrier_banner_background">@color/surface_search</color>
