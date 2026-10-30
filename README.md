@@ -18,8 +18,8 @@ Greek Package Tracker is an Android application designed to help users track the
 
 ## Features
 
-- **Multi-Carrier Support**: Track packages from 14 Greek carriers, plus e-shop.gr and Plaisio orders
-- **Automatic Carrier Detection**: Just enter the tracking number, the app finds the carrier
+- **Multi-Carrier Support**: Track packages from 16 Greek carriers, plus orders from several e-shops
+- **Automatic Carrier Detection**: Just enter the tracking number, the app finds the carrier, or choose it yourself
 - **Courier Hand-offs**: Follow a parcel across carriers in one timeline, e.g. ACS → Skroutz Last Mile or a Plaisio order → its courier
 - **Barcode Scanning**: Quickly add packages by scanning tracking codes
 - **Clipboard Detection**: Optionally offers to add a tracking number you copied
@@ -42,29 +42,32 @@ Greek Package Tracker is an Android application designed to help users track the
 | **Speedex** | [speedex.gr](https://www.speedex.gr/) |
 | **BoxNow** | [boxnow.gr](https://boxnow.gr/) |
 | **Skroutz Last Mile** | [skroutzlastmile.gr](https://www.skroutzlastmile.gr/) |
-| **Comet Hellas** | [comethellas.gr](https://www.comethellas.gr/) |
-| **Courier Center** | [courier.gr](https://www.courier.gr/) |
-| **Delatolas Courier** | [delatolascourier.gr](https://www.delatolascourier.gr/) |
 | **Easy Mail** | [easymail.gr](https://www.easymail.gr/) |
+| **Courier Center** | [courier.gr](https://www.courier.gr/) |
 | **Clever Point** | [cleverpoint.gr](https://www.cleverpoint.gr/) |
+| **Comet Hellas** | [comethellas.gr](https://www.comethellas.gr/) |
+| **Delatolas Courier** | [delatolascourier.gr](https://www.delatolascourier.gr/) |
 | **Diakinisis** | [diakinisis.gr](https://www.diakinisis.gr/) |
 | **Aiolos Courier** | [aioloscourier.gr](https://aioloscourier.gr/) |
+| **Biz Courier** | [bizcourier.eu](https://www.bizcourier.eu/) |
+| **Pack-Man Courier** | [pack-man.gr](https://pack-man.gr/) |
 
 ### Supported Stores
 
-Orders are tracked from the store until they are handed to a courier, whose updates are then shown in the same timeline.
+Orders are tracked with their order number on the store's own page. Plaisio orders then continue with the courier they are handed to, in the same timeline.
 
 | Store | Website |
 |-------|---------|
-| **e-shop.gr** | [e-shop.gr](https://www.e-shop.gr/) |
 | **Plaisio** | [plaisio.gr](https://www.plaisio.gr/) |
+| **IKEA** | [ikea.gr](https://www.ikea.gr/) |
+| **e-shop.gr** | [e-shop.gr](https://www.e-shop.gr/) |
 
 ## Technical Details
 
 - **Platform**: Android (API 24+)
 - **Language**: Java
 - **Architecture**: Native Android with SQLite database
-- **Libraries**: Jsoup, OkHttp, WorkManager, Google Mobile Vision (barcode scanning), OpenCSV (backups)
+- **Libraries**: Jsoup, OkHttp, WorkManager, Google Mobile Vision (barcode scanning)
 - **Minimum Android Version**: 7.0 (API 24)
 - **Target SDK**: 37 (Android 17)
 
@@ -86,7 +89,7 @@ Orders are tracked from the store until they are handed to a courier, whose upda
 ### Usage
 
 1. **Add a Package**: 
-   - Tap **New package** in the bottom bar and enter a tracking number, optionally with a name
+   - Tap **New package** in the bottom bar and enter a tracking number, optionally with a name and carrier
    - Or tap **Scan** in the same dialog to scan a barcode
    
 2. **Track Progress**: 
