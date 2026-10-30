@@ -36,7 +36,6 @@ public class PackageStatusTest {
         assertEquals(PackageStatus.DELIVERED, active("ΠΑΡΑΔΟΘΗΚΕ"));
         assertEquals(PackageStatus.DELIVERED, active("ΠΑΡΑΔΟΣΗ - ΠΑΤΡΑ"));
         assertEquals(PackageStatus.DELIVERED, active("Delivered"));
-        assertEquals(PackageStatus.DELIVERED, active("Παράδοση σε Skroutz Point"));
         assertEquals(PackageStatus.DELIVERED, active("ΠΑΡΑΔΟΜΕΝΟ"));
         assertEquals(PackageStatus.DELIVERED, active("Η παραγγελία σας ολοκληρώθηκε. Ευχαριστούμε για την προτίμηση."));
         assertEquals(PackageStatus.DELIVERED, active("Your order has been completed. Thank you for choosing us."));
@@ -50,6 +49,15 @@ public class PackageStatusTest {
         assertEquals(PackageStatus.OUT_FOR_DELIVERY, active("Το δέμα σας βρίσκεται στην θυρίδα"));
         assertEquals(PackageStatus.OUT_FOR_DELIVERY, active("Το δέμα έφτασε στο Clever Point"));
         assertEquals(PackageStatus.OUT_FOR_DELIVERY, active("Arrived at the Clever Point"));
+    }
+
+    @Test
+    public void skroutzPointStatuses() {
+        // Waiting in the locker for the customer, delivered only once they collect it
+        assertEquals(PackageStatus.OUT_FOR_DELIVERY, active("Παράδοση σε Skroutz Point"));
+        assertEquals(PackageStatus.OUT_FOR_DELIVERY, active("Shipment arrived at locker"));
+        assertEquals(PackageStatus.DELIVERED, active("Παραδόθηκε"));
+        assertEquals(PackageStatus.DELIVERED, active("Shipment was delivered"));
     }
 
     @Test

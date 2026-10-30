@@ -246,7 +246,6 @@
         <item>η παραγγελία σου έχει ήδη παραδοθεί</item>
         <item>παραδομένο</item>
         <item>παραδοση -</item>
-        <item>παραδοση σε skroutz point</item>
         <item>παραδοση αποστολης απο smart point</item>
         <item>ολοκλήρωση παράδοσης</item>
         <item>delivery completed</item>
@@ -273,6 +272,8 @@
         <item>εξοδος για παράδοση</item>
         <item>arrived at the clever point</item>
         <item>έφτασε στο clever point</item>
+        <item>arrived at locker</item>
+        <item>παράδοση σε skroutz point</item>
         <item>ready for pickup at</item>
         <item>σε περιμένει να την παραλάβεις</item>
         <item>loaded for delivery</item>
